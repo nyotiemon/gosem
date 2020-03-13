@@ -43,69 +43,41 @@ const (
 	TagDontCare           dataTag = 255
 )
 
-var dataTagMapString = map[string]dataTag{
-	"NULL_DATA":            TagNull,
-	"ARRAY":                TagArray,
-	"STRUCTURE":            TagStructure,
-	"BOOLEAN":              TagBoolean,
-	"BIT_STRING":           TagBitString,
-	"DOUBLE_LONG":          TagDoubleLong,
-	"DOUBLE_LONG_UNSIGNED": TagDoubleLongUnsigned,
-	"FLOATING_POINT":       TagFloatingPoint,
-	"OCTET_STRING":         TagOctetString,
-	"VISIBLE_STRING":       TagVisibleString,
-	"UTF8_STRING":          TagUTF8String,
-	"BCD":                  TagBCD,
-	"INTEGER":              TagInteger,
-	"LONG":                 TagLong,
-	"UNSIGNED":             TagUnsigned,
-	"LONG_UNSIGNED":        TagLongUnsigned,
-	"COMPACT_ARRAY":        TagCompactArray,
-	"LONG64":               TagLong64,
-	"LONG64_UNSIGNED":      TagLong64Unsigned,
-	"ENUM":                 TagEnum,
-	"FLOAT32":              TagFloat32,
-	"FLOAT64":              TagFloat64,
-	"DATE_TIME":            TagDateTime,
-	"DATE":                 TagDate,
-	"TIME":                 TagTime,
-	"DONT_CARE":            TagDontCare,
-}
-
-var dataTagMapInt = map[dataTag]string{
-	TagNull:               "NULL_DATA",
-	TagArray:              "ARRAY",
-	TagStructure:          "STRUCTURE",
-	TagBoolean:            "BOOLEAN",
-	TagBitString:          "BIT_STRING",
-	TagDoubleLong:         "DOUBLE_LONG",
-	TagDoubleLongUnsigned: "DOUBLE_LONG_UNSIGNED",
-	TagFloatingPoint:      "FLOATING_POINT",
-	TagOctetString:        "OCTET_STRING",
-	TagVisibleString:      "VISIBLE_STRING",
-	TagUTF8String:         "UTF8_STRING",
-	TagBCD:                "BCD",
-	TagInteger:            "INTEGER",
-	TagLong:               "LONG",
-	TagUnsigned:           "UNSIGNED",
-	TagLongUnsigned:       "LONG_UNSIGNED",
-	TagCompactArray:       "COMPACT_ARRAY",
-	TagLong64:             "LONG64",
-	TagLong64Unsigned:     "LONG64_UNSIGNED",
-	TagEnum:               "ENUM",
-	TagFloat32:            "FLOAT32",
-	TagFloat64:            "FLOAT64",
-	TagDateTime:           "DATE_TIME",
-	TagDate:               "DATE",
-	TagTime:               "TIME",
-	TagDontCare:           "DONT_CARE",
+var lengthAfterTag = map[dataTag]bool{
+	TagNull:               false,
+	TagArray:              true,
+	TagStructure:          true,
+	TagBoolean:            false,
+	TagBitString:          true,
+	TagDoubleLong:         false,
+	TagDoubleLongUnsigned: false,
+	TagFloatingPoint:      false,
+	TagOctetString:        true,
+	TagVisibleString:      true,
+	TagUTF8String:         true,
+	TagBCD:                false,
+	TagInteger:            false,
+	TagLong:               false,
+	TagUnsigned:           false,
+	TagLongUnsigned:       false,
+	TagCompactArray:       false,
+	TagLong64:             false,
+	TagLong64Unsigned:     false,
+	TagEnum:               false,
+	TagFloat32:            false,
+	TagFloat64:            false,
+	TagDateTime:           false,
+	TagDate:               false,
+	TagTime:               false,
+	TagDontCare:           false,
 }
 
 type DlmsData struct {
-	Tag      dataTag
-	Value    interface{}
-	rawValue []byte
-	raw      bytes.Buffer
+	Tag       dataTag
+	Value     interface{}
+	rawLength []byte
+	rawValue  []byte
+	raw       bytes.Buffer
 }
 
 // Encodes Value of DlmsData object according to the Tag
@@ -133,11 +105,11 @@ func (d *DlmsData) Encode() []byte {
 		rawValue, _ := EncodeArray(data)
 		d.rawValue = rawValue
 
-		dl, errLength := EncodeLength(len(data))
-		if errLength != nil {
+		if dl, errLength := EncodeLength(len(data)); errLength != nil {
 			panic(errLength)
+		} else {
+			dataLength = dl
 		}
-		dataLength = dl
 
 	case TagStructure:
 		// what's the difference between array & structure?
@@ -148,11 +120,11 @@ func (d *DlmsData) Encode() []byte {
 		rawValue, _ := EncodeArray(data)
 		d.rawValue = rawValue
 
-		dl, errLength := EncodeLength(len(data))
-		if errLength != nil {
+		if dl, errLength := EncodeLength(len(data)); errLength != nil {
 			panic(errLength)
+		} else {
+			dataLength = dl
 		}
-		dataLength = dl
 
 	case TagBoolean:
 		data, ok := d.Value.(bool)
@@ -174,13 +146,13 @@ func (d *DlmsData) Encode() []byte {
 			d.rawValue = rv
 		}
 
-		dl, errLength := EncodeLength(len(data))
 		// length of bitstring is count by bits, not bytes
 		// length of "1110" is 4, not 1
-		if errLength != nil {
+		if dl, errLength := EncodeLength(len(data)); errLength != nil {
 			panic(errLength)
+		} else {
+			dataLength = dl
 		}
-		dataLength = dl
 
 	case TagDoubleLong:
 		data, ok := d.Value.(int)
@@ -406,6 +378,7 @@ func (d *DlmsData) Encode() []byte {
 	d.raw.Reset()
 	d.raw.WriteByte(byte(d.Tag))
 	if len(dataLength) > 0 {
+		d.rawLength = dataLength
 		d.raw.Write(dataLength)
 	}
 	d.raw.Write(d.rawValue)
@@ -422,4 +395,10 @@ func (d *DlmsData) Raw() []byte {
 // raw value does not include Tag and Length
 func (d *DlmsData) RawValue() []byte {
 	return d.rawValue
+}
+
+// Return bytes of raw length if Encode() has been called before
+// raw length does not include Tag and Value
+func (d *DlmsData) RawLength() []byte {
+	return d.rawLength
 }
