@@ -652,3 +652,38 @@ func TestDlmsData_Array(t *testing.T) {
 		t.Errorf("t2 failed. val: %d", encoded)
 	}
 }
+
+func TestDecodeLength(t *testing.T) {
+
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint64
+	}{
+		{[]byte{2, 1, 2, 3}, []byte{2}, 2},
+		{[]byte{131, 1, 0, 0, 1, 2, 3}, []byte{131, 1, 0, 0}, 65536},
+		{[]byte{136, 255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{136, 255, 255, 255, 255, 255, 255, 255, 255}, 18446744073709551615},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLength(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %d, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %d, should:%v", idx, val, table.val)
+		}
+		// compare reminder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %d, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
