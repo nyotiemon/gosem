@@ -350,7 +350,7 @@ func EncodeDateTime(data time.Time) ([]byte, error) {
 	output[5] = byte(data.Hour())
 	output[6] = byte(data.Minute())
 	output[7] = byte(data.Second())
-	output[8] = 0xff
+	output[8] = byte(data.Nanosecond())
 	output[9] = 0x00
 	output[10] = 0x00
 	output[11] = 0x00
