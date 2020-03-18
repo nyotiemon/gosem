@@ -242,18 +242,18 @@ func decodeBoolean(src *[]byte) (outByte []byte, outVal bool, err error) {
 }
 
 func decodeBitString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
-	if uint64(len(*src)) < length {
+	byteLength := int(math.Ceil(float64(length) / 8))
+	if len(*src) < byteLength {
 		err = ErrLengthLess
 		return
 	}
-	byteLength := int(math.Ceil(float64(length) / 8))
 	outByte = (*src)[:byteLength]
 
 	var r strings.Builder
 	for _, b := range outByte {
 		r.WriteString(fmt.Sprintf("%08b", b))
 	}
-	outVal = r.String()
+	outVal = (r.String())[:length]
 	(*src) = (*src)[byteLength:]
 
 	return

@@ -679,10 +679,65 @@ func TestDecodeLength(t *testing.T) {
 		if !sameValue {
 			t.Errorf("combination %v failed. Value get: %d, should:%v", idx, val, table.val)
 		}
-		// compare reminder bytes of src
+		// compare remainder bytes of src
 		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
 		if sameReminder != 0 {
 			t.Errorf("combination %v failed. Reminder get: %d, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeBoolean(t *testing.T) {
+	src := []byte{255, 1, 2, 3}
+	bt, val, err := decodeBoolean(&src)
+	if err != nil {
+		t.Errorf("t1 failed. got an error:%v", err)
+	}
+	sameByte := bytes.Compare(bt, []byte{255})
+	if sameByte != 0 {
+		t.Errorf("t1 failed. val: %d", sameByte)
+	}
+	sameValue := (val == true)
+	if !sameValue {
+		t.Errorf("t1 failed. Value get: %v", val)
+	}
+	sameReminder := bytes.Compare(src, []byte{1, 2, 3})
+	if sameReminder != 0 {
+		t.Errorf("t1 failed. Reminder get: %d, should:[1, 2, 3]", src)
+	}
+}
+
+func TestDecodeBitString(t *testing.T) {
+
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val string
+	}{
+		{[]byte{248, 1, 2, 3}, []byte{248}, "11111000"},
+		{[]byte{15, 240, 255, 1, 85, 1, 2, 3}, []byte{15, 240, 255, 1, 85}, "0000111111110000111111110000000101010101"},
+		{[]byte{15, 240, 255, 1, 85, 128, 1, 2, 3}, []byte{15, 240, 255, 1, 85, 128}, "00001111111100001111111100000001010101011"},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeBitString(&table.src, uint64(len(table.val)))
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
 
