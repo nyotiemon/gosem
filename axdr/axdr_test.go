@@ -1036,3 +1036,69 @@ func TestDecodeLongUnsigned(t *testing.T) {
 	}
 
 }
+
+func TestDecodeLong64(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val int64
+	}{
+		{[]byte{127, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{127, 255, 255, 255, 255, 255, 255, 255}, 1<<63 - 1},
+		{[]byte{128, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3}, []byte{128, 0, 0, 0, 0, 0, 0, 0}, -1 << 63},
+		{[]byte{255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255, 255, 255, 255, 255}, -1},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLong64(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeLong64Unsigned(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint64
+	}{
+		{[]byte{255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255, 255, 255, 255, 255}, 1<<64 - 1},
+		{[]byte{0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3}, []byte{0, 0, 0, 0, 0, 0, 0, 0}, 0},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLong64Unsigned(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
