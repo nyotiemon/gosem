@@ -2,6 +2,8 @@ package axdr
 
 import (
 	"bytes"
+	"encoding/hex"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -647,6 +649,8 @@ func TestDlmsData_Array(t *testing.T) {
 	}
 }
 
+// ---------- decoding tests
+
 func TestDecodeLength(t *testing.T) {
 	tables := []struct {
 		src []byte
@@ -1262,5 +1266,52 @@ func TestDecodeDateTime(t *testing.T) {
 		if sameReminder != 0 {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
+	}
+}
+
+func TestDecoder1(t *testing.T) {
+	d1 := DlmsData{Tag: TagLongUnsigned, Value: uint16(60226)}
+	d2 := DlmsData{Tag: TagDateTime, Value: time.Date(2020, time.March, 16, 0, 0, 0, 255, time.UTC)}
+	d3 := DlmsData{Tag: TagBitString, Value: "0"}
+	d4 := DlmsData{Tag: TagDoubleLongUnsigned, Value: uint32(33426304)}
+	d5 := DlmsData{Tag: TagLongUnsigned, Value: uint16(3105)}
+	// da := DlmsData{Tag: TagArray, Value: DlmsData{Tag: TagStructure, Value: []DlmsData{d1, d2, d3, d4, d5}}}
+	str := "0101020512EB421907E40310FF000000FF8000000401000601FE0B80120C21"
+
+	src, _ := hex.DecodeString(str)
+	tag, err1 := CheckTag(&src)
+	if err1 != nil {
+		t.Errorf("got error on checking tag:%v", err1)
+	}
+
+	dec := NewDecoder(tag)
+	t1, err2 := dec.Decode(&src)
+	if err2 != nil {
+		t.Errorf("got an error when decoding:%v", err2)
+	}
+	if t1.Tag != TagArray {
+		t.Errorf("First level should be TagArray, received: %v", reflect.TypeOf(t1.Tag).Kind())
+	}
+
+	t2 := t1.Value.([]DlmsData)[0]
+	if t2.Tag != TagStructure {
+		t.Errorf("Second level should be TagStructure, received: %v", reflect.TypeOf(t2.Tag).Kind())
+	}
+
+	t3 := t2.Value.([]DlmsData)
+	if t3[0].Value != d1.Value {
+		t.Errorf("should be same as d1 %v, received: %v", d1.Value, t3[0].Value)
+	}
+	if t3[1].Value != d2.Value {
+		t.Errorf("should be same as d2 %v, received: %v", d2.Value, t3[1].Value)
+	}
+	if t3[2].Value != d3.Value {
+		t.Errorf("should be same as d3 %v, received: %v", d3.Value, t3[2].Value)
+	}
+	if t3[3].Value != d4.Value {
+		t.Errorf("should be same as d4 %v, received: %v", d4.Value, t3[3].Value)
+	}
+	if t3[4].Value != d5.Value {
+		t.Errorf("should be same as d5 %v, received: %v", d5.Value, t3[4].Value)
 	}
 }

@@ -76,6 +76,17 @@ var (
 	}
 )
 
+func CheckTag(src *[]byte) (t dataTag, err error) {
+	if len((*src)) < 1 {
+		err = ErrLengthLess
+		return
+	}
+	t, _ = mapToDataTag[uint8((*src)[0])]
+	(*src) = (*src)[1:]
+
+	return
+}
+
 func NewDecoder(dt dataTag) *Decoder {
 	return &Decoder{tag: dt}
 }
@@ -101,32 +112,32 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 
 	case TagArray:
 		output := make([]DlmsData, lengthInt)
-		for i := 0; i <= int(lengthInt); i++ {
-			thisDataTag, _ := mapToDataTag[uint8((*src)[0])]
-			(*src) = (*src)[1:]
+		for i := 0; i < int(lengthInt); i++ {
+			thisDataTag, _ := CheckTag(src)
 			thisDecoder := NewDecoder(thisDataTag)
 			thisDlmsData, thisError := thisDecoder.Decode(src)
 			if thisError != nil {
 				err = thisError
 				return
 			}
-			output = append(output, thisDlmsData)
+			output[i] = thisDlmsData
 		}
+		value = output
 
 	case TagStructure:
 		// same same as structure
 		output := make([]DlmsData, lengthInt)
-		for i := 0; i <= int(lengthInt); i++ {
-			thisDataTag, _ := mapToDataTag[uint8((*src)[0])]
-			(*src) = (*src)[1:]
+		for i := 0; i < int(lengthInt); i++ {
+			thisDataTag, _ := CheckTag(src)
 			thisDecoder := NewDecoder(thisDataTag)
 			thisDlmsData, thisError := thisDecoder.Decode(src)
 			if thisError != nil {
 				err = thisError
 				return
 			}
-			output = append(output, thisDlmsData)
+			output[i] = thisDlmsData
 		}
+		value = output
 
 	case TagBoolean:
 		rawValue, value, err = decodeBoolean(src)
@@ -460,6 +471,7 @@ func decodeDate(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 	year := int(binary.BigEndian.Uint16(outByte[0:2]))
 	month := int(outByte[2])
 	day := int(outByte[3])
+	// weekday := int(outByte[4])
 
 	outVal = time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 
