@@ -318,7 +318,7 @@ func EncodeTime(data time.Time) ([]byte, error) {
 	output[0] = byte(data.Hour())
 	output[1] = byte(data.Minute())
 	output[2] = byte(data.Second())
-	output[3] = 0xff
+	output[3] = byte(data.Nanosecond())
 
 	return output, nil
 }

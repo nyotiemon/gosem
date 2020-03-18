@@ -466,14 +466,14 @@ func TestEncodeDate(t *testing.T) {
 }
 
 func TestEncodeTime(t *testing.T) {
-	dt := time.Date(2020, time.January, 1, 10, 0, 0, 0, time.UTC)
+	dt := time.Date(2020, time.January, 1, 10, 0, 0, 255, time.UTC)
 	ts, err := EncodeTime(dt)
 	res := bytes.Compare(ts, []byte{10, 0, 0, 255})
 	if res != 0 || err != nil {
 		t.Errorf("t1 failed. val: %d, err:%v", ts, err)
 	}
 
-	dt = time.Date(2020, time.January, 1, 23, 59, 59, 0, time.UTC)
+	dt = time.Date(2020, time.January, 1, 23, 59, 59, 255, time.UTC)
 	ts, err = EncodeTime(dt)
 	res = bytes.Compare(ts, []byte{23, 59, 59, 255})
 	if res != 0 || err != nil {
@@ -482,14 +482,14 @@ func TestEncodeTime(t *testing.T) {
 }
 
 func TestEncodeDateTime(t *testing.T) {
-	dt := time.Date(20000, time.December, 30, 23, 59, 59, 0, time.UTC)
+	dt := time.Date(20000, time.December, 30, 23, 59, 59, 255, time.UTC)
 	ts, err := EncodeDateTime(dt)
 	res := bytes.Compare(ts, []byte{78, 32, 12, 30, 6, 23, 59, 59, 255, 0, 0, 0})
 	if res != 0 || err != nil {
 		t.Errorf("t1 failed. val: %d, err:%v", ts, err)
 	}
 
-	dt = time.Date(1500, time.January, 1, 0, 0, 0, 0, time.UTC)
+	dt = time.Date(1500, time.January, 1, 0, 0, 0, 255, time.UTC)
 	ts, err = EncodeDateTime(dt)
 	res = bytes.Compare(ts, []byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0})
 	if res != 0 || err != nil {
@@ -1148,6 +1148,102 @@ func TestDecodeFloat64(t *testing.T) {
 	}
 	for idx, table := range tables {
 		bt, val, err := decodeFloat64(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeDate(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val time.Time
+	}{
+		{[]byte{7, 217, 11, 10, 2, 1, 2, 3}, []byte{7, 217, 11, 10, 2}, time.Date(2009, time.November, 10, 0, 0, 0, 0, time.UTC)},
+		{[]byte{5, 220, 1, 1, 1, 1, 2, 3}, []byte{5, 220, 1, 1, 1}, time.Date(1500, time.January, 1, 0, 0, 0, 0, time.UTC)},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeDate(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeTime(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val time.Time
+	}{
+		{[]byte{10, 0, 0, 255, 1, 2, 3}, []byte{10, 0, 0, 255}, time.Date(0, time.January, 1, 10, 0, 0, 255, time.UTC)},
+		{[]byte{23, 59, 59, 255, 1, 2, 3}, []byte{23, 59, 59, 255}, time.Date(0, time.January, 1, 23, 59, 59, 255, time.UTC)},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeTime(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeDateTime(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val time.Time
+	}{
+		{[]byte{78, 32, 12, 30, 6, 23, 59, 59, 255, 0, 0, 0, 1, 2, 3}, []byte{78, 32, 12, 30, 6, 23, 59, 59, 255, 0, 0, 0}, time.Date(20000, time.December, 30, 23, 59, 59, 255, time.UTC)},
+		{[]byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0, 1, 2, 3}, []byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0}, time.Date(1500, time.January, 1, 0, 0, 0, 255, time.UTC)},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeDateTime(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
