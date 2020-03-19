@@ -2,6 +2,8 @@ package axdr
 
 import (
 	"bytes"
+	"encoding/hex"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -190,12 +192,6 @@ func TestEncodeOctetString(t *testing.T) {
 	res := bytes.Compare(ts, []byte{65, 66, 67, 68})
 	if res != 0 || err != nil {
 		t.Errorf("t1 failed. val: %d, err:%v", ts, err)
-	}
-
-	ts, err = EncodeOctetString("A1 -")
-	res = bytes.Compare(ts, []byte{65, 49, 32, 45})
-	if res != 0 || err != nil {
-		t.Errorf("t2 failed. val: %d, err:%v", ts, err)
 	}
 
 	ts, err = EncodeOctetString("A1 -")
@@ -472,14 +468,14 @@ func TestEncodeDate(t *testing.T) {
 }
 
 func TestEncodeTime(t *testing.T) {
-	dt := time.Date(2020, time.January, 1, 10, 0, 0, 0, time.UTC)
+	dt := time.Date(2020, time.January, 1, 10, 0, 0, 255, time.UTC)
 	ts, err := EncodeTime(dt)
 	res := bytes.Compare(ts, []byte{10, 0, 0, 255})
 	if res != 0 || err != nil {
 		t.Errorf("t1 failed. val: %d, err:%v", ts, err)
 	}
 
-	dt = time.Date(2020, time.January, 1, 23, 59, 59, 0, time.UTC)
+	dt = time.Date(2020, time.January, 1, 23, 59, 59, 255, time.UTC)
 	ts, err = EncodeTime(dt)
 	res = bytes.Compare(ts, []byte{23, 59, 59, 255})
 	if res != 0 || err != nil {
@@ -488,14 +484,14 @@ func TestEncodeTime(t *testing.T) {
 }
 
 func TestEncodeDateTime(t *testing.T) {
-	dt := time.Date(20000, time.December, 30, 23, 59, 59, 0, time.UTC)
+	dt := time.Date(20000, time.December, 30, 23, 59, 59, 255, time.UTC)
 	ts, err := EncodeDateTime(dt)
 	res := bytes.Compare(ts, []byte{78, 32, 12, 30, 6, 23, 59, 59, 255, 0, 0, 0})
 	if res != 0 || err != nil {
 		t.Errorf("t1 failed. val: %d, err:%v", ts, err)
 	}
 
-	dt = time.Date(1500, time.January, 1, 0, 0, 0, 0, time.UTC)
+	dt = time.Date(1500, time.January, 1, 0, 0, 0, 255, time.UTC)
 	ts, err = EncodeDateTime(dt)
 	res = bytes.Compare(ts, []byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0})
 	if res != 0 || err != nil {
@@ -650,5 +646,672 @@ func TestDlmsData_Array(t *testing.T) {
 	res = bytes.Compare(encoded, []byte{byte(TagArray), 2, byte(TagBoolean), 255, byte(TagBoolean), 0})
 	if res != 0 {
 		t.Errorf("t2 failed. val: %d", encoded)
+	}
+}
+
+// ---------- decoding tests
+
+func TestDecodeLength(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint64
+	}{
+		{[]byte{2, 1, 2, 3}, []byte{2}, 2},
+		{[]byte{131, 1, 0, 0, 1, 2, 3}, []byte{131, 1, 0, 0}, 65536},
+		{[]byte{136, 255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{136, 255, 255, 255, 255, 255, 255, 255, 255}, 18446744073709551615},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLength(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %d, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %d, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %d, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeBoolean(t *testing.T) {
+	src := []byte{255, 1, 2, 3}
+	bt, val, err := decodeBoolean(&src)
+	if err != nil {
+		t.Errorf("t1 failed. got an error:%v", err)
+	}
+	sameByte := bytes.Compare(bt, []byte{255})
+	if sameByte != 0 {
+		t.Errorf("t1 failed. val: %d", sameByte)
+	}
+	sameValue := (val == true)
+	if !sameValue {
+		t.Errorf("t1 failed. Value get: %v", val)
+	}
+	sameReminder := bytes.Compare(src, []byte{1, 2, 3})
+	if sameReminder != 0 {
+		t.Errorf("t1 failed. Reminder get: %d, should:[1, 2, 3]", src)
+	}
+}
+
+func TestDecodeBitString(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val string
+	}{
+		{[]byte{248, 1, 2, 3}, []byte{248}, "11111000"},
+		{[]byte{15, 240, 255, 1, 85, 1, 2, 3}, []byte{15, 240, 255, 1, 85}, "0000111111110000111111110000000101010101"},
+		{[]byte{15, 240, 255, 1, 85, 128, 1, 2, 3}, []byte{15, 240, 255, 1, 85, 128}, "00001111111100001111111100000001010101011"},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeBitString(&table.src, uint64(len(table.val)))
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeDoubleLong(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val int32
+	}{
+		{[]byte{255, 255, 255, 231, 1, 2, 3}, []byte{255, 255, 255, 231}, -25},
+		{[]byte{127, 255, 255, 255, 1, 2, 3}, []byte{127, 255, 255, 255}, 2147483647},
+		{[]byte{128, 0, 0, 1, 1, 2, 3}, []byte{128, 0, 0, 1}, -2147483647},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeDoubleLong(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeDoubleLongUnsigned(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint32
+	}{
+		{[]byte{0, 0, 0, 255, 1, 2, 3}, []byte{0, 0, 0, 255}, 255},
+		{[]byte{0, 0, 255, 255, 1, 2, 3}, []byte{0, 0, 255, 255}, 65535},
+		{[]byte{255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255}, 4294967295},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeDoubleLongUnsigned(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeOctetString(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val string
+	}{
+		{[]byte{65, 66, 67, 68, 1, 2, 3}, []byte{65, 66, 67, 68}, "ABCD"},
+		{[]byte{65, 49, 32, 45, 1, 2, 3}, []byte{65, 49, 32, 45}, "A1 -"},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeOctetString(&table.src, uint64(len(table.val)))
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeVisibleString(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val string
+	}{
+		{[]byte{65, 66, 67, 68, 1, 2, 3}, []byte{65, 66, 67, 68}, "ABCD"},
+		{[]byte{123, 125, 91, 93, 40, 41, 33, 59, 1, 2, 3}, []byte{123, 125, 91, 93, 40, 41, 33, 59}, "{}[]()!;"},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeVisibleString(&table.src, uint64(len(table.val)))
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeUTF8String(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val string
+	}{
+		{[]byte{65, 66, 67, 68, 1, 2, 3}, []byte{65, 66, 67, 68}, "ABCD"},
+		{[]byte{97, 209, 132, 225, 144, 131, 240, 157, 149, 171, 1, 2, 3}, []byte{97, 209, 132, 225, 144, 131, 240, 157, 149, 171}, "aфᐃ𝕫"},
+		{[]byte{230, 136, 145, 230, 132, 155, 228, 189, 160, 1, 2, 3}, []byte{230, 136, 145, 230, 132, 155, 228, 189, 160}, "我愛你"},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeUTF8String(&table.src, uint64(len(table.val)))
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeBCD(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val int8
+	}{
+		{[]byte{127, 1, 2, 3}, []byte{127}, 127},
+		{[]byte{255, 1, 2, 3}, []byte{255}, -1},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeBCD(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+// decodeInteger == decodeBCD == decodeEnum
+
+func TestDecodeLong(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val int16
+	}{
+		{[]byte{127, 255, 1, 2, 3}, []byte{127, 255}, 1<<15 - 1},
+		{[]byte{128, 0, 1, 2, 3}, []byte{128, 0}, -1 << 15},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLong(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeUnsigned(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint8
+	}{
+		{[]byte{255, 1, 2, 3}, []byte{255}, 255},
+		{[]byte{0, 1, 2, 3}, []byte{0}, 0},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeUnsigned(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeLongUnsigned(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint16
+	}{
+		{[]byte{255, 255, 1, 2, 3}, []byte{255, 255}, 1<<16 - 1},
+		{[]byte{0, 0, 1, 2, 3}, []byte{0, 0}, 0},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLongUnsigned(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeLong64(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val int64
+	}{
+		{[]byte{127, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{127, 255, 255, 255, 255, 255, 255, 255}, 1<<63 - 1},
+		{[]byte{128, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3}, []byte{128, 0, 0, 0, 0, 0, 0, 0}, -1 << 63},
+		{[]byte{255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255, 255, 255, 255, 255}, -1},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLong64(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeLong64Unsigned(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val uint64
+	}{
+		{[]byte{255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255, 255, 255, 255, 255}, 1<<64 - 1},
+		{[]byte{0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3}, []byte{0, 0, 0, 0, 0, 0, 0, 0}, 0},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeLong64Unsigned(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+
+}
+
+func TestDecodeFloat32(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val float32
+	}{
+		{[]byte{64, 72, 245, 195, 1, 2, 3}, []byte{64, 72, 245, 195}, 3.14},
+		{[]byte{79, 128, 0, 0, 1, 2, 3}, []byte{79, 128, 0, 0}, 4294967295},
+		{[]byte{192, 72, 245, 195, 1, 2, 3}, []byte{192, 72, 245, 195}, -3.14},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeFloat32(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeFloat64(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val float64
+	}{
+		{[]byte{64, 9, 30, 184, 81, 235, 133, 31, 1, 2, 3}, []byte{64, 9, 30, 184, 81, 235, 133, 31}, 3.14},
+		{[]byte{64, 9, 33, 251, 84, 65, 23, 68, 1, 2, 3}, []byte{64, 9, 33, 251, 84, 65, 23, 68}, 3.1415926535},
+		{[]byte{65, 239, 255, 255, 255, 224, 0, 0, 1, 2, 3}, []byte{65, 239, 255, 255, 255, 224, 0, 0}, 4294967295},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeFloat64(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeDate(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val time.Time
+	}{
+		{[]byte{7, 217, 11, 10, 2, 1, 2, 3}, []byte{7, 217, 11, 10, 2}, time.Date(2009, time.November, 10, 0, 0, 0, 0, time.UTC)},
+		{[]byte{5, 220, 1, 1, 1, 1, 2, 3}, []byte{5, 220, 1, 1, 1}, time.Date(1500, time.January, 1, 0, 0, 0, 0, time.UTC)},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeDate(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeTime(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val time.Time
+	}{
+		{[]byte{10, 0, 0, 255, 1, 2, 3}, []byte{10, 0, 0, 255}, time.Date(0, time.January, 1, 10, 0, 0, 255, time.UTC)},
+		{[]byte{23, 59, 59, 255, 1, 2, 3}, []byte{23, 59, 59, 255}, time.Date(0, time.January, 1, 23, 59, 59, 255, time.UTC)},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeTime(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecodeDateTime(t *testing.T) {
+	tables := []struct {
+		src []byte
+		bt  []byte
+		val time.Time
+	}{
+		{[]byte{78, 32, 12, 30, 6, 23, 59, 59, 255, 0, 0, 0, 1, 2, 3}, []byte{78, 32, 12, 30, 6, 23, 59, 59, 255, 0, 0, 0}, time.Date(20000, time.December, 30, 23, 59, 59, 255, time.UTC)},
+		{[]byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0, 1, 2, 3}, []byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0}, time.Date(1500, time.January, 1, 0, 0, 0, 255, time.UTC)},
+	}
+	for idx, table := range tables {
+		bt, val, err := decodeDateTime(&table.src)
+		if err != nil {
+			t.Errorf("combination %v failed. got an error:%v", idx, err)
+		}
+		// compare length byte
+		sameByte := bytes.Compare(table.bt, bt)
+		if sameByte != 0 {
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+		}
+		// compare length value
+		sameValue := (table.val == val)
+		if !sameValue {
+			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
+		}
+		// compare remainder bytes of src
+		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})
+		if sameReminder != 0 {
+			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
+		}
+	}
+}
+
+func TestDecoder1(t *testing.T) {
+	d1 := DlmsData{Tag: TagLongUnsigned, Value: uint16(60226)}
+	d2 := DlmsData{Tag: TagDateTime, Value: time.Date(2020, time.March, 16, 0, 0, 0, 255, time.UTC)}
+	d3 := DlmsData{Tag: TagBitString, Value: "0"}
+	d4 := DlmsData{Tag: TagDoubleLongUnsigned, Value: uint32(33426304)}
+	d5 := DlmsData{Tag: TagLongUnsigned, Value: uint16(3105)}
+	// da := DlmsData{Tag: TagArray, Value: DlmsData{Tag: TagStructure, Value: []DlmsData{d1, d2, d3, d4, d5}}}
+	str := "0101020512EB421907E40310FF000000FF8000000401000601FE0B80120C21"
+
+	src, _ := hex.DecodeString(str)
+	tag, err1 := CheckTag(&src)
+	if err1 != nil {
+		t.Errorf("got error on checking tag:%v", err1)
+	}
+
+	dec := NewDecoder(tag)
+	t1, err2 := dec.Decode(&src)
+	if err2 != nil {
+		t.Errorf("got an error when decoding:%v", err2)
+	}
+	if t1.Tag != TagArray {
+		t.Errorf("First level should be TagArray, received: %v", reflect.TypeOf(t1.Tag).Kind())
+	}
+
+	t2 := t1.Value.([]DlmsData)[0]
+	if t2.Tag != TagStructure {
+		t.Errorf("Second level should be TagStructure, received: %v", reflect.TypeOf(t2.Tag).Kind())
+	}
+
+	t3 := t2.Value.([]DlmsData)
+	if t3[0].Value != d1.Value {
+		t.Errorf("should be same as d1 %v, received: %v", d1.Value, t3[0].Value)
+	}
+	if t3[1].Value != d2.Value {
+		t.Errorf("should be same as d2 %v, received: %v", d2.Value, t3[1].Value)
+	}
+	if t3[2].Value != d3.Value {
+		t.Errorf("should be same as d3 %v, received: %v", d3.Value, t3[2].Value)
+	}
+	if t3[3].Value != d4.Value {
+		t.Errorf("should be same as d4 %v, received: %v", d4.Value, t3[3].Value)
+	}
+	if t3[4].Value != d5.Value {
+		t.Errorf("should be same as d5 %v, received: %v", d5.Value, t3[4].Value)
 	}
 }

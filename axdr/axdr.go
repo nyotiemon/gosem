@@ -43,35 +43,6 @@ const (
 	TagDontCare           dataTag = 255
 )
 
-var lengthAfterTag = map[dataTag]bool{
-	TagNull:               false,
-	TagArray:              true,
-	TagStructure:          true,
-	TagBoolean:            false,
-	TagBitString:          true,
-	TagDoubleLong:         false,
-	TagDoubleLongUnsigned: false,
-	TagFloatingPoint:      false,
-	TagOctetString:        true,
-	TagVisibleString:      true,
-	TagUTF8String:         true,
-	TagBCD:                false,
-	TagInteger:            false,
-	TagLong:               false,
-	TagUnsigned:           false,
-	TagLongUnsigned:       false,
-	TagCompactArray:       false,
-	TagLong64:             false,
-	TagLong64Unsigned:     false,
-	TagEnum:               false,
-	TagFloat32:            false,
-	TagFloat64:            false,
-	TagDateTime:           false,
-	TagDate:               false,
-	TagTime:               false,
-	TagDontCare:           false,
-}
-
 type DlmsData struct {
 	Tag       dataTag
 	Value     interface{}
