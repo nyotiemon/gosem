@@ -87,7 +87,7 @@ func EncodeLength(data_length interface{}) ([]byte, error) {
 		}
 		if i == len(true_length)-1 && val == 0x00 {
 			true_length = true_length[i:]
-	}
+		}
 	}
 
 	if len(true_length) == 1 {
@@ -172,8 +172,24 @@ func EncodeDoubleLongUnsigned(data uint32) ([]byte, error) {
 }
 
 // An ordered sequence of octets (8 bit bytes)
+// Obis / Logical Name is en/decoded using TagOctetString
 func EncodeOctetString(data string) ([]byte, error) {
-	return []byte(data), nil
+	// Try to split with dots. if it can, and length is
+	// exactly 6, then string is Obis code
+	s := strings.Split(data, ".")
+	if len(s) != 6 {
+		return []byte(data), nil
+	}
+	bv := make([]byte, 6)
+	for i, v := range s {
+		bt, ok := strconv.ParseUint(v, 10, 8)
+		if ok != nil {
+			panic(ok)
+		}
+		bv[i] = uint8(bt)
+	}
+
+	return bv, nil
 }
 
 // An ordered sequence of ASCII characters

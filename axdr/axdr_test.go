@@ -201,6 +201,12 @@ func TestEncodeOctetString(t *testing.T) {
 		t.Errorf("t2 failed. val: %d, err:%v", ts, err)
 	}
 
+	ts, err = EncodeOctetString("1.0.0.3.0.255")
+	res = bytes.Compare(ts, []byte{1, 0, 0, 3, 0, 255})
+	if res != 0 || err != nil {
+		t.Errorf("t3 failed. val: %d, err:%v", ts, err)
+	}
+
 }
 
 func TestEncodeVisibleString(t *testing.T) {
