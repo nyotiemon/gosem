@@ -9,6 +9,7 @@ package axdr
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -51,17 +52,111 @@ type DlmsData struct {
 	raw       bytes.Buffer
 }
 
+func CreateAxdrArray(data []DlmsData) *DlmsData {
+	return &DlmsData{Tag: TagArray, Value: data}
+}
+
+func CreateAxdrStructure(data []DlmsData) *DlmsData {
+	return &DlmsData{Tag: TagStructure, Value: data}
+}
+
+func CreateAxdrBoolean(data bool) *DlmsData {
+	return &DlmsData{Tag: TagBoolean, Value: data}
+}
+
+func CreateAxdrBitString(data string) *DlmsData {
+	data = strings.ReplaceAll(data, " ", "")
+	if len(strings.Trim(data, "01")) > 0 {
+		panic("Data must be a string of binary, example: 11100000")
+	}
+	return &DlmsData{Tag: TagBitString, Value: data}
+}
+
+func CreateAxdrDoubleLong(data int) *DlmsData {
+	return &DlmsData{Tag: TagDoubleLong, Value: data}
+}
+
+func CreateAxdrDoubleLongUnsigned(data uint32) *DlmsData {
+	return &DlmsData{Tag: TagDoubleLong, Value: data}
+}
+
+func CreateAxdrFloatingPoint(data float32) *DlmsData {
+	return &DlmsData{Tag: TagFloatingPoint, Value: data}
+}
+
+func CreateAxdrOctetString(data string) *DlmsData {
+	return &DlmsData{Tag: TagOctetString, Value: data}
+}
+
+func CreateAxdrVisibleString(data string) *DlmsData {
+	return &DlmsData{Tag: TagVisibleString, Value: data}
+}
+
+func CreateAxdrUTF8String(data string) *DlmsData {
+	return &DlmsData{Tag: TagUTF8String, Value: data}
+}
+
+func CreateAxdrBCD(data int8) *DlmsData {
+	return &DlmsData{Tag: TagBCD, Value: data}
+}
+
+func CreateAxdrInteger(data int8) *DlmsData {
+	return &DlmsData{Tag: TagInteger, Value: data}
+}
+
+func CreateAxdrLong(data int16) *DlmsData {
+	return &DlmsData{Tag: TagLong, Value: data}
+}
+
+func CreateAxdrUnsigned(data uint8) *DlmsData {
+	return &DlmsData{Tag: TagUnsigned, Value: data}
+}
+
+func CreateAxdrLongUnsigned(data uint16) *DlmsData {
+	return &DlmsData{Tag: TagLongUnsigned, Value: data}
+}
+
+func CreateAxdrLong64(data uint8) *DlmsData {
+	return &DlmsData{Tag: TagLong64, Value: data}
+}
+
+func CreateAxdrLong64Unsigned(data uint8) *DlmsData {
+	return &DlmsData{Tag: TagLong64Unsigned, Value: data}
+}
+
+func CreateAxdrEnum(data uint8) *DlmsData {
+	return &DlmsData{Tag: TagEnum, Value: data}
+}
+
+func CreateAxdrFloat32(data float32) *DlmsData {
+	return &DlmsData{Tag: TagFloat32, Value: data}
+}
+
+func CreateAxdrFloat64(data float64) *DlmsData {
+	return &DlmsData{Tag: TagFloat64, Value: data}
+}
+
+func CreateAxdrDateTime(data time.Time) *DlmsData {
+	return &DlmsData{Tag: TagDateTime, Value: data}
+}
+
+func CreateAxdrDate(data time.Time) *DlmsData {
+	return &DlmsData{Tag: TagDate, Value: data}
+}
+
+func CreateAxdrTime(data time.Time) *DlmsData {
+	return &DlmsData{Tag: TagTime, Value: data}
+}
+
 // Encodes Value of DlmsData object according to the Tag
 // It will panic if Value is nil, data type does not match
 // the Tag or if failed happen in encoding length/value level.
 func (d *DlmsData) Encode() []byte {
-
 	if d.Value == nil {
 		panic("Value to encode cannot be nil")
 	}
 
 	errDataType := fmt.Errorf("Cannot encode value %v with tag %T", d.Value, d.Tag)
-
 	var dataLength []byte
 
 	switch d.Tag {
