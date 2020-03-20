@@ -49,32 +49,32 @@ func EncodeLength(data_length interface{}) ([]byte, error) {
 	var true_length []byte
 	if data_type == reflect.Int {
 		value := data_length.(int)
-		if value < 1 {
-			return output, fmt.Errorf("%v value cannot be less than 1", value)
+		if value < 0 {
+			return output, fmt.Errorf("%v value cannot be negative", value)
 		}
 		true_length = make([]byte, 4)
 		binary.BigEndian.PutUint32(true_length, uint32(value))
 
 	} else if data_type == reflect.Int64 {
 		value := data_length.(int64)
-		if value < 1 {
-			return output, fmt.Errorf("%v value cannot be less than 1", value)
+		if value < 0 {
+			return output, fmt.Errorf("%v value cannot be negative", value)
 		}
 		true_length = make([]byte, 8)
 		binary.BigEndian.PutUint64(true_length, uint64(value))
 
 	} else if data_type == reflect.Uint {
 		value := data_length.(uint)
-		if value < 1 {
-			return output, fmt.Errorf("%v value cannot be less than 1", value)
+		if value < 0 {
+			return output, fmt.Errorf("%v value cannot be negative", value)
 		}
 		true_length = make([]byte, 8)
 		binary.BigEndian.PutUint64(true_length, uint64(value))
 
 	} else if data_type == reflect.Uint64 {
 		value := data_length.(uint64)
-		if value < 1 {
-			return output, fmt.Errorf("%v value cannot be less than 1", value)
+		if value < 0 {
+			return output, fmt.Errorf("%v value cannot be negative", value)
 		}
 		true_length = make([]byte, 8)
 		binary.BigEndian.PutUint64(true_length, value)
@@ -85,6 +85,9 @@ func EncodeLength(data_length interface{}) ([]byte, error) {
 			true_length = true_length[i:]
 			break
 		}
+		if i == len(true_length)-1 && val == 0x00 {
+			true_length = true_length[i:]
+	}
 	}
 
 	if len(true_length) == 1 {
