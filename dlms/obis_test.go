@@ -21,4 +21,12 @@ func TestObis(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t2 Failed to convert string obis to byte. get: %d, should:%v", u.Bytes(), i.Bytes())
 	}
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Should've panic on wrong Value")
+		}
+	}()
+	var w Obis
+	w.Set("hahaha")
 }
