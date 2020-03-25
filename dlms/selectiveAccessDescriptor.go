@@ -38,6 +38,8 @@ func CreateSelectiveAccessDescriptor(as accesSelector, ap interface{}) *Selectiv
 	} else {
 		// make sure AccessParameter is a [2]uint32
 		entries := ap.([]uint32)
+		// selector enty should be of:
+		// structure {fromEntry, toEntry, fromSelectedValue, toSelectedValue}
 		var fromEntry DlmsData = *CreateAxdrDoubleLongUnsigned(entries[0])
 		var toEntry DlmsData = *CreateAxdrDoubleLongUnsigned(entries[1])
 		var fromSelectedValue DlmsData = *CreateAxdrLongUnsigned(0)

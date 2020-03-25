@@ -20,7 +20,7 @@ func (ad *AttributeDescriptorWithSelection) Encode() []byte {
 	var c [2]byte
 	binary.BigEndian.PutUint16(c[:], ad.ClassId)
 	output = append(output, c[:]...)
-	output = append(output, ad.InstanceId.ByteValue[:]...)
+	output = append(output, ad.InstanceId.Bytes()...)
 	output = append(output, byte(ad.AttributeId))
 	output = append(output, ad.AccessDescriptor.Encode()[:]...)
 
