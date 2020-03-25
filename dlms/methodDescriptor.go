@@ -3,15 +3,15 @@ package cosem
 import "encoding/binary"
 
 type MethodDescriptor struct {
-	ClassId     uint16
-	InstanceId  Obis
-	AttributeId int8
+	ClassId    uint16
+	InstanceId Obis
+	MethodId   int8
 }
 
 func CreateMethodDescriptor(c uint16, i string, a int8) *MethodDescriptor {
 	var ob Obis = *CreateObis(i)
 
-	return &MethodDescriptor{ClassId: c, InstanceId: ob, AttributeId: a}
+	return &MethodDescriptor{ClassId: c, InstanceId: ob, MethodId: a}
 }
 
 func (ad *MethodDescriptor) Encode() []byte {
@@ -20,7 +20,7 @@ func (ad *MethodDescriptor) Encode() []byte {
 	binary.BigEndian.PutUint16(c[:], ad.ClassId)
 	output = append(output, c[:]...)
 	output = append(output, ad.InstanceId.Bytes()...)
-	output = append(output, byte(ad.AttributeId))
+	output = append(output, byte(ad.MethodId))
 
 	return output
 }
