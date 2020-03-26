@@ -29,10 +29,10 @@ func CreateSelectiveAccessDescriptor(as accesSelector, ap interface{}) *Selectiv
 		var dataIdx DlmsData = *CreateAxdrLongUnsigned(0)
 		var rangeStart DlmsData = *CreateAxdrDateTime(ranges[0])
 		var rangeEnd DlmsData = *CreateAxdrDateTime(ranges[1])
-		var selectedValue DlmsData = *CreateAxdrArray([]DlmsData{})
+		var selectedValue DlmsData = *CreateAxdrArray([]*DlmsData{})
 
-		var restrictingObject DlmsData = *CreateAxdrStructure([]DlmsData{classId, obisCode, attributeId, dataIdx})
-		var rangeDescriptor DlmsData = *CreateAxdrStructure([]DlmsData{restrictingObject, rangeStart, rangeEnd, selectedValue})
+		var restrictingObject DlmsData = *CreateAxdrStructure([]*DlmsData{&classId, &obisCode, &attributeId, &dataIdx})
+		var rangeDescriptor DlmsData = *CreateAxdrStructure([]*DlmsData{&restrictingObject, &rangeStart, &rangeEnd, &selectedValue})
 
 		return &SelectiveAccessDescriptor{AccessSelector: as, AccessParameter: rangeDescriptor}
 	} else {
@@ -45,7 +45,7 @@ func CreateSelectiveAccessDescriptor(as accesSelector, ap interface{}) *Selectiv
 		var fromSelectedValue DlmsData = *CreateAxdrLongUnsigned(0)
 		var toSelectedValue DlmsData = *CreateAxdrLongUnsigned(0)
 
-		var entryDescriptor DlmsData = *CreateAxdrStructure([]DlmsData{fromEntry, toEntry, fromSelectedValue, toSelectedValue})
+		var entryDescriptor DlmsData = *CreateAxdrStructure([]*DlmsData{&fromEntry, &toEntry, &fromSelectedValue, &toSelectedValue})
 		return &SelectiveAccessDescriptor{AccessSelector: as, AccessParameter: entryDescriptor}
 	}
 }
