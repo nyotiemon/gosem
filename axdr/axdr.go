@@ -52,11 +52,11 @@ type DlmsData struct {
 	raw       bytes.Buffer
 }
 
-func CreateAxdrArray(data []DlmsData) *DlmsData {
+func CreateAxdrArray(data []*DlmsData) *DlmsData {
 	return &DlmsData{Tag: TagArray, Value: data}
 }
 
-func CreateAxdrStructure(data []DlmsData) *DlmsData {
+func CreateAxdrStructure(data []*DlmsData) *DlmsData {
 	return &DlmsData{Tag: TagStructure, Value: data}
 }
 
@@ -77,7 +77,7 @@ func CreateAxdrDoubleLong(data int) *DlmsData {
 }
 
 func CreateAxdrDoubleLongUnsigned(data uint32) *DlmsData {
-	return &DlmsData{Tag: TagDoubleLong, Value: data}
+	return &DlmsData{Tag: TagDoubleLongUnsigned, Value: data}
 }
 
 func CreateAxdrFloatingPoint(data float32) *DlmsData {
@@ -156,7 +156,7 @@ func (d *DlmsData) Encode() []byte {
 		panic("Value to encode cannot be nil")
 	}
 
-	errDataType := fmt.Errorf("Cannot encode value %v with tag %T", d.Value, d.Tag)
+	errDataType := fmt.Errorf("Cannot encode value %v with tag %v", d.Value, d.Tag)
 	var dataLength []byte
 
 	switch d.Tag {
@@ -183,7 +183,7 @@ func (d *DlmsData) Encode() []byte {
 		if !ok {
 			panic(errDataType)
 		}
-		rawValue, _ := EncodeArray(data)
+		rawValue, _ := EncodeStructure(data)
 		d.rawValue = rawValue
 
 		if dl, errLength := EncodeLength(len(data)); errLength != nil {
