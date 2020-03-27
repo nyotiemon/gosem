@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -189,22 +190,16 @@ func TestEncodeDoubleLongUnsigned(t *testing.T) {
 }
 
 func TestEncodeOctetString(t *testing.T) {
-	ts, err := EncodeOctetString("ABCD")
-	res := bytes.Compare(ts, []byte{65, 66, 67, 68})
+	ts, err := EncodeOctetString("07D20C04030A060BFF007800")
+	res := bytes.Compare(ts, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
 	if res != 0 || err != nil {
 		t.Errorf("t1 failed. val: %d, err:%v", ts, err)
-	}
-
-	ts, err = EncodeOctetString("A1 -")
-	res = bytes.Compare(ts, []byte{65, 49, 32, 45})
-	if res != 0 || err != nil {
-		t.Errorf("t2 failed. val: %d, err:%v", ts, err)
 	}
 
 	ts, err = EncodeOctetString("1.0.0.3.0.255")
 	res = bytes.Compare(ts, []byte{1, 0, 0, 3, 0, 255})
 	if res != 0 || err != nil {
-		t.Errorf("t3 failed. val: %d, err:%v", ts, err)
+		t.Errorf("t2 failed. val: %d, err:%v", ts, err)
 	}
 
 }
@@ -824,26 +819,27 @@ func TestDecodeDoubleLongUnsigned(t *testing.T) {
 func TestDecodeOctetString(t *testing.T) {
 	tables := []struct {
 		src []byte
-		bt  []byte
+		lt  uint64
 		val string
 	}{
-		{[]byte{65, 66, 67, 68, 1, 2, 3}, []byte{65, 66, 67, 68}, "ABCD"},
-		{[]byte{65, 49, 32, 45, 1, 2, 3}, []byte{65, 49, 32, 45}, "A1 -"},
+		{[]byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0, 1, 2, 3}, 12, "07D20C04030A060BFF007800"},
+		{[]byte{1, 0, 0, 3, 0, 255, 1, 2, 3}, 6, "0100000300FF"},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeOctetString(&table.src, uint64(len(table.val)))
+		answer := table.src[:table.lt]
+		bt, val, err := decodeOctetString(&table.src, table.lt)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
 		// compare length byte
-		sameByte := bytes.Compare(table.bt, bt)
+		sameByte := bytes.Compare(answer, bt)
 		if sameByte != 0 {
-			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
+			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, answer)
 		}
 		// compare length value
-		sameValue := (table.val == val)
+		sameValue := (table.val == strings.ToUpper(val))
 		if !sameValue {
-			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, val, table.val)
+			t.Errorf("combination %v failed. Value get: %s, should:%v", idx, strings.ToUpper(val), table.val)
 		}
 		// compare remainder bytes of src
 		sameReminder := bytes.Compare(table.src, []byte{1, 2, 3})

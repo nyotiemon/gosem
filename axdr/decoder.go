@@ -2,6 +2,7 @@ package axdr
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"math"
@@ -307,7 +308,7 @@ func decodeOctetString(src *[]byte, length uint64) (outByte []byte, outVal strin
 		return
 	}
 	outByte = (*src)[:length]
-	outVal = string(outByte)
+	outVal = hex.EncodeToString(outByte)
 	(*src) = (*src)[length:]
 	return
 }

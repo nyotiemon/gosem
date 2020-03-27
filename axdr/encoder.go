@@ -3,6 +3,7 @@ package axdr
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"math"
 	"reflect"
@@ -173,23 +174,25 @@ func EncodeDoubleLongUnsigned(data uint32) ([]byte, error) {
 
 // An ordered sequence of octets (8 bit bytes)
 // Obis / Logical Name is en/decoded using TagOctetString
+// other than that, input will be processed as hexstring
 func EncodeOctetString(data string) ([]byte, error) {
 	// Try to split with dots. if it can, and length is
 	// exactly 6, then string is Obis code
 	s := strings.Split(data, ".")
-	if len(s) != 6 {
-		return []byte(data), nil
-	}
-	bv := make([]byte, 6)
-	for i, v := range s {
-		bt, ok := strconv.ParseUint(v, 10, 8)
-		if ok != nil {
-			panic(ok)
+	if len(s) == 6 {
+		bv := make([]byte, 6)
+		for i, v := range s {
+			bt, ok := strconv.ParseUint(v, 10, 8)
+			if ok != nil {
+				return nil, fmt.Errorf("Failed to parse input as byte for Obis")
+			}
+			bv[i] = uint8(bt)
 		}
-		bv[i] = uint8(bt)
+
+		return bv, nil
 	}
 
-	return bv, nil
+	return hex.DecodeString(data)
 }
 
 // An ordered sequence of ASCII characters

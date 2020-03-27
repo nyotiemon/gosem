@@ -84,14 +84,17 @@ func CreateAxdrFloatingPoint(data float32) *DlmsData {
 	return &DlmsData{Tag: TagFloatingPoint, Value: data}
 }
 
+// expect Hex string as input
 func CreateAxdrOctetString(data string) *DlmsData {
 	return &DlmsData{Tag: TagOctetString, Value: data}
 }
 
+// expect ASCII strings as input
 func CreateAxdrVisibleString(data string) *DlmsData {
 	return &DlmsData{Tag: TagVisibleString, Value: data}
 }
 
+// expect UTF-8 strings as input
 func CreateAxdrUTF8String(data string) *DlmsData {
 	return &DlmsData{Tag: TagUTF8String, Value: data}
 }
@@ -268,7 +271,7 @@ func (d *DlmsData) Encode() []byte {
 			panic(errDataType)
 		}
 
-		if rv, errEncoding := EncodeOctetString(data); errEncoding != nil {
+		if rv, errEncoding := EncodeVisibleString(data); errEncoding != nil {
 			panic(errEncoding)
 		} else {
 			d.rawValue = rv
@@ -286,7 +289,7 @@ func (d *DlmsData) Encode() []byte {
 			panic(errDataType)
 		}
 
-		if rv, errEncoding := EncodeOctetString(data); errEncoding != nil {
+		if rv, errEncoding := EncodeUTF8String(data); errEncoding != nil {
 			panic(errEncoding)
 		} else {
 			d.rawValue = rv
