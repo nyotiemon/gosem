@@ -6,6 +6,17 @@ import (
 	"testing"
 )
 
+func TestAccessResult(t *testing.T) {
+	t1 := TagAccSuccess
+	if "success" != t1.String() {
+		t.Errorf("t1 should return string with value 'success'")
+	}
+	t2 := TagAccObjectUnavailable
+	if "object-unavailable" != t2.String() {
+		t.Errorf("t1 should return string with value 'success'")
+	}
+}
+
 func TestGetDataResultAsResult(t *testing.T) {
 	var a GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
 
@@ -33,7 +44,7 @@ func TestGetDataResultAsData(t *testing.T) {
 
 func TestGetDataResult(t *testing.T) {
 	rs := TagAccSuccess
-	var a GetDataResult = *CreateGetDataResult(false, rs)
+	var a GetDataResult = *CreateGetDataResult(rs)
 
 	t1 := a.Encode()
 	result := []byte{0, 0}
@@ -43,7 +54,7 @@ func TestGetDataResult(t *testing.T) {
 	}
 
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
-	var b GetDataResult = *CreateGetDataResult(true, dt)
+	var b GetDataResult = *CreateGetDataResult(dt)
 	t2 := b.Encode()
 	result = []byte{1, 5, 0, 0, 0, 69}
 
@@ -57,17 +68,6 @@ func TestGetDataResult(t *testing.T) {
 			t.Errorf("t3 should've panic on wrong Value")
 		}
 	}()
-	var c GetDataResult = *CreateGetDataResult(false, 999)
+	var c GetDataResult = *CreateGetDataResult(999)
 	c.Encode()
-}
-
-func TestAccessResult(t *testing.T) {
-	t1 := TagAccSuccess
-	if "success" != t1.String() {
-		t.Errorf("t1 should return string with value 'success'")
-	}
-	t2 := TagAccObjectUnavailable
-	if "object-unavailable" != t2.String() {
-		t.Errorf("t1 should return string with value 'success'")
-	}
 }
