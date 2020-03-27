@@ -143,3 +143,32 @@ func TestDataBlockG(t *testing.T) {
 		t.Errorf("t3 Failed. get: %d, should:%v", t3, result)
 	}
 }
+
+func TestDataBlockSA(t *testing.T) {
+	var a DataBlockSA = *CreateDataBlockSA(true, 1, "07D20C04030A060BFF007800")
+
+	t1 := a.Encode()
+	result := []byte{1, 0, 0, 0, 1, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+
+	res := bytes.Compare(t1, result)
+	if res != 0 {
+		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
+	}
+
+	var b DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 0, 0, 3, 0, 255})
+	t2 := b.Encode()
+	result = []byte{1, 0, 0, 0, 1, 1, 0, 0, 3, 0, 255}
+
+	res = bytes.Compare(t2, result)
+	if res != 0 {
+		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
+	}
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("t3 should've panic on wrong Value")
+		}
+	}()
+	var c DataBlockSA = *CreateDataBlockSA(true, 1, TagAccSuccess)
+	c.Encode()
+}

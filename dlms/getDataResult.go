@@ -122,3 +122,45 @@ func (dt *DataBlockG) Encode() []byte {
 
 	return output.Bytes()
 }
+
+type DataBlockSA struct {
+	LastBlock   bool
+	BlockNumber uint32
+	Raw         []byte
+}
+
+func CreateDataBlockSA(lastBlock bool, blockNum uint32, result interface{}) *DataBlockSA {
+	switch res := result.(type) {
+	case string:
+		bt, e := hex.DecodeString(res)
+		if e != nil {
+			panic(e)
+		}
+		return &DataBlockSA{lastBlock, blockNum, bt}
+
+	case []byte:
+		return &DataBlockSA{lastBlock, blockNum, res}
+
+	default:
+		panic("DataBlockSA result only accept hexstring or byte slice.")
+	}
+}
+
+func (dt *DataBlockSA) Encode() []byte {
+	var output bytes.Buffer
+
+	if dt.LastBlock {
+		output.WriteByte(0x1)
+	} else {
+		output.WriteByte(0x0)
+	}
+
+	blk, e := EncodeDoubleLongUnsigned(dt.BlockNumber)
+	if e != nil {
+		panic(e)
+	}
+	output.Write(blk)
+	output.Write(dt.Raw)
+
+	return output.Bytes()
+}
