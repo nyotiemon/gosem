@@ -123,6 +123,7 @@ func (dt *DataBlockG) Encode() []byte {
 	return output.Bytes()
 }
 
+// DataBlockSA is DataBlock for the SET-request, ACTION-request and ACTION-response
 type DataBlockSA struct {
 	LastBlock   bool
 	BlockNumber uint32
@@ -161,6 +162,32 @@ func (dt *DataBlockSA) Encode() []byte {
 	}
 	output.Write(blk)
 	output.Write(dt.Raw)
+
+	return output.Bytes()
+}
+
+// Response of ActionRequest. ReturnParam is optional parameter therefore pointer
+type ActionResponseWithOptData struct {
+	Result      actionResultTag
+	ReturnParam *GetDataResult
+}
+
+func CreateActionResponseWithOptData(result actionResultTag, returnParam *GetDataResult) *ActionResponseWithOptData {
+
+	return &ActionResponseWithOptData{Result: result, ReturnParam: returnParam}
+}
+
+func (dt *ActionResponseWithOptData) Encode() []byte {
+	var output bytes.Buffer
+
+	output.WriteByte(byte(dt.Result))
+
+	if dt.ReturnParam == nil {
+		output.WriteByte(0x0)
+	} else {
+		output.WriteByte(0x1)
+		output.Write(dt.ReturnParam.Encode())
+	}
 
 	return output.Bytes()
 }

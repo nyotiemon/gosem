@@ -172,3 +172,27 @@ func TestDataBlockSA(t *testing.T) {
 	var c DataBlockSA = *CreateDataBlockSA(true, 1, TagAccSuccess)
 	c.Encode()
 }
+
+func TestActionResponseWithOptData(t *testing.T) {
+	var dt DlmsData = *CreateAxdrDoubleLong(69)
+	var ret GetDataResult = *CreateGetDataResultAsData(dt)
+	var a ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret)
+
+	t1 := a.Encode()
+	result := []byte{0, 1, 1, 5, 0, 0, 0, 69}
+
+	res := bytes.Compare(t1, result)
+	if res != 0 {
+		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
+	}
+
+	var nilRet *GetDataResult = nil
+	var b ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActReadWriteDenied, nilRet)
+	t2 := b.Encode()
+	result = []byte{3, 0}
+
+	res = bytes.Compare(t2, result)
+	if res != 0 {
+		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
+	}
+}
