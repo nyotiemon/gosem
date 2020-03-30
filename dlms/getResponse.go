@@ -12,6 +12,12 @@ const (
 	TagGetResponseWithList      getResponseTag = 0x3
 )
 
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s getResponseTag) Value() uint8 {
+	return uint8(s)
+}
+
 // GetResponse implement CosemI
 type GetResponse struct{}
 

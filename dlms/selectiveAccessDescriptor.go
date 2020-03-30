@@ -12,6 +12,12 @@ const (
 	AccessSelectorEntry accesSelector = 0x2
 )
 
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s accesSelector) Value() uint8 {
+	return uint8(s)
+}
+
 type SelectiveAccessDescriptor struct {
 	AccessSelector  accesSelector
 	AccessParameter DlmsData

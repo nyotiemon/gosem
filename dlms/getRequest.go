@@ -13,6 +13,12 @@ const (
 	TagGetRequestWithList getRequestTag = 0x3
 )
 
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s getRequestTag) Value() uint8 {
+	return uint8(s)
+}
+
 // GetRequest implement CosemI
 type GetRequest struct{}
 
