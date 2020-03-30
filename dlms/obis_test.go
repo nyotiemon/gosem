@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestObis(t *testing.T) {
+func TestEncodeObis(t *testing.T) {
 	i := Obis{stringValue: "1.0.0.3.0.255", byteValue: [6]byte{1, 0, 0, 3, 0, 255}}
 	var o Obis = *CreateObis("1.0.0.3.0.255")
 
@@ -29,4 +29,17 @@ func TestObis(t *testing.T) {
 	}()
 	var w Obis
 	w.Set("hahaha")
+}
+
+func TestDecodeObis(t *testing.T) {
+	src := []byte{1, 0, 0, 3, 0, 255, 1, 2, 3}
+	ob, e := DecodeObis(&src)
+	var o Obis = *CreateObis("1.0.0.3.0.255")
+
+	if e != nil {
+		t.Errorf("t1 failed with err: %v", e)
+	}
+	if o != ob {
+		t.Errorf("t1 failed. get: %d, should:%v", ob.Bytes(), o.Bytes())
+	}
 }
