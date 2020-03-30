@@ -1,6 +1,10 @@
 package cosem
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+	"fmt"
+	. "gosem/axdr"
+)
 
 type AttributeDescriptor struct {
 	ClassId     uint16
@@ -23,4 +27,28 @@ func (ad *AttributeDescriptor) Encode() []byte {
 	output = append(output, byte(ad.AttributeId))
 
 	return output
+}
+
+func DecodeAttributeDescriptor(src *[]byte) (out AttributeDescriptor, err error) {
+	if len(*src) < 9 {
+		err = fmt.Errorf("Byte slice length must be at least 9 bytes")
+		return
+	}
+
+	_, classId, eClass := DecodeLongUnsigned(src)
+	if eClass != nil {
+		err = eClass
+		return
+	}
+	obis, errObis := DecodeObis(src)
+	if errObis != nil {
+		err = errObis
+		return
+	}
+	attribId := int8((*src)[0])
+	(*src) = (*src)[1:]
+
+	out = AttributeDescriptor{classId, obis, attribId}
+
+	return
 }
