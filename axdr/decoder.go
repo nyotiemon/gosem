@@ -98,7 +98,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	var lengthByte []byte
 	var lengthInt uint64 = 0
 	if haveLength {
-		lengthByte, lengthInt, err = decodeLength(src)
+		lengthByte, lengthInt, err = DecodeLength(src)
 		if err != nil {
 			return
 		}
@@ -141,49 +141,49 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 		value = output
 
 	case TagBoolean:
-		rawValue, value, err = decodeBoolean(src)
+		rawValue, value, err = DecodeBoolean(src)
 	case TagBitString:
-		rawValue, value, err = decodeBitString(src, lengthInt)
+		rawValue, value, err = DecodeBitString(src, lengthInt)
 	case TagDoubleLong:
-		rawValue, value, err = decodeDoubleLong(src)
+		rawValue, value, err = DecodeDoubleLong(src)
 	case TagDoubleLongUnsigned:
-		rawValue, value, err = decodeDoubleLongUnsigned(src)
+		rawValue, value, err = DecodeDoubleLongUnsigned(src)
 	case TagFloatingPoint:
-		rawValue, value, err = decodeFloat32(src)
+		rawValue, value, err = DecodeFloat32(src)
 	case TagOctetString:
-		rawValue, value, err = decodeOctetString(src, lengthInt)
+		rawValue, value, err = DecodeOctetString(src, lengthInt)
 	case TagVisibleString:
-		rawValue, value, err = decodeVisibleString(src, lengthInt)
+		rawValue, value, err = DecodeVisibleString(src, lengthInt)
 	case TagUTF8String:
-		rawValue, value, err = decodeUTF8String(src, lengthInt)
+		rawValue, value, err = DecodeUTF8String(src, lengthInt)
 	case TagBCD:
-		rawValue, value, err = decodeBCD(src)
+		rawValue, value, err = DecodeBCD(src)
 	case TagInteger:
-		rawValue, value, err = decodeInteger(src)
+		rawValue, value, err = DecodeInteger(src)
 	case TagLong:
-		rawValue, value, err = decodeLong(src)
+		rawValue, value, err = DecodeLong(src)
 	case TagUnsigned:
-		rawValue, value, err = decodeUnsigned(src)
+		rawValue, value, err = DecodeUnsigned(src)
 	case TagLongUnsigned:
-		rawValue, value, err = decodeLongUnsigned(src)
+		rawValue, value, err = DecodeLongUnsigned(src)
 	case TagCompactArray:
 		panic("Not yet implemented")
 	case TagLong64:
-		rawValue, value, err = decodeLong64(src)
+		rawValue, value, err = DecodeLong64(src)
 	case TagLong64Unsigned:
-		rawValue, value, err = decodeLong64Unsigned(src)
+		rawValue, value, err = DecodeLong64Unsigned(src)
 	case TagEnum:
-		rawValue, value, err = decodeEnum(src)
+		rawValue, value, err = DecodeEnum(src)
 	case TagFloat32:
-		rawValue, value, err = decodeFloat32(src)
+		rawValue, value, err = DecodeFloat32(src)
 	case TagFloat64:
-		rawValue, value, err = decodeFloat64(src)
+		rawValue, value, err = DecodeFloat64(src)
 	case TagDateTime:
-		rawValue, value, err = decodeDateTime(src)
+		rawValue, value, err = DecodeDateTime(src)
 	case TagDate:
-		rawValue, value, err = decodeDate(src)
+		rawValue, value, err = DecodeDate(src)
 	case TagTime:
-		rawValue, value, err = decodeTime(src)
+		rawValue, value, err = DecodeTime(src)
 	case TagDontCare:
 		panic("Not yet implemented")
 	}
@@ -203,7 +203,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	return
 }
 
-func decodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
+func DecodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 	if (*src)[0] > byte(128) {
 		lOfLength := int((*src)[0]) - 128     // L-of-length part
 		realLength := (*src)[1 : lOfLength+1] // real length part
@@ -216,7 +216,7 @@ func decodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 		buf := []byte{0, 0, 0, 0, 0, 0, 0, 0}
 
 		if len(realLength) > 8 {
-			err = fmt.Errorf("Length value is bigger than uint64 max value. This decoder is limited to uint64")
+			err = fmt.Errorf("Length value is bigger than uint64 max value. This Decoder is limited to uint64")
 		} else {
 			bufStart := 7
 			outStart := len(realLength) - 1
@@ -238,7 +238,7 @@ func decodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 	return
 }
 
-func decodeBoolean(src *[]byte) (outByte []byte, outVal bool, err error) {
+func DecodeBoolean(src *[]byte) (outByte []byte, outVal bool, err error) {
 	if len(*src) < 1 {
 		err = ErrLengthLess
 		return
@@ -253,7 +253,7 @@ func decodeBoolean(src *[]byte) (outByte []byte, outVal bool, err error) {
 	return
 }
 
-func decodeBitString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
+func DecodeBitString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
 	byteLength := int(math.Ceil(float64(length) / 8))
 	if len(*src) < byteLength {
 		err = ErrLengthLess
@@ -271,7 +271,7 @@ func decodeBitString(src *[]byte, length uint64) (outByte []byte, outVal string,
 	return
 }
 
-func decodeDoubleLong(src *[]byte) (outByte []byte, outVal int32, err error) {
+func DecodeDoubleLong(src *[]byte) (outByte []byte, outVal int32, err error) {
 	if len(*src) < 4 {
 		err = ErrLengthLess
 		return
@@ -288,7 +288,7 @@ func decodeDoubleLong(src *[]byte) (outByte []byte, outVal int32, err error) {
 	return
 }
 
-func decodeDoubleLongUnsigned(src *[]byte) (outByte []byte, outVal uint32, err error) {
+func DecodeDoubleLongUnsigned(src *[]byte) (outByte []byte, outVal uint32, err error) {
 	if len(*src) < 4 {
 		err = ErrLengthLess
 		return
@@ -302,7 +302,7 @@ func decodeDoubleLongUnsigned(src *[]byte) (outByte []byte, outVal uint32, err e
 	return
 }
 
-func decodeOctetString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
+func DecodeOctetString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
 	if uint64(len(*src)) < length {
 		err = ErrLengthLess
 		return
@@ -313,7 +313,7 @@ func decodeOctetString(src *[]byte, length uint64) (outByte []byte, outVal strin
 	return
 }
 
-func decodeVisibleString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
+func DecodeVisibleString(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
 	if uint64(len(*src)) < length {
 		err = ErrLengthLess
 		return
@@ -324,7 +324,7 @@ func decodeVisibleString(src *[]byte, length uint64) (outByte []byte, outVal str
 	return
 }
 
-func decodeUTF8String(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
+func DecodeUTF8String(src *[]byte, length uint64) (outByte []byte, outVal string, err error) {
 	if uint64(len(*src)) < length {
 		err = ErrLengthLess
 		return
@@ -346,21 +346,21 @@ func decodeUTF8String(src *[]byte, length uint64) (outByte []byte, outVal string
 	return
 }
 
-func decodeBCD(src *[]byte) (outByte []byte, outVal int8, err error) {
+func DecodeBCD(src *[]byte) (outByte []byte, outVal int8, err error) {
 	outByte = (*src)[:1]
 	outVal = int8(outByte[0])
 	(*src) = (*src)[1:]
 	return
 }
 
-func decodeInteger(src *[]byte) (outByte []byte, outVal int8, err error) {
+func DecodeInteger(src *[]byte) (outByte []byte, outVal int8, err error) {
 	outByte = (*src)[:1]
 	outVal = int8(outByte[0])
 	(*src) = (*src)[1:]
 	return
 }
 
-func decodeLong(src *[]byte) (outByte []byte, outVal int16, err error) {
+func DecodeLong(src *[]byte) (outByte []byte, outVal int16, err error) {
 	if len(*src) < 2 {
 		err = ErrLengthLess
 		return
@@ -372,14 +372,14 @@ func decodeLong(src *[]byte) (outByte []byte, outVal int16, err error) {
 	return
 }
 
-func decodeUnsigned(src *[]byte) (outByte []byte, outVal uint8, err error) {
+func DecodeUnsigned(src *[]byte) (outByte []byte, outVal uint8, err error) {
 	outByte = (*src)[:1]
 	outVal = uint8(outByte[0])
 	(*src) = (*src)[1:]
 	return
 }
 
-func decodeLongUnsigned(src *[]byte) (outByte []byte, outVal uint16, err error) {
+func DecodeLongUnsigned(src *[]byte) (outByte []byte, outVal uint16, err error) {
 	if len(*src) < 2 {
 		err = ErrLengthLess
 		return
@@ -391,7 +391,7 @@ func decodeLongUnsigned(src *[]byte) (outByte []byte, outVal uint16, err error) 
 	return
 }
 
-func decodeLong64(src *[]byte) (outByte []byte, outVal int64, err error) {
+func DecodeLong64(src *[]byte) (outByte []byte, outVal int64, err error) {
 	if len(*src) < 8 {
 		err = ErrLengthLess
 		return
@@ -409,7 +409,7 @@ func decodeLong64(src *[]byte) (outByte []byte, outVal int64, err error) {
 	return
 }
 
-func decodeLong64Unsigned(src *[]byte) (outByte []byte, outVal uint64, err error) {
+func DecodeLong64Unsigned(src *[]byte) (outByte []byte, outVal uint64, err error) {
 	if len(*src) < 8 {
 		err = ErrLengthLess
 		return
@@ -427,14 +427,14 @@ func decodeLong64Unsigned(src *[]byte) (outByte []byte, outVal uint64, err error
 	return
 }
 
-func decodeEnum(src *[]byte) (outByte []byte, outVal uint8, err error) {
+func DecodeEnum(src *[]byte) (outByte []byte, outVal uint8, err error) {
 	outByte = (*src)[:1]
 	outVal = uint8(outByte[0])
 	(*src) = (*src)[1:]
 	return
 }
 
-func decodeFloat32(src *[]byte) (outByte []byte, outVal float32, err error) {
+func DecodeFloat32(src *[]byte) (outByte []byte, outVal float32, err error) {
 	if len(*src) < 4 {
 		err = ErrLengthLess
 		return
@@ -445,7 +445,7 @@ func decodeFloat32(src *[]byte) (outByte []byte, outVal float32, err error) {
 	return
 }
 
-func decodeFloat64(src *[]byte) (outByte []byte, outVal float64, err error) {
+func DecodeFloat64(src *[]byte) (outByte []byte, outVal float64, err error) {
 	if len(*src) < 8 {
 		err = ErrLengthLess
 		return
@@ -462,7 +462,7 @@ func decodeFloat64(src *[]byte) (outByte []byte, outVal float64, err error) {
 // month,
 // day of month,
 // day of week
-func decodeDate(src *[]byte) (outByte []byte, outVal time.Time, err error) {
+func DecodeDate(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 	if len(*src) < 5 {
 		err = ErrLengthLess
 		return
@@ -485,7 +485,7 @@ func decodeDate(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 // minute,
 // second,
 // hundredths
-func decodeTime(src *[]byte) (outByte []byte, outVal time.Time, err error) {
+func DecodeTime(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 	if len(*src) < 4 {
 		err = ErrLengthLess
 		return
@@ -516,7 +516,7 @@ func decodeTime(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 // deviation highbyte, -- interpreted as long in minutes of local time of UTC
 // deviation lowbyte,
 // clock status -- 0x00 means ok, 0xFF means not specified
-func decodeDateTime(src *[]byte) (outByte []byte, outVal time.Time, err error) {
+func DecodeDateTime(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 	if len(*src) < 12 {
 		err = ErrLengthLess
 		return

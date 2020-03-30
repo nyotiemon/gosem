@@ -671,7 +671,7 @@ func TestDecodeLength(t *testing.T) {
 		{[]byte{136, 255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{136, 255, 255, 255, 255, 255, 255, 255, 255}, 18446744073709551615},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeLength(&table.src)
+		bt, val, err := DecodeLength(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -696,7 +696,7 @@ func TestDecodeLength(t *testing.T) {
 
 func TestDecodeBoolean(t *testing.T) {
 	src := []byte{255, 1, 2, 3}
-	bt, val, err := decodeBoolean(&src)
+	bt, val, err := DecodeBoolean(&src)
 	if err != nil {
 		t.Errorf("t1 failed. got an error:%v", err)
 	}
@@ -725,7 +725,7 @@ func TestDecodeBitString(t *testing.T) {
 		{[]byte{15, 240, 255, 1, 85, 128, 1, 2, 3}, []byte{15, 240, 255, 1, 85, 128}, "00001111111100001111111100000001010101011"},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeBitString(&table.src, uint64(len(table.val)))
+		bt, val, err := DecodeBitString(&table.src, uint64(len(table.val)))
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -759,7 +759,7 @@ func TestDecodeDoubleLong(t *testing.T) {
 		{[]byte{128, 0, 0, 1, 1, 2, 3}, []byte{128, 0, 0, 1}, -2147483647},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeDoubleLong(&table.src)
+		bt, val, err := DecodeDoubleLong(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -793,7 +793,7 @@ func TestDecodeDoubleLongUnsigned(t *testing.T) {
 		{[]byte{255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255}, 4294967295},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeDoubleLongUnsigned(&table.src)
+		bt, val, err := DecodeDoubleLongUnsigned(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -827,7 +827,7 @@ func TestDecodeOctetString(t *testing.T) {
 	}
 	for idx, table := range tables {
 		answer := table.src[:table.lt]
-		bt, val, err := decodeOctetString(&table.src, table.lt)
+		bt, val, err := DecodeOctetString(&table.src, table.lt)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -860,7 +860,7 @@ func TestDecodeVisibleString(t *testing.T) {
 		{[]byte{123, 125, 91, 93, 40, 41, 33, 59, 1, 2, 3}, []byte{123, 125, 91, 93, 40, 41, 33, 59}, "{}[]()!;"},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeVisibleString(&table.src, uint64(len(table.val)))
+		bt, val, err := DecodeVisibleString(&table.src, uint64(len(table.val)))
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -894,7 +894,7 @@ func TestDecodeUTF8String(t *testing.T) {
 		{[]byte{230, 136, 145, 230, 132, 155, 228, 189, 160, 1, 2, 3}, []byte{230, 136, 145, 230, 132, 155, 228, 189, 160}, "我愛你"},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeUTF8String(&table.src, uint64(len(table.val)))
+		bt, val, err := DecodeUTF8String(&table.src, uint64(len(table.val)))
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -927,7 +927,7 @@ func TestDecodeBCD(t *testing.T) {
 		{[]byte{255, 1, 2, 3}, []byte{255}, -1},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeBCD(&table.src)
+		bt, val, err := DecodeBCD(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -950,7 +950,7 @@ func TestDecodeBCD(t *testing.T) {
 
 }
 
-// decodeInteger == decodeBCD == decodeEnum
+// DecodeInteger == DecodeBCD == DecodeEnum
 
 func TestDecodeLong(t *testing.T) {
 	tables := []struct {
@@ -962,7 +962,7 @@ func TestDecodeLong(t *testing.T) {
 		{[]byte{128, 0, 1, 2, 3}, []byte{128, 0}, -1 << 15},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeLong(&table.src)
+		bt, val, err := DecodeLong(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -995,7 +995,7 @@ func TestDecodeUnsigned(t *testing.T) {
 		{[]byte{0, 1, 2, 3}, []byte{0}, 0},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeUnsigned(&table.src)
+		bt, val, err := DecodeUnsigned(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1028,7 +1028,7 @@ func TestDecodeLongUnsigned(t *testing.T) {
 		{[]byte{0, 0, 1, 2, 3}, []byte{0, 0}, 0},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeLongUnsigned(&table.src)
+		bt, val, err := DecodeLongUnsigned(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1062,7 +1062,7 @@ func TestDecodeLong64(t *testing.T) {
 		{[]byte{255, 255, 255, 255, 255, 255, 255, 255, 1, 2, 3}, []byte{255, 255, 255, 255, 255, 255, 255, 255}, -1},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeLong64(&table.src)
+		bt, val, err := DecodeLong64(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1094,7 +1094,7 @@ func TestDecodeLong64Unsigned(t *testing.T) {
 		{[]byte{0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3}, []byte{0, 0, 0, 0, 0, 0, 0, 0}, 0},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeLong64Unsigned(&table.src)
+		bt, val, err := DecodeLong64Unsigned(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1128,7 +1128,7 @@ func TestDecodeFloat32(t *testing.T) {
 		{[]byte{192, 72, 245, 195, 1, 2, 3}, []byte{192, 72, 245, 195}, -3.14},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeFloat32(&table.src)
+		bt, val, err := DecodeFloat32(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1161,7 +1161,7 @@ func TestDecodeFloat64(t *testing.T) {
 		{[]byte{65, 239, 255, 255, 255, 224, 0, 0, 1, 2, 3}, []byte{65, 239, 255, 255, 255, 224, 0, 0}, 4294967295},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeFloat64(&table.src)
+		bt, val, err := DecodeFloat64(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1193,7 +1193,7 @@ func TestDecodeDate(t *testing.T) {
 		{[]byte{5, 220, 1, 1, 1, 1, 2, 3}, []byte{5, 220, 1, 1, 1}, time.Date(1500, time.January, 1, 0, 0, 0, 0, time.UTC)},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeDate(&table.src)
+		bt, val, err := DecodeDate(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1225,7 +1225,7 @@ func TestDecodeTime(t *testing.T) {
 		{[]byte{23, 59, 59, 255, 1, 2, 3}, []byte{23, 59, 59, 255}, time.Date(0, time.January, 1, 23, 59, 59, 255, time.UTC)},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeTime(&table.src)
+		bt, val, err := DecodeTime(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
@@ -1257,7 +1257,7 @@ func TestDecodeDateTime(t *testing.T) {
 		{[]byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0, 1, 2, 3}, []byte{5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0}, time.Date(1500, time.January, 1, 0, 0, 0, 255, time.UTC)},
 	}
 	for idx, table := range tables {
-		bt, val, err := decodeDateTime(&table.src)
+		bt, val, err := DecodeDateTime(&table.src)
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
