@@ -1,6 +1,7 @@
 package cosem
 
 import (
+	"bytes"
 	. "gosem/axdr"
 	"time"
 )
@@ -57,5 +58,10 @@ func CreateSelectiveAccessDescriptor(as accesSelector, ap interface{}) *Selectiv
 }
 
 func (s *SelectiveAccessDescriptor) Encode() []byte {
-	return s.AccessParameter.Encode()
+	var out bytes.Buffer
+	out.WriteByte(byte(s.AccessSelector.Value()))
+	out.Write(s.AccessParameter.Encode())
+	return out.Bytes()
+}
+
 }
