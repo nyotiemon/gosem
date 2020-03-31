@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"reflect"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -77,6 +78,7 @@ var (
 	}
 )
 
+// Check first byte of src and return dataTag equivalent of it
 func CheckTag(src *[]byte) (t dataTag, err error) {
 	if len((*src)) < 1 {
 		err = ErrLengthLess
@@ -92,6 +94,7 @@ func NewDecoder(dt dataTag) *Decoder {
 	return &Decoder{tag: dt}
 }
 
+// Decode expect byte second after tag byte.
 func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	r.Tag = dec.tag
 	haveLength, _ := lengthAfterTag[dec.tag]
@@ -112,7 +115,9 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 		panic("Not yet implemented")
 
 	case TagArray:
-		output := make([]DlmsData, lengthInt)
+		output := make([]*DlmsData, lengthInt)
+		// make carbon copy of src to calc rawValue later
+		oriSrc := reflect.ValueOf((*src)).Interface().([]byte)
 		for i := 0; i < int(lengthInt); i++ {
 			thisDataTag, _ := CheckTag(src)
 			thisDecoder := NewDecoder(thisDataTag)
@@ -121,13 +126,16 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 				err = thisError
 				return
 			}
-			output[i] = thisDlmsData
+			output[i] = &thisDlmsData
 		}
+		rawValue = oriSrc[:len(oriSrc)-len((*src))]
 		value = output
 
 	case TagStructure:
-		// same same as structure
-		output := make([]DlmsData, lengthInt)
+		// same same as array
+		output := make([]*DlmsData, lengthInt)
+		// make carbon copy of src to calc rawValue later
+		oriSrc := reflect.ValueOf((*src)).Interface().([]byte)
 		for i := 0; i < int(lengthInt); i++ {
 			thisDataTag, _ := CheckTag(src)
 			thisDecoder := NewDecoder(thisDataTag)
@@ -136,8 +144,10 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 				err = thisError
 				return
 			}
-			output[i] = thisDlmsData
+			// fmt.Printf("%v: %v; rawLength: %v; rawValue: %v; raw: %v;\n", thisDataTag, thisDlmsData, thisDlmsData.rawLength, thisDlmsData.rawValue, thisDlmsData.raw)
+			output[i] = &thisDlmsData
 		}
+		rawValue = oriSrc[:len(oriSrc)-len((*src))]
 		value = output
 
 	case TagBoolean:
@@ -200,6 +210,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	}
 	r.raw.Write(rawValue)
 
+	// fmt.Printf("Tag: %v; Value: %v; rawLength: %v; rawValue: %v; raw: %v;\n", r.Tag, r.Value, r.rawLength, r.rawValue, r.raw)
 	return
 }
 

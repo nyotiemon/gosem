@@ -1303,12 +1303,12 @@ func TestDecoder1(t *testing.T) {
 		t.Errorf("First level should be TagArray, received: %v", reflect.TypeOf(t1.Tag).Kind())
 	}
 
-	t2 := t1.Value.([]DlmsData)[0]
+	t2 := t1.Value.([]*DlmsData)[0]
 	if t2.Tag != TagStructure {
 		t.Errorf("Second level should be TagStructure, received: %v", reflect.TypeOf(t2.Tag).Kind())
 	}
 
-	t3 := t2.Value.([]DlmsData)
+	t3 := t2.Value.([]*DlmsData)
 	if t3[0].Value != d1.Value {
 		t.Errorf("should be same as d1 %v, received: %v", d1.Value, t3[0].Value)
 	}
