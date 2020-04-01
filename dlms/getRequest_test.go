@@ -49,7 +49,7 @@ func TestNewGetRequestWithList(t *testing.T) {
 	a := gr.New(TagGetRequestWithList)
 	a = *CreateGetRequestWithList(69, []AttributeDescriptor{a1})
 	t1 := a.Encode()
-	result := []byte{192, 3, 69, 0, 1, 1, 0, 0, 3, 0, 255, 2}
+	result := []byte{192, 3, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
@@ -58,7 +58,7 @@ func TestNewGetRequestWithList(t *testing.T) {
 	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
 	b := *CreateGetRequestWithList(69, []AttributeDescriptor{a1, a2})
 	t2 := b.Encode()
-	result = []byte{192, 3, 69, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2}
+	result = []byte{192, 3, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 failed. get: %d, should:%v", t2, result)

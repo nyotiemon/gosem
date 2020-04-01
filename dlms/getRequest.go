@@ -111,6 +111,7 @@ func (gr GetRequestWithList) Encode() []byte {
 	buf.WriteByte(byte(TagGetRequest))
 	buf.WriteByte(byte(TagGetRequestWithList))
 	buf.WriteByte(byte(gr.InvokePriority))
+	buf.WriteByte(byte(len(gr.AttributeInfoList)))
 	for _, attr := range gr.AttributeInfoList {
 		buf.Write(attr.Encode())
 	}
