@@ -76,7 +76,7 @@ func TestDataBlockGAsData(t *testing.T) {
 	var a DataBlockG = *CreateDataBlockGAsData(true, 1, "07D20C04030A060BFF007800")
 
 	t1 := a.Encode()
-	result := []byte{1, 0, 0, 0, 1, 0, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	result := []byte{1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -85,7 +85,7 @@ func TestDataBlockGAsData(t *testing.T) {
 
 	var b DataBlockG = *CreateDataBlockGAsData(true, 1, []byte{1, 0, 0, 3, 0, 255})
 	t2 := b.Encode()
-	result = []byte{1, 0, 0, 0, 1, 0, 1, 0, 0, 3, 0, 255}
+	result = []byte{1, 0, 0, 0, 1, 0, 6, 1, 0, 0, 3, 0, 255}
 
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -117,7 +117,7 @@ func TestDataBlockG(t *testing.T) {
 	var a DataBlockG = *CreateDataBlockG(true, 1, "07D20C04030A060BFF007800")
 
 	t1 := a.Encode()
-	result := []byte{1, 0, 0, 0, 1, 0, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	result := []byte{1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -126,7 +126,7 @@ func TestDataBlockG(t *testing.T) {
 
 	var b DataBlockG = *CreateDataBlockG(true, 1, []byte{1, 0, 0, 3, 0, 255})
 	t2 := b.Encode()
-	result = []byte{1, 0, 0, 0, 1, 0, 1, 0, 0, 3, 0, 255}
+	result = []byte{1, 0, 0, 0, 1, 0, 6, 1, 0, 0, 3, 0, 255}
 
 	res = bytes.Compare(t2, result)
 	if res != 0 {

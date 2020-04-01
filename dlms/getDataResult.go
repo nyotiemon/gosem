@@ -134,6 +134,7 @@ func (dt *DataBlockG) Encode() []byte {
 	} else {
 		output.WriteByte(0x0)
 		value := dt.Result.([]byte)
+		output.WriteByte(byte(len(value)))
 		output.Write(value)
 	}
 
