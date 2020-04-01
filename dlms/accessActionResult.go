@@ -1,5 +1,7 @@
 package cosem
 
+import "fmt"
+
 type accessResultTag uint8
 type actionResultTag uint8
 
@@ -120,4 +122,80 @@ func (s accessResultTag) Value() uint8 {
 // This is used for comparing with non custom typed object
 func (s actionResultTag) Value() uint8 {
 	return uint8(s)
+}
+
+func GetAccessTag(in uint8) (out accessResultTag, err error) {
+	switch in {
+	case 0:
+		out = TagAccSuccess
+	case 1:
+		out = TagAccHardwareFault
+	case 2:
+		out = TagAccTemporaryFailure
+	case 3:
+		out = TagAccReadWriteDenied
+	case 4:
+		out = TagAccObjectUndefined
+	case 9:
+		out = TagAccObjectClassInconsistent
+	case 11:
+		out = TagAccObjectUnavailable
+	case 12:
+		out = TagAccTypeUnmatched
+	case 13:
+		out = TagAccScopeAccessViolated
+	case 14:
+		out = TagAccDataBlockUnavailable
+	case 15:
+		out = TagAccLongGetAborted
+	case 16:
+		out = TagAccNoLongGetInProgress
+	case 17:
+		out = TagAccLongSetAborted
+	case 18:
+		out = TagAccNoLongSetInProgress
+	case 19:
+		out = TagAccDataBlockNumberInvalid
+	case 250:
+		out = TagAccOtherReason
+	default:
+		err = fmt.Errorf("Value not recognized.")
+	}
+
+	return
+}
+
+func GetActionTag(in uint8) (out actionResultTag, err error) {
+	switch in {
+	case 0:
+		out = TagActSuccess
+	case 1:
+		out = TagActHardwareFault
+	case 2:
+		out = TagActTemporaryFailure
+	case 3:
+		out = TagActReadWriteDenied
+	case 4:
+		out = TagActObjectUndefined
+	case 9:
+		out = TagActObjectClassInconsistent
+	case 11:
+		out = TagActObjectUnavailable
+	case 12:
+		out = TagActTypeUnmatched
+	case 13:
+		out = TagActScopeOfAccessViolated
+	case 14:
+		out = TagActDataBlockUnavailable
+	case 15:
+		out = TagActLongActionAborted
+	case 16:
+		out = TagActNoLongActionInProgress
+	case 250:
+		out = TagActOtherReason
+	default:
+		err = fmt.Errorf("Value not recognized")
+	}
+
+	return
 }
