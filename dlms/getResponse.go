@@ -107,3 +107,20 @@ func (gr GetResponseWithList) Encode() []byte {
 
 	return buf.Bytes()
 }
+
+func DecodeGetResponseNormal(src *[]byte) (out GetResponseNormal, err error) {
+	if (*src)[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
+		return
+	}
+	if (*src)[1] != TagGetResponseNormal.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponseNormal))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+
+	out.Result, err = DecodeGetDataResult(src)
+
+	return
+}

@@ -66,3 +66,26 @@ func TestNewGetResponseWithList(t *testing.T) {
 	c := *CreateGetResponseWithList(69, []GetDataResult{})
 	c.Encode()
 }
+
+func TestDecode_GetResponseNormal(t *testing.T) {
+	src := []byte{196, 1, 81, 1, 5, 0, 0, 0, 69}
+	a, err := DecodeGetResponseNormal(&src)
+
+	if err != nil {
+		t.Errorf("t1 Failed to DecodeGetResponseNormal. err:%v", err)
+	}
+	if a.InvokePriority != 81 {
+		t.Errorf("t1 Failed. InvokePriority should 81, get: %v", a.InvokePriority)
+	}
+	if a.Result.IsData != true {
+		t.Errorf("t1 Failed. Result.IsData should true, get: %v", a.Result.IsData)
+	}
+
+	val := a.Result.Value.(DlmsData)
+	if val.Tag != TagDoubleLong {
+		t.Errorf("t1 Failed. get: %d, should:%v", val.Tag, TagDoubleLong)
+	}
+	if v := val.Value.(int32); v != 69 {
+		t.Errorf("t1 Failed. get: %d, should:%v", v, 69)
+	}
+}
