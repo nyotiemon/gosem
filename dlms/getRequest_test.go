@@ -151,7 +151,7 @@ func TestDecode_GetRequestNext(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetRequestNext. err:%v", err)
-}
+	}
 
 	var b GetRequestNext = *CreateGetRequestNext(81, 2)
 
@@ -160,6 +160,61 @@ func TestDecode_GetRequestNext(t *testing.T) {
 	}
 	if a.BlockNum != b.BlockNum {
 		t.Errorf("t1 Failed. BlockNum get: %v, should:%v", a.BlockNum, b.BlockNum)
+	}
+	if len(src) > 0 {
+		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+	}
+
+}
+
+func TestDecode_GetRequestWithList(t *testing.T) {
+	src := []byte{192, 3, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2}
+	a, err := DecodeGetRequestWithList(&src)
+
+	if err != nil {
+		t.Errorf("t1 Failed to DecodeGetRequestWithList. err:%v", err)
+	}
+
+	var a1 AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
+	var b GetRequestWithList = *CreateGetRequestWithList(69, []AttributeDescriptor{a1})
+
+	if a.InvokePriority != b.InvokePriority {
+		t.Errorf("t1 Failed. InvokePriority get: %v, should:%v", a.InvokePriority, b.InvokePriority)
+	}
+	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
+		t.Errorf("t1 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
+	}
+	aDescObis := a.AttributeInfoList[0].InstanceId.String()
+	bDescObis := b.AttributeInfoList[0].InstanceId.String()
+	if aDescObis != bDescObis {
+		t.Errorf("t1 Failed. AttributeInfoList[0].InstanceId get: %v, should:%v", aDescObis, bDescObis)
+	}
+	if len(src) > 0 {
+		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+	}
+
+	// ---------------------- with 2 AttributeDescriptor
+	src = []byte{192, 3, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2}
+	a, err = DecodeGetRequestWithList(&src)
+
+	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
+	b = *CreateGetRequestWithList(69, []AttributeDescriptor{a1, a2})
+
+	if a.InvokePriority != b.InvokePriority {
+		t.Errorf("t1 Failed. InvokePriority get: %v, should:%v", a.InvokePriority, b.InvokePriority)
+	}
+	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
+		t.Errorf("t1 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
+	}
+	aDescObis = a.AttributeInfoList[0].InstanceId.String()
+	bDescObis = b.AttributeInfoList[0].InstanceId.String()
+	if aDescObis != bDescObis {
+		t.Errorf("t1 Failed. AttributeInfoList[0].InstanceId get: %v, should:%v", aDescObis, bDescObis)
+	}
+	aDescObis = a.AttributeInfoList[1].InstanceId.String()
+	bDescObis = b.AttributeInfoList[1].InstanceId.String()
+	if aDescObis != bDescObis {
+		t.Errorf("t1 Failed. AttributeInfoList[1].InstanceId get: %v, should:%v", aDescObis, bDescObis)
 	}
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)

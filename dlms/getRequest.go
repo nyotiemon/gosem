@@ -174,3 +174,28 @@ func DecodeGetRequestNext(src *[]byte) (out GetRequestNext, err error) {
 
 	return
 }
+
+func DecodeGetRequestWithList(src *[]byte) (out GetRequestWithList, err error) {
+	if (*src)[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
+		return
+	}
+	if (*src)[1] != TagGetRequestWithList.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequestWithList))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+
+	attrDescLength := (*src)[3]
+	(*src) = (*src)[4:]
+	for i := 0; i < int(attrDescLength); i++ {
+		v, e := DecodeAttributeDescriptor(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.AttributeInfoList = append(out.AttributeInfoList, v)
+	}
+
+	return
+}
