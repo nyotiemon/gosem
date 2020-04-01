@@ -109,3 +109,15 @@ func (tag actionResultTag) String() string {
 		return ""
 	}
 }
+
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s accessResultTag) Value() uint8 {
+	return uint8(s)
+}
+
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s actionResultTag) Value() uint8 {
+	return uint8(s)
+}

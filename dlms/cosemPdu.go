@@ -1,5 +1,7 @@
 package cosem
 
+import "fmt"
+
 type cosemTag uint8
 
 var (
@@ -38,6 +40,10 @@ var (
 	TagDedActionResponse           cosemTag = 215
 	TagExceptionResponse           cosemTag = 216
 )
+
+func ErrWrongTag(idx int, get byte, correct byte) error {
+	return fmt.Errorf("Wrong data tag on index %v, expecting %v instead of %v", idx, correct, get)
+}
 
 // Value will return primitive value of the target.
 // This is used for comparing with non custom typed object

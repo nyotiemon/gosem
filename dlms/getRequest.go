@@ -117,3 +117,37 @@ func (gr GetRequestWithList) Encode() []byte {
 
 	return buf.Bytes()
 }
+
+func DecodeGetRequestNormal(src *[]byte) (out GetRequestNormal, err error) {
+	if (*src)[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
+		return
+	}
+	if (*src)[1] != TagGetRequestNormal.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequestNormal))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	if err != nil {
+		return
+	}
+
+	haveAccDesc := (*src)[0]
+	(*src) = (*src)[1:]
+	// SelectiveAccessInfo
+	if haveAccDesc == 0 {
+		var nilAccsDesc *SelectiveAccessDescriptor = nil
+		out.SelectiveAccessInfo = nilAccsDesc
+	} else {
+		accDesc, e := DecodeSelectiveAccessDescriptor(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.SelectiveAccessInfo = &accDesc
+	}
+
+	return
+}
