@@ -2,6 +2,7 @@ package cosem
 
 import (
 	"bytes"
+	"fmt"
 )
 
 type getResponseTag uint8
@@ -32,6 +33,26 @@ func (gr *GetResponse) New(tag getResponseTag) CosemPDU {
 	default:
 		panic("Tag not recognized!")
 	}
+}
+
+func (gr *GetResponse) Decode(src *[]byte) (out CosemPDU, err error) {
+	if (*src)[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
+		return
+	}
+
+	switch (*src)[1] {
+	case TagGetResponseNormal.Value():
+		out, err = DecodeGetResponseNormal(src)
+	case TagGetResponseWithDataBlock.Value():
+		out, err = DecodeGetResponseWithDataBlock(src)
+	case TagGetResponseWithList.Value():
+		out, err = DecodeGetResponseWithList(src)
+	default:
+		err = fmt.Errorf("Byte tag not recognized (%v)", (*src)[1])
+	}
+
+	return
 }
 
 // GetResponseNormal implement CosemPDU. SelectiveAccessDescriptor is optional
@@ -121,6 +142,36 @@ func DecodeGetResponseNormal(src *[]byte) (out GetResponseNormal, err error) {
 	(*src) = (*src)[3:]
 
 	out.Result, err = DecodeGetDataResult(src)
+
+	return
+}
+
+func DecodeGetResponseWithDataBlock(src *[]byte) (out GetResponseWithDataBlock, err error) {
+	if (*src)[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
+		return
+	}
+	if (*src)[1] != TagGetResponseWithDataBlock.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponseWithDataBlock))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+
+	return
+}
+
+func DecodeGetResponseWithList(src *[]byte) (out GetResponseWithList, err error) {
+	if (*src)[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
+		return
+	}
+	if (*src)[1] != TagGetResponseWithList.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponseWithList))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
 
 	return
 }

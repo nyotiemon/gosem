@@ -140,6 +140,33 @@ func (dt *DataBlockG) Encode() []byte {
 
 	return output.Bytes()
 }
+func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
+	if (*src)[0] == 0x0 {
+		out.LastBlock = false
+	} else {
+		out.LastBlock = true
+	}
+	(*src) = (*src)[1:]
+
+	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(src)
+
+	if (*src)[0] == 0x0 {
+		out.IsResult = false
+		_, val, e := DecodeLength(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.Result = (*src)[:val]
+		(*src) = (*src)[val:]
+	} else {
+		out.IsResult = true
+		out.Result, err = GetAccessTag(uint8((*src)[1]))
+		(*src) = (*src)[1:]
+	}
+
+	return
+}
 
 // DataBlockSA is DataBlock for the SET-request, ACTION-request and ACTION-response
 type DataBlockSA struct {
