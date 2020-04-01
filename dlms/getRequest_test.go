@@ -143,5 +143,26 @@ func TestDecode_GetRequestNormal(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
+}
+
+func TestDecode_GetRequestNext(t *testing.T) {
+	src := []byte{192, 2, 81, 0, 0, 0, 2}
+	a, err := DecodeGetRequestNext(&src)
+
+	if err != nil {
+		t.Errorf("t1 Failed to DecodeGetRequestNext. err:%v", err)
+}
+
+	var b GetRequestNext = *CreateGetRequestNext(81, 2)
+
+	if a.InvokePriority != b.InvokePriority {
+		t.Errorf("t1 Failed. InvokePriority get: %v, should:%v", a.InvokePriority, b.InvokePriority)
+	}
+	if a.BlockNum != b.BlockNum {
+		t.Errorf("t1 Failed. BlockNum get: %v, should:%v", a.BlockNum, b.BlockNum)
+	}
+	if len(src) > 0 {
+		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+	}
 
 }

@@ -152,3 +152,25 @@ func DecodeGetRequestNormal(src *[]byte) (out GetRequestNormal, err error) {
 
 	return
 }
+
+func DecodeGetRequestNext(src *[]byte) (out GetRequestNext, err error) {
+	if (*src)[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
+		return
+	}
+	if (*src)[1] != TagGetRequestNext.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequestNext))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+
+	_, v, e := DecodeDoubleLongUnsigned(src)
+	if e != nil {
+		err = e
+		return
+	}
+	out.BlockNum = v
+
+	return
+}
