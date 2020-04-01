@@ -196,3 +196,34 @@ func TestActionResponseWithOptData(t *testing.T) {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
 	}
 }
+
+func TestDecodeGetDataResult(t *testing.T) {
+	src := []byte{0, 0}
+	a, ae := DecodeGetDataResult(&src)
+
+	if ae != nil {
+		t.Errorf("t1 Failed. got error: %v", ae)
+	}
+	if a.IsData {
+		t.Errorf("t1 Failed. Value should be access")
+	}
+	if a.Value != TagAccSuccess {
+		t.Errorf("t1 Failed. get: %d, should:%v", a.Value, TagAccSuccess)
+	}
+
+	src = []byte{1, 5, 0, 0, 0, 69}
+	b, be := DecodeGetDataResult(&src)
+	if be != nil {
+		t.Errorf("t2 Failed. got error: %v", be)
+	}
+	if !b.IsData {
+		t.Errorf("t2 Failed. Value should be data")
+	}
+	val := b.Value.(DlmsData)
+	if val.Tag != TagDoubleLong {
+		t.Errorf("t2 Failed. get: %d, should:%v", val.Tag, TagDoubleLong)
+	}
+	if v := val.Value.(int32); v != 69 {
+		t.Errorf("t2 Failed. get: %d, should:%v", v, 69)
+	}
+}

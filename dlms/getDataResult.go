@@ -45,6 +45,23 @@ func (dt *GetDataResult) Encode() []byte {
 	return output.Bytes()
 }
 
+func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
+	if (*src)[0] == 0x0 {
+		out.IsData = false
+		out.Value, err = GetAccessTag(uint8((*src)[1]))
+		if err != nil {
+			(*src) = (*src)[2:]
+		}
+	} else {
+		out.IsData = true
+		(*src) = (*src)[1:]
+		decoder := NewDataDecoder(src)
+		out.Value, err = decoder.Decode(src)
+	}
+
+	return
+}
+
 // DataBlockG is DataBlock for the GET-response. Result must be either byte slice
 // or accessResultTag after creation, or else it will fail on Encode()
 type DataBlockG struct {
