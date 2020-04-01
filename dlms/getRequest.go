@@ -2,6 +2,7 @@ package cosem
 
 import (
 	"bytes"
+	"fmt"
 	. "gosem/axdr"
 )
 
@@ -33,6 +34,26 @@ func (gr *GetRequest) New(tag getRequestTag) CosemPDU {
 	default:
 		panic("Tag not recognized!")
 	}
+}
+
+func (gr *GetRequest) Decode(src *[]byte) (out CosemPDU, err error) {
+	if (*src)[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
+		return
+	}
+
+	switch (*src)[1] {
+	case TagGetRequestNormal.Value():
+		out, err = DecodeGetRequestNormal(src)
+	case TagGetRequestNext.Value():
+		out, err = DecodeGetRequestNext(src)
+	case TagGetRequestWithList.Value():
+		out, err = DecodeGetRequestWithList(src)
+	default:
+		err = fmt.Errorf("Byte tag not recognized (%v)", (*src)[1])
+	}
+
+	return
 }
 
 // GetRequestNormal implement CosemPDU. SelectiveAccessDescriptor is optional
