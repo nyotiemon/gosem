@@ -78,20 +78,27 @@ var (
 	}
 )
 
-// Check first byte of src and return dataTag equivalent of it
-func CheckTag(src *[]byte) (t dataTag, err error) {
-	if len((*src)) < 1 {
-		err = ErrLengthLess
-		return
-	}
-	t, _ = mapToDataTag[uint8((*src)[0])]
-	(*src) = (*src)[1:]
-
+// Get dataTag equivalent of supplied uint8
+func getDataTag(in uint8) (t dataTag) {
+	t, _ = mapToDataTag[in]
 	return
 }
 
-func NewDecoder(dt dataTag) *Decoder {
-	return &Decoder{tag: dt}
+// Create new decode from either supplied dataTag or byte slice pointer.
+// If input is byte slice, it will remove first byte from source
+func NewDataDecoder(in interface{}) *Decoder {
+	switch src := in.(type) {
+	case dataTag:
+		return &Decoder{tag: src}
+
+	case *[]byte:
+		tag := getDataTag(uint8((*src)[0]))
+		(*src) = (*src)[1:]
+		return &Decoder{tag: tag}
+
+	default:
+		panic("Input must be either dataTag or byte slice pointer")
+	}
 }
 
 // Decode expect byte second after tag byte.
@@ -119,8 +126,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 		// make carbon copy of src to calc rawValue later
 		oriSrc := reflect.ValueOf((*src)).Interface().([]byte)
 		for i := 0; i < int(lengthInt); i++ {
-			thisDataTag, _ := CheckTag(src)
-			thisDecoder := NewDecoder(thisDataTag)
+			thisDecoder := NewDataDecoder(src)
 			thisDlmsData, thisError := thisDecoder.Decode(src)
 			if thisError != nil {
 				err = thisError
@@ -137,8 +143,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 		// make carbon copy of src to calc rawValue later
 		oriSrc := reflect.ValueOf((*src)).Interface().([]byte)
 		for i := 0; i < int(lengthInt); i++ {
-			thisDataTag, _ := CheckTag(src)
-			thisDecoder := NewDecoder(thisDataTag)
+			thisDecoder := NewDataDecoder(src)
 			thisDlmsData, thisError := thisDecoder.Decode(src)
 			if thisError != nil {
 				err = thisError

@@ -1289,12 +1289,8 @@ func TestDecoder1(t *testing.T) {
 	str := "0101020512EB421907E40310FF000000FF8000000401000601FE0B80120C21"
 
 	src, _ := hex.DecodeString(str)
-	tag, err1 := CheckTag(&src)
-	if err1 != nil {
-		t.Errorf("got error on checking tag:%v", err1)
-	}
 
-	dec := NewDecoder(tag)
+	dec := NewDataDecoder(&src)
 	t1, err2 := dec.Decode(&src)
 	if err2 != nil {
 		t.Errorf("got an error when decoding:%v", err2)
