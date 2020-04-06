@@ -174,8 +174,17 @@ func DecodeGetResponseWithList(src *[]byte) (out GetResponseWithList, err error)
 		return
 	}
 	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
 
-	// TODO
+	out.ResultCount = uint8((*src)[3])
+	(*src) = (*src)[4:]
+	for i := 0; i < int(out.ResultCount); i++ {
+		v, e := DecodeGetDataResult(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.ResultList = append(out.ResultList, v)
+	}
+
 	return
 }

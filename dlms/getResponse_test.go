@@ -131,3 +131,49 @@ func TestDecode_GetResponseWithDataBlock(t *testing.T) {
 		t.Errorf("t2 Failed. Result should be TagAccSuccess, get: %v", val2)
 	}
 }
+
+func TestDecode_GetResponseWithList(t *testing.T) {
+	src := []byte{196, 3, 69, 2, 0, 0, 1, 5, 0, 0, 0, 1}
+	a, err := DecodeGetResponseWithList(&src)
+
+	if err != nil {
+		t.Errorf("t1 Failed to DecodeGetResponseWithList. err:%v", err)
+	}
+
+	var gdr1 GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
+	var dt1 DlmsData = *CreateAxdrDoubleLong(1)
+	var gdr2 GetDataResult = *CreateGetDataResultAsData(dt1)
+
+	var b GetResponseWithList = *CreateGetResponseWithList(69, []GetDataResult{gdr1, gdr2})
+
+	if a.InvokePriority != b.InvokePriority {
+		t.Errorf("t1 Failed. InvokePriority get: %v, should: %v", a.InvokePriority, b.InvokePriority)
+	}
+	if len(a.ResultList) != len(b.ResultList) {
+		t.Errorf("t1 Failed. ResultList count get: %v, should: %v", len(a.ResultList), len(b.ResultList))
+	}
+	if a.ResultCount != b.ResultCount {
+		t.Errorf("t1 Failed. ResultCount get: %v, should: %v", a.ResultCount, b.ResultCount)
+	}
+	if a.ResultList[0].IsData {
+		t.Errorf("t1 Failed. ResultList[0].IsData should be false, get: %v", a.ResultList[0].IsData)
+	}
+	a1DescObis := a.ResultList[0].ValueAsAccess()
+	b1DescObis := b.ResultList[0].ValueAsAccess()
+	if a1DescObis != b1DescObis {
+		t.Errorf("t1 Failed. ResultList[0].Value get: %v, should: %v", a1DescObis, b1DescObis)
+	}
+	if !a.ResultList[1].IsData {
+		t.Errorf("t1 Failed. ResultList[0].IsData should be true, get: %v", a.ResultList[1].IsData)
+	}
+	a2DescObis := uint32(a.ResultList[1].ValueAsData().Value.(int32))
+	b2DescObis := uint32(b.ResultList[1].ValueAsData().Value.(int))
+	if a2DescObis != b2DescObis {
+		t.Errorf("t1 Failed. ResultList[1].Value get: %v, should: %v", a2DescObis, b2DescObis)
+	}
+
+	if len(src) > 0 {
+		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+	}
+
+}
