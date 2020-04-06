@@ -140,6 +140,7 @@ func (dt *DataBlockG) Encode() []byte {
 
 	return output.Bytes()
 }
+
 func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
 	if (*src)[0] == 0x0 {
 		out.LastBlock = false
@@ -152,6 +153,15 @@ func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
 
 	if (*src)[0] == 0x0 {
 		out.IsResult = false
+	} else {
+		out.IsResult = true
+	}
+	(*src) = (*src)[1:]
+
+	if out.IsResult {
+		out.Result, err = GetAccessTag(uint8((*src)[0]))
+		(*src) = (*src)[0:]
+	} else {
 		_, val, e := DecodeLength(src)
 		if e != nil {
 			err = e
@@ -159,10 +169,6 @@ func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
 		}
 		out.Result = (*src)[:val]
 		(*src) = (*src)[val:]
-	} else {
-		out.IsResult = true
-		out.Result, err = GetAccessTag(uint8((*src)[1]))
-		(*src) = (*src)[1:]
 	}
 
 	return

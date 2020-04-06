@@ -197,7 +197,7 @@ func TestActionResponseWithOptData(t *testing.T) {
 	}
 }
 
-func TestDecodeGetDataResult(t *testing.T) {
+func TestDecode_GetDataResult(t *testing.T) {
 	src := []byte{0, 0}
 	a, ae := DecodeGetDataResult(&src)
 
@@ -226,4 +226,48 @@ func TestDecodeGetDataResult(t *testing.T) {
 	if v := val.Value.(int32); v != 69 {
 		t.Errorf("t2 Failed. get: %d, should:%v", v, 69)
 	}
+}
+
+func TestDecode_DataBlockG(t *testing.T) {
+	src := []byte{1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	a, ae := DecodeDataBlockG(&src)
+
+	if ae != nil {
+		t.Errorf("t1 Failed. got error: %v", ae)
+	}
+	if !a.LastBlock {
+		t.Errorf("t1 Failed. LastBlock should be true")
+	}
+	if a.BlockNumber != 1 {
+		t.Errorf("t1 Failed. BlockNumber should be 1 (%v)", a.BlockNumber)
+	}
+	if a.IsResult {
+		t.Errorf("t1 Failed. IsResult should be false")
+	}
+	val := a.Result.([]byte)
+	res := bytes.Compare(val, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
+	if res != 0 {
+		t.Errorf("t1 Failed. Result is not correct (%v)", val)
+	}
+
+	// ---
+	src = []byte{1, 0, 0, 0, 1, 1, 0}
+	b, be := DecodeDataBlockG(&src)
+
+	if be != nil {
+		t.Errorf("t2 Failed. got error: %v", be)
+	}
+	if !b.LastBlock {
+		t.Errorf("t2 Failed. LastBlock should be true")
+	}
+	if b.BlockNumber != 1 {
+		t.Errorf("t2 Failed. BlockNumber should be 1 (%v)", b.BlockNumber)
+	}
+	if !b.IsResult {
+		t.Errorf("t2 Failed. IsResult should be true")
+	}
+	if b.Result != TagAccSuccess {
+		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", b.Result)
+	}
+
 }
