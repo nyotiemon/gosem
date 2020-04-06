@@ -49,7 +49,7 @@ func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
 	if (*src)[0] == 0x0 {
 		out.IsData = false
 		out.Value, err = GetAccessTag(uint8((*src)[1]))
-		if err != nil {
+		if err == nil {
 			(*src) = (*src)[2:]
 		}
 	} else {
