@@ -142,7 +142,6 @@ func DecodeGetResponseNormal(src *[]byte) (out GetResponseNormal, err error) {
 	(*src) = (*src)[3:]
 
 	out.Result, err = DecodeGetDataResult(src)
-
 	return
 }
 
@@ -158,6 +157,7 @@ func DecodeGetResponseWithDataBlock(src *[]byte) (out GetResponseWithDataBlock, 
 	out.InvokePriority = (*src)[2]
 	(*src) = (*src)[3:]
 
+	out.Result, err = DecodeDataBlockG(src)
 	return
 }
 
@@ -173,5 +173,6 @@ func DecodeGetResponseWithList(src *[]byte) (out GetResponseWithList, err error)
 	out.InvokePriority = (*src)[2]
 	(*src) = (*src)[3:]
 
+	// TODO
 	return
 }
