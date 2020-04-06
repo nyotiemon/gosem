@@ -185,6 +185,9 @@ func TestDecode_GetRequestWithList(t *testing.T) {
 	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
 		t.Errorf("t1 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
 	}
+	if a.AttributeCount != b.AttributeCount {
+		t.Errorf("t1 Failed. AttributeCount get: %v, should:%v", a.AttributeCount, b.AttributeCount)
+	}
 	aDescObis := a.AttributeInfoList[0].InstanceId.String()
 	bDescObis := b.AttributeInfoList[0].InstanceId.String()
 	if aDescObis != bDescObis {
@@ -206,6 +209,9 @@ func TestDecode_GetRequestWithList(t *testing.T) {
 	}
 	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
 		t.Errorf("t1 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
+	}
+	if a.AttributeCount != b.AttributeCount {
+		t.Errorf("t1 Failed. AttributeCount get: %v, should:%v", a.AttributeCount, b.AttributeCount)
 	}
 	aDescObis = a.AttributeInfoList[0].InstanceId.String()
 	bDescObis = b.AttributeInfoList[0].InstanceId.String()
