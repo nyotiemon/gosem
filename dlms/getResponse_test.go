@@ -3,6 +3,7 @@ package cosem
 import (
 	"bytes"
 	. "gosem/axdr"
+	"reflect"
 	"testing"
 )
 
@@ -176,4 +177,50 @@ func TestDecode_GetResponseWithList(t *testing.T) {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
 
+}
+
+func TestDecode_GetResponse(t *testing.T) {
+	var gr GetResponse
+
+	srcNormal := []byte{196, 1, 81, 1, 5, 0, 0, 0, 69}
+	a, e1 := gr.Decode(&srcNormal)
+	if e1 != nil {
+		t.Errorf("Decode for GetResponseNormal Failed. err:%v", e1)
+	}
+	x, assertGetResponseNormal := a.(GetResponseNormal)
+	if !assertGetResponseNormal {
+		t.Errorf("Decode supposed to return GetResponseNormal instead of %v", reflect.TypeOf(a).Name())
+	}
+	valX := x.Result.Value.(DlmsData)
+	if valX.Tag != TagDoubleLong {
+		t.Errorf("GetResponseNormal Value wrong. get: %d, should:%v", valX.Tag, TagDoubleLong)
+	}
+
+	srcWithDataBlock := []byte{196, 2, 81, 1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	b, e2 := gr.Decode(&srcWithDataBlock)
+	if e2 != nil {
+		t.Errorf("Decode for GetResponseWithDataBlock Failed. err:%v", e1)
+	}
+	y, assertGetResponseWithDataBlock := b.(GetResponseWithDataBlock)
+	if !assertGetResponseWithDataBlock {
+		t.Errorf("Decode supposed to return GetResponseWithDataBlock instead of %v", reflect.TypeOf(b).Name())
+	}
+	valY := y.Result.ResultAsBytes()
+	res := bytes.Compare(valY, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
+	if res != 0 {
+		t.Errorf("GetResponseWithDataBlock Result wrong. get: %d, should: %v", valY, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
+	}
+
+	srcWithList := []byte{196, 3, 69, 2, 0, 0, 1, 5, 0, 0, 0, 1}
+	c, e3 := gr.Decode(&srcWithList)
+	if e3 != nil {
+		t.Errorf("Decode for GetResponseWithList Failed. err:%v", e1)
+	}
+	z, assertGetResponseWithList := c.(GetResponseWithList)
+	if !assertGetResponseWithList {
+		t.Errorf("Decode supposed to return GetResponseWithList instead of %v", reflect.TypeOf(c).Name())
+	}
+	if z.ResultCount != 2 {
+		t.Errorf("GetResponseNormal ResultCount wrong. get: %d, should: 2", z.ResultCount)
+	}
 }
