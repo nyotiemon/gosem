@@ -244,7 +244,7 @@ func TestDecode_DataBlockG(t *testing.T) {
 	if a.IsResult {
 		t.Errorf("t1 Failed. IsResult should be false")
 	}
-	val := a.Result.([]byte)
+	val := a.ResultAsBytes()
 	res := bytes.Compare(val, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
 	if res != 0 {
 		t.Errorf("t1 Failed. Result is not correct (%v)", val)
@@ -266,7 +266,7 @@ func TestDecode_DataBlockG(t *testing.T) {
 	if !b.IsResult {
 		t.Errorf("t2 Failed. IsResult should be true")
 	}
-	if b.Result != TagAccSuccess {
+	if b.ResultAsAccess() != TagAccSuccess {
 		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", b.Result)
 	}
 

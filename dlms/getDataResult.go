@@ -45,6 +45,22 @@ func (dt *GetDataResult) Encode() []byte {
 	return output.Bytes()
 }
 
+func (dt *GetDataResult) ValueAsData() DlmsData {
+	if !dt.IsData {
+		panic("Value is DataAccessResult!")
+	}
+
+	return dt.Value.(DlmsData)
+}
+
+func (dt *GetDataResult) ValueAsAccess() accessResultTag {
+	if dt.IsData {
+		panic("Value is DlmsData!")
+	}
+
+	return dt.Value.(accessResultTag)
+}
+
 func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
 	if (*src)[0] == 0x0 {
 		out.IsData = false
@@ -139,6 +155,22 @@ func (dt *DataBlockG) Encode() []byte {
 	}
 
 	return output.Bytes()
+}
+
+func (dt *DataBlockG) ResultAsBytes() []byte {
+	if dt.IsResult {
+		panic("Value is DataAccessResult!")
+	}
+
+	return dt.Result.([]byte)
+}
+
+func (dt *DataBlockG) ResultAsAccess() accessResultTag {
+	if !dt.IsResult {
+		panic("Value is byte slice!")
+	}
+
+	return dt.Result.(accessResultTag)
 }
 
 func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
