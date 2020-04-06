@@ -45,11 +45,27 @@ func (dt *GetDataResult) Encode() []byte {
 	return output.Bytes()
 }
 
+func (dt *GetDataResult) ValueAsData() DlmsData {
+	if !dt.IsData {
+		panic("Value is DataAccessResult!")
+	}
+
+	return dt.Value.(DlmsData)
+}
+
+func (dt *GetDataResult) ValueAsAccess() accessResultTag {
+	if dt.IsData {
+		panic("Value is DlmsData!")
+	}
+
+	return dt.Value.(accessResultTag)
+}
+
 func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
 	if (*src)[0] == 0x0 {
 		out.IsData = false
 		out.Value, err = GetAccessTag(uint8((*src)[1]))
-		if err != nil {
+		if err == nil {
 			(*src) = (*src)[2:]
 		}
 	} else {
@@ -139,6 +155,55 @@ func (dt *DataBlockG) Encode() []byte {
 	}
 
 	return output.Bytes()
+}
+
+func (dt *DataBlockG) ResultAsBytes() []byte {
+	if dt.IsResult {
+		panic("Value is DataAccessResult!")
+	}
+
+	return dt.Result.([]byte)
+}
+
+func (dt *DataBlockG) ResultAsAccess() accessResultTag {
+	if !dt.IsResult {
+		panic("Value is byte slice!")
+	}
+
+	return dt.Result.(accessResultTag)
+}
+
+func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
+	if (*src)[0] == 0x0 {
+		out.LastBlock = false
+	} else {
+		out.LastBlock = true
+	}
+	(*src) = (*src)[1:]
+
+	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(src)
+
+	if (*src)[0] == 0x0 {
+		out.IsResult = false
+	} else {
+		out.IsResult = true
+	}
+	(*src) = (*src)[1:]
+
+	if out.IsResult {
+		out.Result, err = GetAccessTag(uint8((*src)[0]))
+		(*src) = (*src)[0:]
+	} else {
+		_, val, e := DecodeLength(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.Result = (*src)[:val]
+		(*src) = (*src)[val:]
+	}
+
+	return
 }
 
 // DataBlockSA is DataBlock for the SET-request, ACTION-request and ACTION-response

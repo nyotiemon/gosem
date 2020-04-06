@@ -114,15 +114,17 @@ func (gr GetRequestNext) Encode() []byte {
 // GetRequestWithList implement CosemPDU
 type GetRequestWithList struct {
 	InvokePriority    uint8
+	AttributeCount    uint8
 	AttributeInfoList []AttributeDescriptor
 }
 
 func CreateGetRequestWithList(invokeId uint8, attList []AttributeDescriptor) *GetRequestWithList {
-	if len(attList) < 1 {
-		panic("AttributeInfoList cannot have zero member")
+	if len(attList) < 1 || len(attList) > 255 {
+		panic("AttributeInfoList cannot have zero or >255 member")
 	}
 	return &GetRequestWithList{
 		InvokePriority:    invokeId,
+		AttributeCount:    uint8(len(attList)),
 		AttributeInfoList: attList,
 	}
 }
@@ -207,9 +209,9 @@ func DecodeGetRequestWithList(src *[]byte) (out GetRequestWithList, err error) {
 	}
 	out.InvokePriority = (*src)[2]
 
-	attrDescLength := (*src)[3]
+	out.AttributeCount = uint8((*src)[3])
 	(*src) = (*src)[4:]
-	for i := 0; i < int(attrDescLength); i++ {
+	for i := 0; i < int(out.AttributeCount); i++ {
 		v, e := DecodeAttributeDescriptor(src)
 		if e != nil {
 			err = e
