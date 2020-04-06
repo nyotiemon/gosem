@@ -104,15 +104,17 @@ func (gr GetResponseWithDataBlock) Encode() []byte {
 // GetResponseWithList implement CosemPDU
 type GetResponseWithList struct {
 	InvokePriority uint8
+	ResultCount    uint8
 	ResultList     []GetDataResult
 }
 
 func CreateGetResponseWithList(invokeId uint8, resList []GetDataResult) *GetResponseWithList {
-	if len(resList) < 1 {
-		panic("ResultList cannot have zero member")
+	if len(resList) < 1 || len(resList) > 255 {
+		panic("ResultList cannot have zero or >255 member")
 	}
 	return &GetResponseWithList{
 		InvokePriority: invokeId,
+		ResultCount:    uint8(len(resList)),
 		ResultList:     resList,
 	}
 }
@@ -122,6 +124,7 @@ func (gr GetResponseWithList) Encode() []byte {
 	buf.WriteByte(byte(TagGetResponse))
 	buf.WriteByte(byte(TagGetResponseWithList))
 	buf.WriteByte(byte(gr.InvokePriority))
+	buf.WriteByte(byte(len(gr.ResultList)))
 	for _, res := range gr.ResultList {
 		buf.Write(res.Encode())
 	}

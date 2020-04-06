@@ -53,7 +53,7 @@ func TestNewGetResponseWithList(t *testing.T) {
 	a := gr.New(TagGetResponseWithList)
 	a = *CreateGetResponseWithList(69, []GetDataResult{gdr1})
 	t1 := a.Encode()
-	result := []byte{196, 3, 69, 0, 0}
+	result := []byte{196, 3, 69, 1, 0, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
@@ -63,7 +63,7 @@ func TestNewGetResponseWithList(t *testing.T) {
 	var gdr2 GetDataResult = *CreateGetDataResultAsData(dt1)
 	b := *CreateGetResponseWithList(69, []GetDataResult{gdr1, gdr2})
 	t2 := b.Encode()
-	result = []byte{196, 3, 69, 0, 0, 1, 5, 0, 0, 0, 1}
+	result = []byte{196, 3, 69, 2, 0, 0, 1, 5, 0, 0, 0, 1}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 failed. get: %d, should:%v", t2, result)
