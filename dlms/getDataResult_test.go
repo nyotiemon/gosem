@@ -145,25 +145,28 @@ func TestDataBlockG(t *testing.T) {
 }
 
 func TestDataBlockSA(t *testing.T) {
+	// with hexstring
 	var a DataBlockSA = *CreateDataBlockSA(true, 1, "07D20C04030A060BFF007800")
 
 	t1 := a.Encode()
-	result := []byte{1, 0, 0, 0, 1, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	result := []byte{1, 0, 0, 0, 1, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
 	}
 
+	// with byte slice
 	var b DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 0, 0, 3, 0, 255})
 	t2 := b.Encode()
-	result = []byte{1, 0, 0, 0, 1, 1, 0, 0, 3, 0, 255}
+	result = []byte{1, 0, 0, 0, 1, 6, 1, 0, 0, 3, 0, 255}
 
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
 	}
 
+	// with wrong value
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("t3 should've panic on wrong Value")
@@ -186,6 +189,7 @@ func TestActionResponseWithOptData(t *testing.T) {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
 	}
 
+	// with nil GetDataResult
 	var nilRet *GetDataResult = nil
 	var b ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActReadWriteDenied, nilRet)
 	t2 := b.Encode()
@@ -198,6 +202,7 @@ func TestActionResponseWithOptData(t *testing.T) {
 }
 
 func TestDecode_GetDataResult(t *testing.T) {
+	// with accessResultTag
 	src := []byte{0, 0}
 	a, ae := DecodeGetDataResult(&src)
 
@@ -211,6 +216,7 @@ func TestDecode_GetDataResult(t *testing.T) {
 		t.Errorf("t1 Failed. get: %d, should:%v", a.Value, TagAccSuccess)
 	}
 
+	// with dlms data
 	src = []byte{1, 5, 0, 0, 0, 69}
 	b, be := DecodeGetDataResult(&src)
 	if be != nil {
@@ -229,6 +235,7 @@ func TestDecode_GetDataResult(t *testing.T) {
 }
 
 func TestDecode_DataBlockG(t *testing.T) {
+	// with byte slice
 	src := []byte{1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 	a, ae := DecodeDataBlockG(&src)
 
@@ -250,7 +257,7 @@ func TestDecode_DataBlockG(t *testing.T) {
 		t.Errorf("t1 Failed. Result is not correct (%v)", val)
 	}
 
-	// ---
+	// with accessResultTag
 	src = []byte{1, 0, 0, 0, 1, 1, 0}
 	b, be := DecodeDataBlockG(&src)
 
@@ -268,6 +275,26 @@ func TestDecode_DataBlockG(t *testing.T) {
 	}
 	if b.ResultAsAccess() != TagAccSuccess {
 		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", b.Result)
+	}
+
+}
+
+func TestDecode_DataBlockSA(t *testing.T) {
+	src := []byte{1, 0, 0, 0, 1, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	a, ae := DecodeDataBlockSA(&src)
+
+	if ae != nil {
+		t.Errorf("t1 Failed. got error: %v", ae)
+	}
+	if !a.LastBlock {
+		t.Errorf("t1 Failed. LastBlock should be true")
+	}
+	if a.BlockNumber != 1 {
+		t.Errorf("t1 Failed. BlockNumber should be 1 (%v)", a.BlockNumber)
+	}
+	res := bytes.Compare(a.Raw, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
+	if res != 0 {
+		t.Errorf("t1 Failed. Result is not correct (%v)", a.Raw)
 	}
 
 }

@@ -150,6 +150,7 @@ func (dt *DataBlockG) Encode() []byte {
 	} else {
 		output.WriteByte(0x0)
 		value := dt.Result.([]byte)
+		// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
 		output.WriteByte(byte(len(value)))
 		output.Write(value)
 	}
@@ -194,13 +195,10 @@ func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
 		out.Result, err = GetAccessTag(uint8((*src)[0]))
 		(*src) = (*src)[0:]
 	} else {
-		_, val, e := DecodeLength(src)
-		if e != nil {
-			err = e
-			return
-		}
-		out.Result = (*src)[:val]
-		(*src) = (*src)[val:]
+		// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
+		val := uint8((*src)[0])
+		out.Result = (*src)[1 : 1+val]
+		(*src) = (*src)[1+val:]
 	}
 
 	return
@@ -244,9 +242,30 @@ func (dt *DataBlockSA) Encode() []byte {
 		panic(e)
 	}
 	output.Write(blk)
+
+	// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
+	output.WriteByte(byte(len(dt.Raw)))
 	output.Write(dt.Raw)
 
 	return output.Bytes()
+}
+
+func DecodeDataBlockSA(src *[]byte) (out DataBlockSA, err error) {
+	if (*src)[0] == 0x0 {
+		out.LastBlock = false
+	} else {
+		out.LastBlock = true
+	}
+	(*src) = (*src)[1:]
+
+	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(src)
+
+	// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
+	val := uint8((*src)[0])
+	out.Raw = (*src)[1 : val+1]
+	(*src) = (*src)[val+1:]
+
+	return
 }
 
 // Response of ActionRequest. ReturnParam is optional parameter therefore pointer
