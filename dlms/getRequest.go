@@ -87,61 +87,6 @@ func (gr GetRequestNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-// GetRequestNext implement CosemPDU
-type GetRequestNext struct {
-	InvokePriority uint8
-	BlockNum       uint32
-}
-
-func CreateGetRequestNext(invokeId uint8, blockNum uint32) *GetRequestNext {
-	return &GetRequestNext{
-		InvokePriority: invokeId,
-		BlockNum:       blockNum,
-	}
-}
-
-func (gr GetRequestNext) Encode() []byte {
-	var buf bytes.Buffer
-	buf.WriteByte(byte(TagGetRequest))
-	buf.WriteByte(byte(TagGetRequestNext))
-	buf.WriteByte(byte(gr.InvokePriority))
-	blockNum, _ := EncodeDoubleLongUnsigned(gr.BlockNum)
-	buf.Write(blockNum)
-
-	return buf.Bytes()
-}
-
-// GetRequestWithList implement CosemPDU
-type GetRequestWithList struct {
-	InvokePriority    uint8
-	AttributeCount    uint8
-	AttributeInfoList []AttributeDescriptor
-}
-
-func CreateGetRequestWithList(invokeId uint8, attList []AttributeDescriptor) *GetRequestWithList {
-	if len(attList) < 1 || len(attList) > 255 {
-		panic("AttributeInfoList cannot have zero or >255 member")
-	}
-	return &GetRequestWithList{
-		InvokePriority:    invokeId,
-		AttributeCount:    uint8(len(attList)),
-		AttributeInfoList: attList,
-	}
-}
-
-func (gr GetRequestWithList) Encode() []byte {
-	var buf bytes.Buffer
-	buf.WriteByte(byte(TagGetRequest))
-	buf.WriteByte(byte(TagGetRequestWithList))
-	buf.WriteByte(byte(gr.InvokePriority))
-	buf.WriteByte(byte(len(gr.AttributeInfoList)))
-	for _, attr := range gr.AttributeInfoList {
-		buf.Write(attr.Encode())
-	}
-
-	return buf.Bytes()
-}
-
 func DecodeGetRequestNormal(src *[]byte) (out GetRequestNormal, err error) {
 	if (*src)[0] != TagGetRequest.Value() {
 		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
@@ -176,6 +121,30 @@ func DecodeGetRequestNormal(src *[]byte) (out GetRequestNormal, err error) {
 	return
 }
 
+// GetRequestNext implement CosemPDU
+type GetRequestNext struct {
+	InvokePriority uint8
+	BlockNum       uint32
+}
+
+func CreateGetRequestNext(invokeId uint8, blockNum uint32) *GetRequestNext {
+	return &GetRequestNext{
+		InvokePriority: invokeId,
+		BlockNum:       blockNum,
+	}
+}
+
+func (gr GetRequestNext) Encode() []byte {
+	var buf bytes.Buffer
+	buf.WriteByte(byte(TagGetRequest))
+	buf.WriteByte(byte(TagGetRequestNext))
+	buf.WriteByte(byte(gr.InvokePriority))
+	blockNum, _ := EncodeDoubleLongUnsigned(gr.BlockNum)
+	buf.Write(blockNum)
+
+	return buf.Bytes()
+}
+
 func DecodeGetRequestNext(src *[]byte) (out GetRequestNext, err error) {
 	if (*src)[0] != TagGetRequest.Value() {
 		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
@@ -196,6 +165,37 @@ func DecodeGetRequestNext(src *[]byte) (out GetRequestNext, err error) {
 	out.BlockNum = v
 
 	return
+}
+
+// GetRequestWithList implement CosemPDU
+type GetRequestWithList struct {
+	InvokePriority    uint8
+	AttributeCount    uint8
+	AttributeInfoList []AttributeDescriptor
+}
+
+func CreateGetRequestWithList(invokeId uint8, attList []AttributeDescriptor) *GetRequestWithList {
+	if len(attList) < 1 || len(attList) > 255 {
+		panic("AttributeInfoList cannot have zero or >255 member")
+	}
+	return &GetRequestWithList{
+		InvokePriority:    invokeId,
+		AttributeCount:    uint8(len(attList)),
+		AttributeInfoList: attList,
+	}
+}
+
+func (gr GetRequestWithList) Encode() []byte {
+	var buf bytes.Buffer
+	buf.WriteByte(byte(TagGetRequest))
+	buf.WriteByte(byte(TagGetRequestWithList))
+	buf.WriteByte(byte(gr.InvokePriority))
+	buf.WriteByte(byte(len(gr.AttributeInfoList)))
+	for _, attr := range gr.AttributeInfoList {
+		buf.Write(attr.Encode())
+	}
+
+	return buf.Bytes()
 }
 
 func DecodeGetRequestWithList(src *[]byte) (out GetRequestWithList, err error) {
