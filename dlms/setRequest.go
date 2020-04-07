@@ -2,6 +2,7 @@ package cosem
 
 import (
 	"bytes"
+	"fmt"
 	. "gosem/axdr"
 )
 
@@ -41,8 +42,27 @@ func (gr *SetRequest) New(tag setRequestTag) CosemPDU {
 	}
 }
 
-// TODO
 func (gr *SetRequest) Decode(src *[]byte) (out CosemPDU, err error) {
+	if (*src)[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+		return
+	}
+
+	switch (*src)[1] {
+	case TagSetRequestNormal.Value():
+		out, err = DecodeSetRequestNormal(src)
+	case TagSetRequestWithFirstDataBlock.Value():
+		out, err = DecodeSetRequestWithFirstDataBlock(src)
+	case TagSetRequestWithDataBlock.Value():
+		out, err = DecodeSetRequestWithDataBlock(src)
+	case TagSetRequestWithList.Value():
+		out, err = DecodeSetRequestWithList(src)
+	case TagSetRequestWithListAndFirstDataBlock.Value():
+		out, err = DecodeSetRequestWithListAndFirstDataBlock(src)
+	default:
+		err = fmt.Errorf("Byte tag not recognized (%v)", (*src)[1])
+	}
+
 	return
 }
 
@@ -80,6 +100,43 @@ func (sr SetRequestNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
+func DecodeSetRequestNormal(src *[]byte) (out SetRequestNormal, err error) {
+	if (*src)[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+		return
+	}
+	if (*src)[1] != TagSetRequestNormal.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestNormal))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	if err != nil {
+		return
+	}
+
+	haveAccDesc := (*src)[0]
+	(*src) = (*src)[1:]
+	// SelectiveAccessInfo
+	if haveAccDesc == 0 {
+		var nilAccsDesc *SelectiveAccessDescriptor = nil
+		out.SelectiveAccessInfo = nilAccsDesc
+	} else {
+		accDesc, e := DecodeSelectiveAccessDescriptor(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.SelectiveAccessInfo = &accDesc
+	}
+
+	decoder := NewDataDecoder(src)
+	out.Value, err = decoder.Decode(src)
+
+	return
+}
+
 // SetRequestWithFirstDataBlock implement CosemPDU
 type SetRequestWithFirstDataBlock struct {
 	InvokePriority      uint8
@@ -114,6 +171,42 @@ func (sr SetRequestWithFirstDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
+func DecodeSetRequestWithFirstDataBlock(src *[]byte) (out SetRequestWithFirstDataBlock, err error) {
+	if (*src)[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+		return
+	}
+	if (*src)[1] != TagSetRequestWithFirstDataBlock.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithFirstDataBlock))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	if err != nil {
+		return
+	}
+
+	haveAccDesc := (*src)[0]
+	(*src) = (*src)[1:]
+
+	if haveAccDesc == 0 {
+		var nilAccsDesc *SelectiveAccessDescriptor = nil
+		out.SelectiveAccessInfo = nilAccsDesc
+	} else {
+		accDesc, e := DecodeSelectiveAccessDescriptor(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.SelectiveAccessInfo = &accDesc
+	}
+
+	out.DataBlock, err = DecodeDataBlockSA(src)
+
+	return
+}
+
 // SetRequestWithDataBlock implement CosemPDU
 type SetRequestWithDataBlock struct {
 	InvokePriority uint8
@@ -135,6 +228,23 @@ func (sr SetRequestWithDataBlock) Encode() []byte {
 	buf.Write(sr.DataBlock.Encode())
 
 	return buf.Bytes()
+}
+
+func DecodeSetRequestWithDataBlock(src *[]byte) (out SetRequestWithDataBlock, err error) {
+	if (*src)[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+		return
+	}
+	if (*src)[1] != TagSetRequestWithDataBlock.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithDataBlock))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+	(*src) = (*src)[3:]
+
+	out.DataBlock, err = DecodeDataBlockSA(src)
+
+	return
 }
 
 // SetRequestWithList implement CosemPDU
@@ -179,6 +289,43 @@ func (sr SetRequestWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
+func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
+	if (*src)[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+		return
+	}
+	if (*src)[1] != TagSetRequestWithList.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithList))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+
+	out.AttributeCount = uint8((*src)[3])
+	(*src) = (*src)[4:]
+	for i := 0; i < int(out.AttributeCount); i++ {
+		v, e := DecodeAttributeDescriptor(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.AttributeInfoList = append(out.AttributeInfoList, v)
+	}
+
+	out.ValueCount = uint8((*src)[0])
+	(*src) = (*src)[1:]
+	for i := 0; i < int(out.ValueCount); i++ {
+		decoder := NewDataDecoder(src)
+		v, e := decoder.Decode(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.ValueList = append(out.ValueList, v)
+	}
+
+	return
+}
+
 // SetRequestWithListAndFirstDataBlock implement CosemPDU
 type SetRequestWithListAndFirstDataBlock struct {
 	InvokePriority    uint8
@@ -211,4 +358,31 @@ func (sr SetRequestWithListAndFirstDataBlock) Encode() []byte {
 	buf.Write(sr.DataBlock.Encode())
 
 	return buf.Bytes()
+}
+
+func DecodeSetRequestWithListAndFirstDataBlock(src *[]byte) (out SetRequestWithListAndFirstDataBlock, err error) {
+	if (*src)[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+		return
+	}
+	if (*src)[1] != TagSetRequestWithListAndFirstDataBlock.Value() {
+		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithListAndFirstDataBlock))
+		return
+	}
+	out.InvokePriority = (*src)[2]
+
+	out.AttributeCount = uint8((*src)[3])
+	(*src) = (*src)[4:]
+	for i := 0; i < int(out.AttributeCount); i++ {
+		v, e := DecodeAttributeDescriptor(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.AttributeInfoList = append(out.AttributeInfoList, v)
+	}
+
+	out.DataBlock, err = DecodeDataBlockSA(src)
+
+	return
 }
