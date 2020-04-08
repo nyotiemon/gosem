@@ -127,7 +127,7 @@ func TestDecode_GetResponseWithDataBlock(t *testing.T) {
 	if a.InvokePriority != 81 {
 		t.Errorf("t2 Failed. InvokePriority should be 81, get: %v", a.InvokePriority)
 	}
-	val2 := a.Result.Result.(accessResultTag)
+	val2 := a.Result.Result.(AccessResultTag)
 	if val2 != TagAccSuccess {
 		t.Errorf("t2 Failed. Result should be TagAccSuccess, get: %v", val2)
 	}

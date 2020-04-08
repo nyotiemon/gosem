@@ -202,7 +202,7 @@ func TestActionResponseWithOptData(t *testing.T) {
 }
 
 func TestDecode_GetDataResult(t *testing.T) {
-	// with accessResultTag
+	// with AccessResultTag
 	src := []byte{0, 0}
 	a, ae := DecodeGetDataResult(&src)
 
@@ -257,7 +257,7 @@ func TestDecode_DataBlockG(t *testing.T) {
 		t.Errorf("t1 Failed. Result is not correct (%v)", val)
 	}
 
-	// with accessResultTag
+	// with AccessResultTag
 	src = []byte{1, 0, 0, 0, 1, 1, 0}
 	b, be := DecodeDataBlockG(&src)
 

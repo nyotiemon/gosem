@@ -42,7 +42,7 @@ func TestNew_SetResponseLastDataBlock(t *testing.T) {
 
 func TestNew_SetResponseLastDataBlockWithList(t *testing.T) {
 
-	resList := []accessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
+	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var a SetResponseLastDataBlockWithList = *CreateSetResponseLastDataBlockWithList(81, resList, 1)
 	t1 := a.Encode()
 	result := []byte{197, 4, 81, 3, 0, 1, 250, 0, 0, 0, 1}
@@ -57,13 +57,13 @@ func TestNew_SetResponseLastDataBlockWithList(t *testing.T) {
 			t.Errorf("t2 should've panic on wrong Value")
 		}
 	}()
-	b := *CreateSetResponseLastDataBlockWithList(81, []accessResultTag{}, 1)
+	b := *CreateSetResponseLastDataBlockWithList(81, []AccessResultTag{}, 1)
 	b.Encode()
 }
 
 func TestNew_SetResponseWithList(t *testing.T) {
 
-	resList := []accessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
+	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var a SetResponseWithList = *CreateSetResponseWithList(81, resList)
 	t1 := a.Encode()
 	result := []byte{197, 5, 81, 3, 0, 1, 250}
@@ -78,7 +78,7 @@ func TestNew_SetResponseWithList(t *testing.T) {
 			t.Errorf("t2 should've panic on wrong Value")
 		}
 	}()
-	b := *CreateSetResponseWithList(81, []accessResultTag{})
+	b := *CreateSetResponseWithList(81, []AccessResultTag{})
 	b.Encode()
 }
 
@@ -153,7 +153,7 @@ func TestDecode_SetResponseLastDataBlock(t *testing.T) {
 }
 
 func TestDecode_SetResponseLastDataBlockWithList(t *testing.T) {
-	resList := []accessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
+	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var x SetResponseLastDataBlockWithList = *CreateSetResponseLastDataBlockWithList(81, resList, 1)
 	src := []byte{197, 4, 81, 3, 0, 1, 250, 0, 0, 0, 1}
 
@@ -192,7 +192,7 @@ func TestDecode_SetResponseLastDataBlockWithList(t *testing.T) {
 }
 
 func TestDecode_SetResponseWithList(t *testing.T) {
-	resList := []accessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
+	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var x SetResponseWithList = *CreateSetResponseWithList(81, resList)
 	src := []byte{197, 5, 81, 3, 0, 1, 250}
 

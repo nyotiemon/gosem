@@ -2,45 +2,45 @@ package cosem
 
 import "fmt"
 
-type accessResultTag uint8
-type actionResultTag uint8
+type AccessResultTag uint8
+type ActionResultTag uint8
 
 const (
 	// DataAccessResult
-	TagAccSuccess                 accessResultTag = 0
-	TagAccHardwareFault           accessResultTag = 1
-	TagAccTemporaryFailure        accessResultTag = 2
-	TagAccReadWriteDenied         accessResultTag = 3
-	TagAccObjectUndefined         accessResultTag = 4
-	TagAccObjectClassInconsistent accessResultTag = 9
-	TagAccObjectUnavailable       accessResultTag = 11
-	TagAccTypeUnmatched           accessResultTag = 12
-	TagAccScopeAccessViolated     accessResultTag = 13
-	TagAccDataBlockUnavailable    accessResultTag = 14
-	TagAccLongGetAborted          accessResultTag = 15
-	TagAccNoLongGetInProgress     accessResultTag = 16
-	TagAccLongSetAborted          accessResultTag = 17
-	TagAccNoLongSetInProgress     accessResultTag = 18
-	TagAccDataBlockNumberInvalid  accessResultTag = 19
-	TagAccOtherReason             accessResultTag = 250
+	TagAccSuccess                 AccessResultTag = 0
+	TagAccHardwareFault           AccessResultTag = 1
+	TagAccTemporaryFailure        AccessResultTag = 2
+	TagAccReadWriteDenied         AccessResultTag = 3
+	TagAccObjectUndefined         AccessResultTag = 4
+	TagAccObjectClassInconsistent AccessResultTag = 9
+	TagAccObjectUnavailable       AccessResultTag = 11
+	TagAccTypeUnmatched           AccessResultTag = 12
+	TagAccScopeAccessViolated     AccessResultTag = 13
+	TagAccDataBlockUnavailable    AccessResultTag = 14
+	TagAccLongGetAborted          AccessResultTag = 15
+	TagAccNoLongGetInProgress     AccessResultTag = 16
+	TagAccLongSetAborted          AccessResultTag = 17
+	TagAccNoLongSetInProgress     AccessResultTag = 18
+	TagAccDataBlockNumberInvalid  AccessResultTag = 19
+	TagAccOtherReason             AccessResultTag = 250
 
 	// ActionResult
-	TagActSuccess                 actionResultTag = 0
-	TagActHardwareFault           actionResultTag = 1
-	TagActTemporaryFailure        actionResultTag = 2
-	TagActReadWriteDenied         actionResultTag = 3
-	TagActObjectUndefined         actionResultTag = 4
-	TagActObjectClassInconsistent actionResultTag = 9
-	TagActObjectUnavailable       actionResultTag = 11
-	TagActTypeUnmatched           actionResultTag = 12
-	TagActScopeOfAccessViolated   actionResultTag = 13
-	TagActDataBlockUnavailable    actionResultTag = 14
-	TagActLongActionAborted       actionResultTag = 15
-	TagActNoLongActionInProgress  actionResultTag = 16
-	TagActOtherReason             actionResultTag = 250
+	TagActSuccess                 ActionResultTag = 0
+	TagActHardwareFault           ActionResultTag = 1
+	TagActTemporaryFailure        ActionResultTag = 2
+	TagActReadWriteDenied         ActionResultTag = 3
+	TagActObjectUndefined         ActionResultTag = 4
+	TagActObjectClassInconsistent ActionResultTag = 9
+	TagActObjectUnavailable       ActionResultTag = 11
+	TagActTypeUnmatched           ActionResultTag = 12
+	TagActScopeOfAccessViolated   ActionResultTag = 13
+	TagActDataBlockUnavailable    ActionResultTag = 14
+	TagActLongActionAborted       ActionResultTag = 15
+	TagActNoLongActionInProgress  ActionResultTag = 16
+	TagActOtherReason             ActionResultTag = 250
 )
 
-func (tag accessResultTag) String() string {
+func (tag AccessResultTag) String() string {
 	switch tag {
 	case TagAccSuccess:
 		return "success"
@@ -79,7 +79,7 @@ func (tag accessResultTag) String() string {
 	}
 }
 
-func (tag actionResultTag) String() string {
+func (tag ActionResultTag) String() string {
 	switch tag {
 	case TagActSuccess:
 		return "success"
@@ -114,17 +114,17 @@ func (tag actionResultTag) String() string {
 
 // Value will return primitive value of the target.
 // This is used for comparing with non custom typed object
-func (s accessResultTag) Value() uint8 {
+func (s AccessResultTag) Value() uint8 {
 	return uint8(s)
 }
 
 // Value will return primitive value of the target.
 // This is used for comparing with non custom typed object
-func (s actionResultTag) Value() uint8 {
+func (s ActionResultTag) Value() uint8 {
 	return uint8(s)
 }
 
-func GetAccessTag(in uint8) (out accessResultTag, err error) {
+func GetAccessTag(in uint8) (out AccessResultTag, err error) {
 	switch in {
 	case 0:
 		out = TagAccSuccess
@@ -165,7 +165,7 @@ func GetAccessTag(in uint8) (out accessResultTag, err error) {
 	return
 }
 
-func GetActionTag(in uint8) (out actionResultTag, err error) {
+func GetActionTag(in uint8) (out ActionResultTag, err error) {
 	switch in {
 	case 0:
 		out = TagActSuccess

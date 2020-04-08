@@ -15,7 +15,7 @@ func CreateGetDataResultAsData(value DlmsData) *GetDataResult {
 	return &GetDataResult{true, value}
 }
 
-func CreateGetDataResultAsResult(value accessResultTag) *GetDataResult {
+func CreateGetDataResultAsResult(value AccessResultTag) *GetDataResult {
 	return &GetDataResult{false, value}
 }
 
@@ -23,10 +23,10 @@ func CreateGetDataResult(value interface{}) *GetDataResult {
 	switch val := value.(type) {
 	case DlmsData:
 		return CreateGetDataResultAsData(val)
-	case accessResultTag:
+	case AccessResultTag:
 		return CreateGetDataResultAsResult(val)
 	default:
-		panic("Value must be either DlmsData or accessResultTag")
+		panic("Value must be either DlmsData or AccessResultTag")
 	}
 }
 
@@ -38,7 +38,7 @@ func (dt *GetDataResult) Encode() []byte {
 		output.Write(value.Encode())
 	} else {
 		output.WriteByte(0x0)
-		value := dt.Value.(accessResultTag)
+		value := dt.Value.(AccessResultTag)
 		output.WriteByte(byte(value))
 	}
 
@@ -53,12 +53,12 @@ func (dt *GetDataResult) ValueAsData() DlmsData {
 	return dt.Value.(DlmsData)
 }
 
-func (dt *GetDataResult) ValueAsAccess() accessResultTag {
+func (dt *GetDataResult) ValueAsAccess() AccessResultTag {
 	if dt.IsData {
 		panic("Value is DlmsData!")
 	}
 
-	return dt.Value.(accessResultTag)
+	return dt.Value.(AccessResultTag)
 }
 
 func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
@@ -79,7 +79,7 @@ func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
 }
 
 // DataBlockG is DataBlock for the GET-response. Result must be either byte slice
-// or accessResultTag after creation, or else it will fail on Encode()
+// or AccessResultTag after creation, or else it will fail on Encode()
 type DataBlockG struct {
 	LastBlock   bool
 	BlockNumber uint32
@@ -104,7 +104,7 @@ func CreateDataBlockGAsData(lastBlock bool, blockNum uint32, result interface{})
 	}
 }
 
-func CreateDataBlockGAsResult(lastBlock bool, blockNum uint32, result accessResultTag) *DataBlockG {
+func CreateDataBlockGAsResult(lastBlock bool, blockNum uint32, result AccessResultTag) *DataBlockG {
 	return &DataBlockG{lastBlock, blockNum, true, result}
 }
 
@@ -120,7 +120,7 @@ func CreateDataBlockG(lastBlock bool, blockNum uint32, result interface{}) *Data
 	case []byte:
 		return CreateDataBlockGAsData(lastBlock, blockNum, res)
 
-	case accessResultTag:
+	case AccessResultTag:
 		return CreateDataBlockGAsResult(lastBlock, blockNum, res)
 
 	default:
@@ -145,7 +145,7 @@ func (dt *DataBlockG) Encode() []byte {
 
 	if dt.IsResult == true {
 		output.WriteByte(0x1)
-		value := dt.Result.(accessResultTag)
+		value := dt.Result.(AccessResultTag)
 		output.WriteByte(byte(value))
 	} else {
 		output.WriteByte(0x0)
@@ -166,12 +166,12 @@ func (dt *DataBlockG) ResultAsBytes() []byte {
 	return dt.Result.([]byte)
 }
 
-func (dt *DataBlockG) ResultAsAccess() accessResultTag {
+func (dt *DataBlockG) ResultAsAccess() AccessResultTag {
 	if !dt.IsResult {
 		panic("Value is byte slice!")
 	}
 
-	return dt.Result.(accessResultTag)
+	return dt.Result.(AccessResultTag)
 }
 
 func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
@@ -270,11 +270,11 @@ func DecodeDataBlockSA(src *[]byte) (out DataBlockSA, err error) {
 
 // Response of ActionRequest. ReturnParam is optional parameter therefore pointer
 type ActionResponseWithOptData struct {
-	Result      actionResultTag
+	Result      ActionResultTag
 	ReturnParam *GetDataResult
 }
 
-func CreateActionResponseWithOptData(result actionResultTag, returnParam *GetDataResult) *ActionResponseWithOptData {
+func CreateActionResponseWithOptData(result ActionResultTag, returnParam *GetDataResult) *ActionResponseWithOptData {
 
 	return &ActionResponseWithOptData{Result: result, ReturnParam: returnParam}
 }
