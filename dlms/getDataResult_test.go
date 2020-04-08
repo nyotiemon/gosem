@@ -298,3 +298,24 @@ func TestDecode_DataBlockSA(t *testing.T) {
 	}
 
 }
+
+func TestDecode_ActionResponseWithOptData(t *testing.T) {
+	src := []byte{0, 1, 0, 0}
+	a, ae := DecodeActionResponseWithOptData(&src)
+
+	if ae != nil {
+		t.Errorf("Error on DecodeActionResponseWithOptData: %v", ae)
+	}
+	if a.Result != TagActSuccess {
+		t.Errorf("Result should be TagActSuccess")
+	}
+	if a.ReturnParam == nil {
+		t.Errorf("ReturnParam should not be nil (%v)", a.ReturnParam)
+	}
+	if a.ReturnParam.IsData == true {
+		t.Errorf("ReturnParam.IsData should not be true (%v)", a.ReturnParam.IsData)
+	}
+	if a.ReturnParam.ValueAsAccess() != TagAccSuccess {
+		t.Errorf("ReturnParam.Value should be TagAccSuccess (%v)", a.ReturnParam.Value)
+	}
+}

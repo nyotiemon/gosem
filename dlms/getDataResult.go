@@ -293,3 +293,27 @@ func (dt *ActionResponseWithOptData) Encode() []byte {
 
 	return output.Bytes()
 }
+
+func DecodeActionResponseWithOptData(src *[]byte) (out ActionResponseWithOptData, err error) {
+	out.Result, err = GetActionTag((*src)[0])
+	if err != nil {
+		return
+	}
+
+	haveReturnParam := (*src)[1]
+	(*src) = (*src)[2:]
+
+	if haveReturnParam == 0x0 {
+		var gdrNil *GetDataResult = nil
+		out.ReturnParam = gdrNil
+	} else {
+		gdr, e := DecodeGetDataResult(src)
+		if e != nil {
+			err = e
+			return
+		}
+		out.ReturnParam = &gdr
+	}
+
+	return
+}
