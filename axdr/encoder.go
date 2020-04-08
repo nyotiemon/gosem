@@ -160,7 +160,7 @@ func EncodeBitString(data string) ([]byte, error) {
 	return dataBytes.Bytes(), nil
 }
 
-func EncodeDoubleLong(data int) ([]byte, error) {
+func EncodeDoubleLong(data int32) ([]byte, error) {
 	var output [4]byte
 	binary.BigEndian.PutUint32(output[:], uint32(data))
 	return output[:], nil

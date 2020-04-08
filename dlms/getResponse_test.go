@@ -167,8 +167,8 @@ func TestDecode_GetResponseWithList(t *testing.T) {
 	if !a.ResultList[1].IsData {
 		t.Errorf("t1 Failed. ResultList[0].IsData should be true, get: %v", a.ResultList[1].IsData)
 	}
-	a2DescObis := uint32(a.ResultList[1].ValueAsData().Value.(int32))
-	b2DescObis := uint32(b.ResultList[1].ValueAsData().Value.(int))
+	a2DescObis := a.ResultList[1].ValueAsData().Value
+	b2DescObis := b.ResultList[1].ValueAsData().Value
 	if a2DescObis != b2DescObis {
 		t.Errorf("t1 Failed. ResultList[1].Value get: %v, should: %v", a2DescObis, b2DescObis)
 	}

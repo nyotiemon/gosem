@@ -72,7 +72,7 @@ func CreateAxdrBitString(data string) *DlmsData {
 	return &DlmsData{Tag: TagBitString, Value: data}
 }
 
-func CreateAxdrDoubleLong(data int) *DlmsData {
+func CreateAxdrDoubleLong(data int32) *DlmsData {
 	return &DlmsData{Tag: TagDoubleLong, Value: data}
 }
 
@@ -224,7 +224,7 @@ func (d *DlmsData) Encode() []byte {
 		}
 
 	case TagDoubleLong:
-		data, ok := d.Value.(int)
+		data, ok := d.Value.(int32)
 		if !ok {
 			panic(errDataType)
 		}
