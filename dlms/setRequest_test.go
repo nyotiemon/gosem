@@ -193,17 +193,17 @@ func TestDecode_SetRequestNormal(t *testing.T) {
 	a, err = DecodeSetRequestNormal(&src)
 
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeGetRequestNormal. err:%v", err)
+		t.Errorf("t2 Failed to DecodeGetRequestNormal. err:%v", err)
 	}
 
 	var nilAccsDesc *SelectiveAccessDescriptor = nil
 	b = *CreateSetRequestNormal(81, attrDesc, nilAccsDesc, dt)
 
 	if a.SelectiveAccessInfo != nilAccsDesc {
-		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessSelector should be nil get: %v", a.SelectiveAccessInfo)
+		t.Errorf("t2 Failed. SelectiveAccessInfo.AccessSelector should be nil get: %v", a.SelectiveAccessInfo)
 	}
 	if len(src) > 0 {
-		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
 }
 
@@ -262,17 +262,17 @@ func TestDecode_SetRequestWithFirstDataBlock(t *testing.T) {
 	a, err = DecodeSetRequestWithFirstDataBlock(&src)
 
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeSetRequestWithFirstDataBlock. err:%v", err)
+		t.Errorf("t2 Failed to DecodeSetRequestWithFirstDataBlock. err:%v", err)
 	}
 
 	var nilAccsDesc *SelectiveAccessDescriptor = nil
 	b = *CreateSetRequestWithFirstDataBlock(81, attrDesc, nilAccsDesc, dt)
 
 	if a.SelectiveAccessInfo != nilAccsDesc {
-		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessSelector should be nil get: %v", a.SelectiveAccessInfo)
+		t.Errorf("t2 Failed. SelectiveAccessInfo.AccessSelector should be nil get: %v", a.SelectiveAccessInfo)
 	}
 	if len(src) > 0 {
-		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
 }
 
@@ -351,36 +351,39 @@ func TestDecode_SetRequestWithList(t *testing.T) {
 	// ---------------------- with 2 AttributeDescriptor
 	src = []byte{193, 4, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
 	a, err = DecodeSetRequestWithList(&src)
+	if err != nil {
+		t.Errorf("t2 Failed to DecodeActionRequestWithList. err:%v", err)
+	}
 
 	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
 	var d2 DlmsData = *CreateAxdrDoubleLong(69)
 	b = *CreateSetRequestWithList(69, []AttributeDescriptor{a1, a2}, []DlmsData{d1, d2})
 
 	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
-		t.Errorf("t1 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
+		t.Errorf("t2 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
 	}
 	if a.AttributeCount != b.AttributeCount {
-		t.Errorf("t1 Failed. AttributeCount get: %v, should:%v", a.AttributeCount, b.AttributeCount)
+		t.Errorf("t2 Failed. AttributeCount get: %v, should:%v", a.AttributeCount, b.AttributeCount)
 	}
 	aDescObis = a.AttributeInfoList[1].InstanceId.String()
 	bDescObis = b.AttributeInfoList[1].InstanceId.String()
 	if aDescObis != bDescObis {
-		t.Errorf("t1 Failed. AttributeInfoList[1].InstanceId get: %v, should:%v", aDescObis, bDescObis)
+		t.Errorf("t2 Failed. AttributeInfoList[1].InstanceId get: %v, should:%v", aDescObis, bDescObis)
 	}
 	if len(a.ValueList) != len(b.ValueList) {
-		t.Errorf("t1 Failed. ValueList count get: %v, should:%v", len(a.ValueList), len(b.ValueList))
+		t.Errorf("t2 Failed. ValueList count get: %v, should:%v", len(a.ValueList), len(b.ValueList))
 	}
 	if a.ValueCount != b.ValueCount {
-		t.Errorf("t1 Failed. ValueCount get: %v, should:%v", a.ValueCount, b.ValueCount)
+		t.Errorf("t2 Failed. ValueCount get: %v, should:%v", a.ValueCount, b.ValueCount)
 	}
 	aDataTag = a.ValueList[1].Tag
 	bDataTag = b.ValueList[1].Tag
 	if aDataTag != bDataTag {
-		t.Errorf("t1 Failed. ValueList[1].Tag get: %v, should:%v", aDataTag, bDataTag)
+		t.Errorf("t2 Failed. ValueList[1].Tag get: %v, should:%v", aDataTag, bDataTag)
 	}
 
 	if len(src) > 0 {
-		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
 
 }
@@ -434,19 +437,19 @@ func TestDecode_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	b = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptor{a1, a2}, dt)
 
 	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
-		t.Errorf("t1 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
+		t.Errorf("t2 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
 	}
 	if a.AttributeCount != b.AttributeCount {
-		t.Errorf("t1 Failed. AttributeCount get: %v, should:%v", a.AttributeCount, b.AttributeCount)
+		t.Errorf("t2 Failed. AttributeCount get: %v, should:%v", a.AttributeCount, b.AttributeCount)
 	}
 	aDescObis = a.AttributeInfoList[1].InstanceId.String()
 	bDescObis = b.AttributeInfoList[1].InstanceId.String()
 	if aDescObis != bDescObis {
-		t.Errorf("t1 Failed. AttributeInfoList[1].InstanceId get: %v, should:%v", aDescObis, bDescObis)
+		t.Errorf("t2 Failed. AttributeInfoList[1].InstanceId get: %v, should:%v", aDescObis, bDescObis)
 	}
 
 	if len(src) > 0 {
-		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
 
 }

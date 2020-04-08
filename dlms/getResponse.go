@@ -84,7 +84,7 @@ func DecodeGetResponseNormal(src *[]byte) (out GetResponseNormal, err error) {
 		return
 	}
 	if (*src)[1] != TagGetResponseNormal.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponseNormal))
+		err = ErrWrongTag(1, (*src)[1], byte(TagGetResponseNormal))
 		return
 	}
 	out.InvokePriority = (*src)[2]
@@ -123,7 +123,7 @@ func DecodeGetResponseWithDataBlock(src *[]byte) (out GetResponseWithDataBlock, 
 		return
 	}
 	if (*src)[1] != TagGetResponseWithDataBlock.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponseWithDataBlock))
+		err = ErrWrongTag(1, (*src)[1], byte(TagGetResponseWithDataBlock))
 		return
 	}
 	out.InvokePriority = (*src)[2]
@@ -170,7 +170,7 @@ func DecodeGetResponseWithList(src *[]byte) (out GetResponseWithList, err error)
 		return
 	}
 	if (*src)[1] != TagGetResponseWithList.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponseWithList))
+		err = ErrWrongTag(1, (*src)[1], byte(TagGetResponseWithList))
 		return
 	}
 	out.InvokePriority = (*src)[2]

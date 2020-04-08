@@ -106,7 +106,7 @@ func DecodeSetRequestNormal(src *[]byte) (out SetRequestNormal, err error) {
 		return
 	}
 	if (*src)[1] != TagSetRequestNormal.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestNormal))
+		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestNormal))
 		return
 	}
 	out.InvokePriority = (*src)[2]
@@ -177,7 +177,7 @@ func DecodeSetRequestWithFirstDataBlock(src *[]byte) (out SetRequestWithFirstDat
 		return
 	}
 	if (*src)[1] != TagSetRequestWithFirstDataBlock.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithFirstDataBlock))
+		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithFirstDataBlock))
 		return
 	}
 	out.InvokePriority = (*src)[2]
@@ -236,7 +236,7 @@ func DecodeSetRequestWithDataBlock(src *[]byte) (out SetRequestWithDataBlock, er
 		return
 	}
 	if (*src)[1] != TagSetRequestWithDataBlock.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithDataBlock))
+		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithDataBlock))
 		return
 	}
 	out.InvokePriority = (*src)[2]
@@ -295,7 +295,7 @@ func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
 		return
 	}
 	if (*src)[1] != TagSetRequestWithList.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithList))
+		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithList))
 		return
 	}
 	out.InvokePriority = (*src)[2]
@@ -366,7 +366,7 @@ func DecodeSetRequestWithListAndFirstDataBlock(src *[]byte) (out SetRequestWithL
 		return
 	}
 	if (*src)[1] != TagSetRequestWithListAndFirstDataBlock.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequestWithListAndFirstDataBlock))
+		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithListAndFirstDataBlock))
 		return
 	}
 	out.InvokePriority = (*src)[2]
