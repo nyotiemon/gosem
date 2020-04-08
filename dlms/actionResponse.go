@@ -63,10 +63,10 @@ func (gr *ActionResponse) Decode(src *[]byte) (out CosemPDU, err error) {
 
 type ActionResponseNormal struct {
 	InvokePriority uint8
-	Response       ActionResponseWithOptData
+	Response       ActResponse
 }
 
-func CreateActionResponseNormal(invokeId uint8, res ActionResponseWithOptData) *ActionResponseNormal {
+func CreateActionResponseNormal(invokeId uint8, res ActResponse) *ActionResponseNormal {
 	return &ActionResponseNormal{
 		InvokePriority: invokeId,
 		Response:       res,
@@ -95,7 +95,7 @@ func DecodeActionResponseNormal(src *[]byte) (out ActionResponseNormal, err erro
 	out.InvokePriority = (*src)[2]
 	(*src) = (*src)[3:]
 
-	out.Response, err = DecodeActionResponseWithOptData(src)
+	out.Response, err = DecodeActResponse(src)
 
 	return
 }
@@ -142,10 +142,10 @@ func DecodeActionResponseWithPBlock(src *[]byte) (out ActionResponseWithPBlock, 
 type ActionResponseWithList struct {
 	InvokePriority uint8
 	ResponseCount  uint8
-	ResponseList   []ActionResponseWithOptData
+	ResponseList   []ActResponse
 }
 
-func CreateActionResponseWithList(invokeId uint8, resList []ActionResponseWithOptData) *ActionResponseWithList {
+func CreateActionResponseWithList(invokeId uint8, resList []ActResponse) *ActionResponseWithList {
 	if len(resList) < 1 || len(resList) > 255 {
 		panic("ResponseList cannot have zero or >255 member")
 	}
@@ -183,7 +183,7 @@ func DecodeActionResponseWithList(src *[]byte) (out ActionResponseWithList, err 
 	out.ResponseCount = uint8((*src)[3])
 	(*src) = (*src)[4:]
 	for i := 0; i < int(out.ResponseCount); i++ {
-		v, e := DecodeActionResponseWithOptData(src)
+		v, e := DecodeActResponse(src)
 		if e != nil {
 			err = e
 			return

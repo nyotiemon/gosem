@@ -269,17 +269,17 @@ func DecodeDataBlockSA(src *[]byte) (out DataBlockSA, err error) {
 }
 
 // Response of ActionRequest. ReturnParam is optional parameter therefore pointer
-type ActionResponseWithOptData struct {
+type ActResponse struct {
 	Result      ActionResultTag
 	ReturnParam *GetDataResult
 }
 
-func CreateActionResponseWithOptData(result ActionResultTag, returnParam *GetDataResult) *ActionResponseWithOptData {
+func CreateActResponse(result ActionResultTag, returnParam *GetDataResult) *ActResponse {
 
-	return &ActionResponseWithOptData{Result: result, ReturnParam: returnParam}
+	return &ActResponse{Result: result, ReturnParam: returnParam}
 }
 
-func (dt *ActionResponseWithOptData) Encode() []byte {
+func (dt *ActResponse) Encode() []byte {
 	var output bytes.Buffer
 
 	output.WriteByte(byte(dt.Result))
@@ -294,7 +294,7 @@ func (dt *ActionResponseWithOptData) Encode() []byte {
 	return output.Bytes()
 }
 
-func DecodeActionResponseWithOptData(src *[]byte) (out ActionResponseWithOptData, err error) {
+func DecodeActResponse(src *[]byte) (out ActResponse, err error) {
 	out.Result, err = GetActionTag((*src)[0])
 	if err != nil {
 		return

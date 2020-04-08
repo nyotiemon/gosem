@@ -8,7 +8,7 @@ import (
 
 func TestNew_ActionResponseNormal(t *testing.T) {
 	var ret GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
-	var ares ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret)
+	var ares ActResponse = *CreateActResponse(TagActSuccess, &ret)
 	var a ActionResponseNormal = *CreateActionResponseNormal(81, ares)
 	t1 := a.Encode()
 
@@ -32,10 +32,10 @@ func TestNew_ActionResponseWithPBlock(t *testing.T) {
 }
 
 func TestNew_ActionResponseWithList(t *testing.T) {
-	// with 1 ActionResponseWithOptData
+	// with 1 ActResponse
 	var ret GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
-	var ares1 ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret)
-	var a ActionResponseWithList = *CreateActionResponseWithList(81, []ActionResponseWithOptData{ares1})
+	var ares1 ActResponse = *CreateActResponse(TagActSuccess, &ret)
+	var a ActionResponseWithList = *CreateActionResponseWithList(81, []ActResponse{ares1})
 	t1 := a.Encode()
 
 	result := []byte{199, 3, 81, 1, 0, 1, 0, 0}
@@ -44,11 +44,11 @@ func TestNew_ActionResponseWithList(t *testing.T) {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
 	}
 
-	// with 2 ActionResponseWithOptData
+	// with 2 ActResponse
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
 	var ret2 GetDataResult = *CreateGetDataResultAsData(dt)
-	var ares2 ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret2)
-	var b ActionResponseWithList = *CreateActionResponseWithList(81, []ActionResponseWithOptData{ares1, ares2})
+	var ares2 ActResponse = *CreateActResponse(TagActSuccess, &ret2)
+	var b ActionResponseWithList = *CreateActionResponseWithList(81, []ActResponse{ares1, ares2})
 	t2 := b.Encode()
 
 	result = []byte{199, 3, 81, 2, 0, 1, 0, 0, 0, 1, 1, 5, 0, 0, 0, 69}
@@ -76,7 +76,7 @@ func TestDecode_ActionResponseNormal(t *testing.T) {
 	}
 
 	var ret GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
-	var ares ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret)
+	var ares ActResponse = *CreateActResponse(TagActSuccess, &ret)
 	var b ActionResponseNormal = *CreateActionResponseNormal(81, ares)
 
 	if a.InvokePriority != b.InvokePriority {
@@ -125,7 +125,7 @@ func TestDecode_ActionResponseWithPBlock(t *testing.T) {
 }
 
 func TestDecode_ActionResponseWithList(t *testing.T) {
-	// ---------------------- with 1 ActionResponseWithOptData
+	// ---------------------- with 1 ActResponse
 	src := []byte{199, 3, 81, 1, 0, 1, 0, 0}
 	a, err := DecodeActionResponseWithList(&src)
 	if err != nil {
@@ -133,8 +133,8 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 	}
 
 	var ret GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
-	var ares1 ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret)
-	var b ActionResponseWithList = *CreateActionResponseWithList(81, []ActionResponseWithOptData{ares1})
+	var ares1 ActResponse = *CreateActResponse(TagActSuccess, &ret)
+	var b ActionResponseWithList = *CreateActionResponseWithList(81, []ActResponse{ares1})
 
 	if a.InvokePriority != b.InvokePriority {
 		t.Errorf("t1 Failed. InvokePriority get: %v, should:%v", a.InvokePriority, b.InvokePriority)
@@ -157,7 +157,7 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
 
-	// ---------------------- with 2 ActionResponseWithOptData
+	// ---------------------- with 2 ActResponse
 	src = []byte{199, 3, 81, 2, 0, 1, 0, 0, 0, 1, 1, 5, 0, 0, 0, 69}
 	a, err = DecodeActionResponseWithList(&src)
 	if err != nil {
@@ -166,8 +166,8 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
 	var ret2 GetDataResult = *CreateGetDataResultAsData(dt)
-	var ares2 ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret2)
-	b = *CreateActionResponseWithList(81, []ActionResponseWithOptData{ares1, ares2})
+	var ares2 ActResponse = *CreateActResponse(TagActSuccess, &ret2)
+	b = *CreateActionResponseWithList(81, []ActResponse{ares1, ares2})
 
 	if a.ResponseCount != b.ResponseCount {
 		t.Errorf("t1 Failed. ResponseCount get: %v, should:%v", a.ResponseCount, b.ResponseCount)

@@ -176,10 +176,10 @@ func TestDataBlockSA(t *testing.T) {
 	c.Encode()
 }
 
-func TestActionResponseWithOptData(t *testing.T) {
+func TestActResponse(t *testing.T) {
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
 	var ret GetDataResult = *CreateGetDataResultAsData(dt)
-	var a ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActSuccess, &ret)
+	var a ActResponse = *CreateActResponse(TagActSuccess, &ret)
 
 	t1 := a.Encode()
 	result := []byte{0, 1, 1, 5, 0, 0, 0, 69}
@@ -191,7 +191,7 @@ func TestActionResponseWithOptData(t *testing.T) {
 
 	// with nil GetDataResult
 	var nilRet *GetDataResult = nil
-	var b ActionResponseWithOptData = *CreateActionResponseWithOptData(TagActReadWriteDenied, nilRet)
+	var b ActResponse = *CreateActResponse(TagActReadWriteDenied, nilRet)
 	t2 := b.Encode()
 	result = []byte{3, 0}
 
@@ -299,12 +299,12 @@ func TestDecode_DataBlockSA(t *testing.T) {
 
 }
 
-func TestDecode_ActionResponseWithOptData(t *testing.T) {
+func TestDecode_ActResponse(t *testing.T) {
 	src := []byte{0, 1, 0, 0}
-	a, ae := DecodeActionResponseWithOptData(&src)
+	a, ae := DecodeActResponse(&src)
 
 	if ae != nil {
-		t.Errorf("Error on DecodeActionResponseWithOptData: %v", ae)
+		t.Errorf("Error on DecodeActResponse: %v", ae)
 	}
 	if a.Result != TagActSuccess {
 		t.Errorf("Result should be TagActSuccess")
