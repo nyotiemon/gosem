@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestNew_SetResponseNormal(t *testing.T) {
+func TestNew_SetRequestNormal(t *testing.T) {
 	var attrDesc AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
 	var accsDesc SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
 	var dt DlmsData = *CreateAxdrOctetString("0102030405")
