@@ -2,6 +2,8 @@ package cosem
 
 import (
 	"encoding/binary"
+	"fmt"
+	. "gosem/axdr"
 )
 
 type AttributeDescriptorWithSelection struct {
@@ -34,4 +36,43 @@ func (ad *AttributeDescriptorWithSelection) Encode() []byte {
 	}
 
 	return output
+}
+
+func DecodeAttributeDescriptorWithSelection(ori *[]byte) (out AttributeDescriptorWithSelection, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if len(src) < 11 {
+		err = fmt.Errorf("byte slice length must be at least 11 bytes")
+		return
+	}
+
+	_, out.ClassId, err = DecodeLongUnsigned(&src)
+	if err != nil {
+		return
+	}
+
+	out.InstanceId, err = DecodeObis(&src)
+	if err != nil {
+		return
+	}
+
+	out.AttributeId = int8(src[0])
+	haveAccDesc := src[1]
+	src = src[2:]
+
+	if haveAccDesc == 0x0 {
+		var nilAccDesc *SelectiveAccessDescriptor = nil
+		out.AccessDescriptor = nilAccDesc
+	} else {
+		accDesc, errAcc := DecodeSelectiveAccessDescriptor(&src)
+		if errAcc != nil {
+			err = errAcc
+			return
+		}
+		out.AccessDescriptor = &accDesc
+	}
+
+	(*ori) = (*ori)[len((*ori))-len(src):]
+
+	return
 }
