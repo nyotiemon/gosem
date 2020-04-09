@@ -251,12 +251,12 @@ func DecodeSetRequestWithDataBlock(src *[]byte) (out SetRequestWithDataBlock, er
 type SetRequestWithList struct {
 	InvokePriority    uint8
 	AttributeCount    uint8
-	AttributeInfoList []AttributeDescriptor
+	AttributeInfoList []AttributeDescriptorWithSelection
 	ValueCount        uint8
 	ValueList         []DlmsData
 }
 
-func CreateSetRequestWithList(invokeId uint8, attList []AttributeDescriptor, valList []DlmsData) *SetRequestWithList {
+func CreateSetRequestWithList(invokeId uint8, attList []AttributeDescriptorWithSelection, valList []DlmsData) *SetRequestWithList {
 	if len(attList) < 1 || len(attList) > 255 {
 		panic("AttributeInfoList cannot have zero or >255 member")
 	}
@@ -303,7 +303,7 @@ func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
 	out.AttributeCount = uint8((*src)[3])
 	(*src) = (*src)[4:]
 	for i := 0; i < int(out.AttributeCount); i++ {
-		v, e := DecodeAttributeDescriptor(src)
+		v, e := DecodeAttributeDescriptorWithSelection(src)
 		if e != nil {
 			err = e
 			return
@@ -330,11 +330,11 @@ func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
 type SetRequestWithListAndFirstDataBlock struct {
 	InvokePriority    uint8
 	AttributeCount    uint8
-	AttributeInfoList []AttributeDescriptor
+	AttributeInfoList []AttributeDescriptorWithSelection
 	DataBlock         DataBlockSA
 }
 
-func CreateSetRequestWithListAndFirstDataBlock(invokeId uint8, attList []AttributeDescriptor, dt DataBlockSA) *SetRequestWithListAndFirstDataBlock {
+func CreateSetRequestWithListAndFirstDataBlock(invokeId uint8, attList []AttributeDescriptorWithSelection, dt DataBlockSA) *SetRequestWithListAndFirstDataBlock {
 	if len(attList) < 1 || len(attList) > 255 {
 		panic("AttributeInfoList cannot have zero or >255 member")
 	}
@@ -374,7 +374,7 @@ func DecodeSetRequestWithListAndFirstDataBlock(src *[]byte) (out SetRequestWithL
 	out.AttributeCount = uint8((*src)[3])
 	(*src) = (*src)[4:]
 	for i := 0; i < int(out.AttributeCount); i++ {
-		v, e := DecodeAttributeDescriptor(src)
+		v, e := DecodeAttributeDescriptorWithSelection(src)
 		if e != nil {
 			err = e
 			return

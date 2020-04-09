@@ -66,22 +66,23 @@ func TestNew_SetRequestWithDataBlock(t *testing.T) {
 }
 
 func TestNew_SetRequestWithList(t *testing.T) {
-	var a1 AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
+	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
+	var a1 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
 	var d1 DlmsData = *CreateAxdrOctetString("0102030405")
 
-	var a SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptor{a1}, []DlmsData{d1})
+	var a SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1}, []DlmsData{d1})
 	t1 := a.Encode()
-	result := []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
+	result := []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 9, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
 	}
 
-	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
+	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
 	var d2 DlmsData = *CreateAxdrDoubleLong(69)
-	var b SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptor{a1, a2}, []DlmsData{d1, d2})
+	var b SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1, a2}, []DlmsData{d1, d2})
 	t2 := b.Encode()
-	result = []byte{193, 4, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
+	result = []byte{193, 4, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 failed. get: %d, should:%v", t2, result)
@@ -92,7 +93,7 @@ func TestNew_SetRequestWithList(t *testing.T) {
 			t.Errorf("t3 should've panic on wrong Value")
 		}
 	}()
-	c := *CreateSetRequestWithList(69, []AttributeDescriptor{}, []DlmsData{d1, d2})
+	c := *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{}, []DlmsData{d1, d2})
 	c.Encode()
 
 	defer func() {
@@ -100,7 +101,7 @@ func TestNew_SetRequestWithList(t *testing.T) {
 			t.Errorf("t4 should've panic on wrong Value")
 		}
 	}()
-	d := *CreateSetRequestWithList(69, []AttributeDescriptor{a1, a2}, []DlmsData{})
+	d := *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1, a2}, []DlmsData{})
 	d.Encode()
 
 	defer func() {
@@ -108,26 +109,27 @@ func TestNew_SetRequestWithList(t *testing.T) {
 			t.Errorf("t5 should've panic on wrong Value")
 		}
 	}()
-	e := *CreateSetRequestWithList(69, []AttributeDescriptor{}, []DlmsData{})
+	e := *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{}, []DlmsData{})
 	e.Encode()
 }
 
 func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
-	var a1 AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
+	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
+	var a1 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 
-	var a SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptor{a1}, dt)
+	var a SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{a1}, dt)
 	t1 := a.Encode()
-	result := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
 	}
 
-	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
-	var b SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptor{a1, a2}, dt)
+	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
+	var b SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{a1, a2}, dt)
 	t2 := b.Encode()
-	result = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 failed. get: %d, should:%v", t2, result)
@@ -138,7 +140,7 @@ func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 			t.Errorf("t3 should've panic on wrong Value")
 		}
 	}()
-	c := *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptor{}, dt)
+	c := *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{}, dt)
 	c.Encode()
 }
 
@@ -307,16 +309,17 @@ func TestDecode_SetRequestWithDataBlock(t *testing.T) {
 }
 
 func TestDecode_SetRequestWithList(t *testing.T) {
-	src := []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
+	src := []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 9, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestWithList(&src)
 
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestWithList. err:%v", err)
 	}
 
-	var a1 AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
+	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
+	var a1 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
 	var d1 DlmsData = *CreateAxdrOctetString("0102030405")
-	var b SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptor{a1}, []DlmsData{d1})
+	var b SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1}, []DlmsData{d1})
 
 	if a.InvokePriority != b.InvokePriority {
 		t.Errorf("t1 Failed. InvokePriority get: %v, should:%v", a.InvokePriority, b.InvokePriority)
@@ -349,15 +352,15 @@ func TestDecode_SetRequestWithList(t *testing.T) {
 	}
 
 	// ---------------------- with 2 AttributeDescriptor
-	src = []byte{193, 4, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
+	src = []byte{193, 4, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
 	a, err = DecodeSetRequestWithList(&src)
 	if err != nil {
 		t.Errorf("t2 Failed to DecodeActionRequestWithList. err:%v", err)
 	}
 
-	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
+	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
 	var d2 DlmsData = *CreateAxdrDoubleLong(69)
-	b = *CreateSetRequestWithList(69, []AttributeDescriptor{a1, a2}, []DlmsData{d1, d2})
+	b = *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1, a2}, []DlmsData{d1, d2})
 
 	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
 		t.Errorf("t2 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
@@ -389,16 +392,17 @@ func TestDecode_SetRequestWithList(t *testing.T) {
 }
 
 func TestDecode_SetRequestWithListAndFirstDataBlock(t *testing.T) {
-	src := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	src := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestWithListAndFirstDataBlock(&src)
 
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestWithListAndFirstDataBlock. err:%v", err)
 	}
 
-	var a1 AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
+	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
+	var a1 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
-	var b SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptor{a1}, dt)
+	var b SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{a1}, dt)
 
 	if a.InvokePriority != b.InvokePriority {
 		t.Errorf("t1 Failed. InvokePriority get: %v, should:%v", a.InvokePriority, b.InvokePriority)
@@ -430,11 +434,11 @@ func TestDecode_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	}
 
 	// ---------------------- with 2 AttributeDescriptor
-	src = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	src = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	a, err = DecodeSetRequestWithListAndFirstDataBlock(&src)
 
-	var a2 AttributeDescriptor = *CreateAttributeDescriptor(1, "0.0.8.0.0.255", 2)
-	b = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptor{a1, a2}, dt)
+	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
+	b = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{a1, a2}, dt)
 
 	if len(a.AttributeInfoList) != len(b.AttributeInfoList) {
 		t.Errorf("t2 Failed. AttributeInfoList count get: %v, should:%v", len(a.AttributeInfoList), len(b.AttributeInfoList))
@@ -479,14 +483,14 @@ func TestDecode_SetRequest(t *testing.T) {
 	}
 
 	// ------------------  SetRequestWithList
-	src = []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
+	src = []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 9, 5, 1, 2, 3, 4, 5}
 	_, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestWithList Failed. err:%v", e)
 	}
 
-	// ------------------  SetRequestWithDataBlock
-	src = []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	// ------------------  SetRequestWithListAndFirstDataBlock
+	src = []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	_, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestWithListAndFirstDataBlock Failed. err:%v", e)
