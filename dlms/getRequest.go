@@ -171,10 +171,10 @@ func DecodeGetRequestNext(src *[]byte) (out GetRequestNext, err error) {
 type GetRequestWithList struct {
 	InvokePriority    uint8
 	AttributeCount    uint8
-	AttributeInfoList []AttributeDescriptor
+	AttributeInfoList []AttributeDescriptorWithSelection
 }
 
-func CreateGetRequestWithList(invokeId uint8, attList []AttributeDescriptor) *GetRequestWithList {
+func CreateGetRequestWithList(invokeId uint8, attList []AttributeDescriptorWithSelection) *GetRequestWithList {
 	if len(attList) < 1 || len(attList) > 255 {
 		panic("AttributeInfoList cannot have zero or >255 member")
 	}
@@ -212,7 +212,7 @@ func DecodeGetRequestWithList(src *[]byte) (out GetRequestWithList, err error) {
 	out.AttributeCount = uint8((*src)[3])
 	(*src) = (*src)[4:]
 	for i := 0; i < int(out.AttributeCount); i++ {
-		v, e := DecodeAttributeDescriptor(src)
+		v, e := DecodeAttributeDescriptorWithSelection(src)
 		if e != nil {
 			err = e
 			return
