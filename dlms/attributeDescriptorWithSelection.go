@@ -73,6 +73,5 @@ func DecodeAttributeDescriptorWithSelection(ori *[]byte) (out AttributeDescripto
 	}
 
 	(*ori) = (*ori)[len((*ori))-len(src):]
-
 	return
 }

@@ -83,20 +83,23 @@ func (ar ActionResponseNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionResponseNormal(src *[]byte) (out ActionResponseNormal, err error) {
-	if (*src)[0] != TagActionResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionResponse))
+func DecodeActionResponseNormal(ori *[]byte) (out ActionResponseNormal, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagActionResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionResponse))
 		return
 	}
-	if (*src)[1] != TagActionResponseNormal.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionResponseNormal))
+	if src[1] != TagActionResponseNormal.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionResponseNormal))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+	out.InvokePriority = src[2]
+	src = src[3:]
 
-	out.Response, err = DecodeActResponse(src)
+	out.Response, err = DecodeActResponse(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -122,20 +125,23 @@ func (ar ActionResponseWithPBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionResponseWithPBlock(src *[]byte) (out ActionResponseWithPBlock, err error) {
-	if (*src)[0] != TagActionResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionResponse))
+func DecodeActionResponseWithPBlock(ori *[]byte) (out ActionResponseWithPBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagActionResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionResponse))
 		return
 	}
-	if (*src)[1] != TagActionResponseWithPBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionResponseWithPBlock))
+	if src[1] != TagActionResponseWithPBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionResponseWithPBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+	out.InvokePriority = src[2]
+	src = src[3:]
 
-	out.PBlock, err = DecodeDataBlockSA(src)
+	out.PBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -169,21 +175,23 @@ func (ar ActionResponseWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionResponseWithList(src *[]byte) (out ActionResponseWithList, err error) {
-	if (*src)[0] != TagActionResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionResponse))
-		return
-	}
-	if (*src)[1] != TagActionResponseWithList.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionResponseWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeActionResponseWithList(ori *[]byte) (out ActionResponseWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.ResponseCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagActionResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionResponse))
+		return
+	}
+	if src[1] != TagActionResponseWithList.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionResponseWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.ResponseCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.ResponseCount); i++ {
-		v, e := DecodeActResponse(src)
+		v, e := DecodeActResponse(&src)
 		if e != nil {
 			err = e
 			return
@@ -191,6 +199,7 @@ func DecodeActionResponseWithList(src *[]byte) (out ActionResponseWithList, err 
 		out.ResponseList = append(out.ResponseList, v)
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -217,24 +226,27 @@ func (ar ActionResponseNextPBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionResponseNextPBlock(src *[]byte) (out ActionResponseNextPBlock, err error) {
-	if (*src)[0] != TagActionResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionResponse))
-		return
-	}
-	if (*src)[1] != TagActionResponseNextPBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionResponseNextPBlock))
-		return
-	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+func DecodeActionResponseNextPBlock(ori *[]byte) (out ActionResponseNextPBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	_, v, e := DecodeDoubleLongUnsigned(src)
+	if src[0] != TagActionResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionResponse))
+		return
+	}
+	if src[1] != TagActionResponseNextPBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionResponseNextPBlock))
+		return
+	}
+	out.InvokePriority = src[2]
+	src = src[3:]
+
+	_, v, e := DecodeDoubleLongUnsigned(&src)
 	if e != nil {
 		err = e
 		return
 	}
 	out.BlockNum = v
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

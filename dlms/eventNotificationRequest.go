@@ -44,21 +44,23 @@ func (ev EventNotificationRequest) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeEventNotificationRequest(src *[]byte) (out EventNotificationRequest, err error) {
-	if (*src)[0] != TagEvenNotificationRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagEvenNotificationRequest))
+func DecodeEventNotificationRequest(ori *[]byte) (out EventNotificationRequest, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagEvenNotificationRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagEvenNotificationRequest))
 		return
 	}
 
-	haveTime := (*src)[1]
-	(*src) = (*src)[2:]
+	haveTime := src[1]
+	src = src[2:]
 
 	if haveTime == 0x0 {
 		var nilTime *time.Time = nil
 		out.Time = nilTime
 	} else {
-		(*src) = (*src)[1:] // length of time
-		_, time, e := DecodeDateTime(src)
+		src = src[1:] // length of time
+		_, time, e := DecodeDateTime(&src)
 		if e != nil {
 			err = e
 			return
@@ -66,13 +68,14 @@ func DecodeEventNotificationRequest(src *[]byte) (out EventNotificationRequest, 
 		out.Time = &time
 	}
 
-	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	out.AttributeInfo, err = DecodeAttributeDescriptor(&src)
 	if err != nil {
 		return
 	}
 
-	decoder := NewDataDecoder(src)
-	out.AttributeValue, err = decoder.Decode(src)
+	decoder := NewDataDecoder(&src)
+	out.AttributeValue, err = decoder.Decode(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

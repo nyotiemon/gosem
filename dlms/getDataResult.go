@@ -61,20 +61,23 @@ func (dt *GetDataResult) ValueAsAccess() AccessResultTag {
 	return dt.Value.(AccessResultTag)
 }
 
-func DecodeGetDataResult(src *[]byte) (out GetDataResult, err error) {
-	if (*src)[0] == 0x0 {
+func DecodeGetDataResult(ori *[]byte) (out GetDataResult, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] == 0x0 {
 		out.IsData = false
-		out.Value, err = GetAccessTag(uint8((*src)[1]))
+		out.Value, err = GetAccessTag(uint8(src[1]))
 		if err == nil {
-			(*src) = (*src)[2:]
+			src = src[2:]
 		}
 	} else {
 		out.IsData = true
-		(*src) = (*src)[1:]
-		decoder := NewDataDecoder(src)
-		out.Value, err = decoder.Decode(src)
+		src = src[1:]
+		decoder := NewDataDecoder(&src)
+		out.Value, err = decoder.Decode(&src)
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -174,33 +177,36 @@ func (dt *DataBlockG) ResultAsAccess() AccessResultTag {
 	return dt.Result.(AccessResultTag)
 }
 
-func DecodeDataBlockG(src *[]byte) (out DataBlockG, err error) {
-	if (*src)[0] == 0x0 {
+func DecodeDataBlockG(ori *[]byte) (out DataBlockG, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] == 0x0 {
 		out.LastBlock = false
 	} else {
 		out.LastBlock = true
 	}
-	(*src) = (*src)[1:]
+	src = src[1:]
 
-	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(src)
+	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(&src)
 
-	if (*src)[0] == 0x0 {
+	if src[0] == 0x0 {
 		out.IsResult = false
 	} else {
 		out.IsResult = true
 	}
-	(*src) = (*src)[1:]
+	src = src[1:]
 
 	if out.IsResult {
-		out.Result, err = GetAccessTag(uint8((*src)[0]))
-		(*src) = (*src)[0:]
+		out.Result, err = GetAccessTag(uint8(src[0]))
+		src = src[0:]
 	} else {
 		// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
-		val := uint8((*src)[0])
-		out.Result = (*src)[1 : 1+val]
-		(*src) = (*src)[1+val:]
+		val := uint8(src[0])
+		out.Result = src[1 : 1+val]
+		src = src[1+val:]
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -250,21 +256,24 @@ func (dt *DataBlockSA) Encode() []byte {
 	return output.Bytes()
 }
 
-func DecodeDataBlockSA(src *[]byte) (out DataBlockSA, err error) {
-	if (*src)[0] == 0x0 {
+func DecodeDataBlockSA(ori *[]byte) (out DataBlockSA, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] == 0x0 {
 		out.LastBlock = false
 	} else {
 		out.LastBlock = true
 	}
-	(*src) = (*src)[1:]
+	src = src[1:]
 
-	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(src)
+	_, out.BlockNumber, err = DecodeDoubleLongUnsigned(&src)
 
 	// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
-	val := uint8((*src)[0])
-	out.Raw = (*src)[1 : val+1]
-	(*src) = (*src)[val+1:]
+	val := uint8(src[0])
+	out.Raw = src[1 : val+1]
+	src = src[val+1:]
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -294,20 +303,22 @@ func (dt *ActResponse) Encode() []byte {
 	return output.Bytes()
 }
 
-func DecodeActResponse(src *[]byte) (out ActResponse, err error) {
-	out.Result, err = GetActionTag((*src)[0])
+func DecodeActResponse(ori *[]byte) (out ActResponse, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	out.Result, err = GetActionTag(src[0])
 	if err != nil {
 		return
 	}
 
-	haveReturnParam := (*src)[1]
-	(*src) = (*src)[2:]
+	haveReturnParam := src[1]
+	src = src[2:]
 
 	if haveReturnParam == 0x0 {
 		var gdrNil *GetDataResult = nil
 		out.ReturnParam = gdrNil
 	} else {
-		gdr, e := DecodeGetDataResult(src)
+		gdr, e := DecodeGetDataResult(&src)
 		if e != nil {
 			err = e
 			return
@@ -315,5 +326,6 @@ func DecodeActResponse(src *[]byte) (out ActResponse, err error) {
 		out.ReturnParam = &gdr
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

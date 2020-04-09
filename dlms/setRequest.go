@@ -100,30 +100,32 @@ func (sr SetRequestNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetRequestNormal(src *[]byte) (out SetRequestNormal, err error) {
-	if (*src)[0] != TagSetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+func DecodeSetRequestNormal(ori *[]byte) (out SetRequestNormal, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
 		return
 	}
-	if (*src)[1] != TagSetRequestNormal.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestNormal))
+	if src[1] != TagSetRequestNormal.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagSetRequestNormal))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
-	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	out.InvokePriority = src[2]
+	src = src[3:]
+	out.AttributeInfo, err = DecodeAttributeDescriptor(&src)
 	if err != nil {
 		return
 	}
 
-	haveAccDesc := (*src)[0]
-	(*src) = (*src)[1:]
+	haveAccDesc := src[0]
+	src = src[1:]
 	// SelectiveAccessInfo
 	if haveAccDesc == 0 {
 		var nilAccsDesc *SelectiveAccessDescriptor = nil
 		out.SelectiveAccessInfo = nilAccsDesc
 	} else {
-		accDesc, e := DecodeSelectiveAccessDescriptor(src)
+		accDesc, e := DecodeSelectiveAccessDescriptor(&src)
 		if e != nil {
 			err = e
 			return
@@ -131,9 +133,10 @@ func DecodeSetRequestNormal(src *[]byte) (out SetRequestNormal, err error) {
 		out.SelectiveAccessInfo = &accDesc
 	}
 
-	decoder := NewDataDecoder(src)
-	out.Value, err = decoder.Decode(src)
+	decoder := NewDataDecoder(&src)
+	out.Value, err = decoder.Decode(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -171,30 +174,32 @@ func (sr SetRequestWithFirstDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetRequestWithFirstDataBlock(src *[]byte) (out SetRequestWithFirstDataBlock, err error) {
-	if (*src)[0] != TagSetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+func DecodeSetRequestWithFirstDataBlock(ori *[]byte) (out SetRequestWithFirstDataBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
 		return
 	}
-	if (*src)[1] != TagSetRequestWithFirstDataBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithFirstDataBlock))
+	if src[1] != TagSetRequestWithFirstDataBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagSetRequestWithFirstDataBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
-	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	out.InvokePriority = src[2]
+	src = src[3:]
+	out.AttributeInfo, err = DecodeAttributeDescriptor(&src)
 	if err != nil {
 		return
 	}
 
-	haveAccDesc := (*src)[0]
-	(*src) = (*src)[1:]
+	haveAccDesc := src[0]
+	src = src[1:]
 
 	if haveAccDesc == 0 {
 		var nilAccsDesc *SelectiveAccessDescriptor = nil
 		out.SelectiveAccessInfo = nilAccsDesc
 	} else {
-		accDesc, e := DecodeSelectiveAccessDescriptor(src)
+		accDesc, e := DecodeSelectiveAccessDescriptor(&src)
 		if e != nil {
 			err = e
 			return
@@ -202,8 +207,9 @@ func DecodeSetRequestWithFirstDataBlock(src *[]byte) (out SetRequestWithFirstDat
 		out.SelectiveAccessInfo = &accDesc
 	}
 
-	out.DataBlock, err = DecodeDataBlockSA(src)
+	out.DataBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -230,20 +236,23 @@ func (sr SetRequestWithDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetRequestWithDataBlock(src *[]byte) (out SetRequestWithDataBlock, err error) {
-	if (*src)[0] != TagSetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
+func DecodeSetRequestWithDataBlock(ori *[]byte) (out SetRequestWithDataBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
 		return
 	}
-	if (*src)[1] != TagSetRequestWithDataBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithDataBlock))
+	if src[1] != TagSetRequestWithDataBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagSetRequestWithDataBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+	out.InvokePriority = src[2]
+	src = src[3:]
 
-	out.DataBlock, err = DecodeDataBlockSA(src)
+	out.DataBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -289,21 +298,23 @@ func (sr SetRequestWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
-	if (*src)[0] != TagSetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
-		return
-	}
-	if (*src)[1] != TagSetRequestWithList.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeSetRequestWithList(ori *[]byte) (out SetRequestWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.AttributeCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
+		return
+	}
+	if src[1] != TagSetRequestWithList.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagSetRequestWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.AttributeCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.AttributeCount); i++ {
-		v, e := DecodeAttributeDescriptorWithSelection(src)
+		v, e := DecodeAttributeDescriptorWithSelection(&src)
 		if e != nil {
 			err = e
 			return
@@ -311,11 +322,11 @@ func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
 		out.AttributeInfoList = append(out.AttributeInfoList, v)
 	}
 
-	out.ValueCount = uint8((*src)[0])
-	(*src) = (*src)[1:]
+	out.ValueCount = uint8(src[0])
+	src = src[1:]
 	for i := 0; i < int(out.ValueCount); i++ {
-		decoder := NewDataDecoder(src)
-		v, e := decoder.Decode(src)
+		decoder := NewDataDecoder(&src)
+		v, e := decoder.Decode(&src)
 		if e != nil {
 			err = e
 			return
@@ -323,6 +334,7 @@ func DecodeSetRequestWithList(src *[]byte) (out SetRequestWithList, err error) {
 		out.ValueList = append(out.ValueList, v)
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -360,21 +372,23 @@ func (sr SetRequestWithListAndFirstDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetRequestWithListAndFirstDataBlock(src *[]byte) (out SetRequestWithListAndFirstDataBlock, err error) {
-	if (*src)[0] != TagSetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetRequest))
-		return
-	}
-	if (*src)[1] != TagSetRequestWithListAndFirstDataBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagSetRequestWithListAndFirstDataBlock))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeSetRequestWithListAndFirstDataBlock(ori *[]byte) (out SetRequestWithListAndFirstDataBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.AttributeCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagSetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
+		return
+	}
+	if src[1] != TagSetRequestWithListAndFirstDataBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagSetRequestWithListAndFirstDataBlock))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.AttributeCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.AttributeCount); i++ {
-		v, e := DecodeAttributeDescriptorWithSelection(src)
+		v, e := DecodeAttributeDescriptorWithSelection(&src)
 		if e != nil {
 			err = e
 			return
@@ -382,7 +396,8 @@ func DecodeSetRequestWithListAndFirstDataBlock(src *[]byte) (out SetRequestWithL
 		out.AttributeInfoList = append(out.AttributeInfoList, v)
 	}
 
-	out.DataBlock, err = DecodeDataBlockSA(src)
+	out.DataBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

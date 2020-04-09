@@ -29,26 +29,25 @@ func (ad *MethodDescriptor) Encode() []byte {
 	return output
 }
 
-func DecodeMethodDescriptor(src *[]byte) (out MethodDescriptor, err error) {
-	if len(*src) < 9 {
+func DecodeMethodDescriptor(ori *[]byte) (out MethodDescriptor, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if len(src) < 9 {
 		err = fmt.Errorf("byte slice length must be at least 9 bytes")
 		return
 	}
 
-	_, classId, eClass := DecodeLongUnsigned(src)
-	if eClass != nil {
-		err = eClass
+	_, out.ClassId, err = DecodeLongUnsigned(&src)
+	if err != nil {
 		return
 	}
-	obis, errObis := DecodeObis(src)
-	if errObis != nil {
-		err = errObis
+	out.InstanceId, err = DecodeObis(&src)
+	if err != nil {
 		return
 	}
-	attribId := int8((*src)[0])
-	(*src) = (*src)[1:]
+	out.MethodId = int8(src[0])
+	src = src[1:]
 
-	out = MethodDescriptor{classId, obis, attribId}
-
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

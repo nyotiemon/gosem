@@ -78,19 +78,23 @@ func (gr GetResponseNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeGetResponseNormal(src *[]byte) (out GetResponseNormal, err error) {
-	if (*src)[0] != TagGetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
-		return
-	}
-	if (*src)[1] != TagGetResponseNormal.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagGetResponseNormal))
-		return
-	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+func DecodeGetResponseNormal(ori *[]byte) (out GetResponseNormal, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.Result, err = DecodeGetDataResult(src)
+	if src[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagGetResponse))
+		return
+	}
+	if src[1] != TagGetResponseNormal.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagGetResponseNormal))
+		return
+	}
+	out.InvokePriority = src[2]
+	src = src[3:]
+
+	out.Result, err = DecodeGetDataResult(&src)
+
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -117,19 +121,23 @@ func (gr GetResponseWithDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeGetResponseWithDataBlock(src *[]byte) (out GetResponseWithDataBlock, err error) {
-	if (*src)[0] != TagGetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
-		return
-	}
-	if (*src)[1] != TagGetResponseWithDataBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagGetResponseWithDataBlock))
-		return
-	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+func DecodeGetResponseWithDataBlock(ori *[]byte) (out GetResponseWithDataBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.Result, err = DecodeDataBlockG(src)
+	if src[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagGetResponse))
+		return
+	}
+	if src[1] != TagGetResponseWithDataBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagGetResponseWithDataBlock))
+		return
+	}
+	out.InvokePriority = src[2]
+	src = src[3:]
+
+	out.Result, err = DecodeDataBlockG(&src)
+
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -164,21 +172,23 @@ func (gr GetResponseWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeGetResponseWithList(src *[]byte) (out GetResponseWithList, err error) {
-	if (*src)[0] != TagGetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetResponse))
-		return
-	}
-	if (*src)[1] != TagGetResponseWithList.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagGetResponseWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeGetResponseWithList(ori *[]byte) (out GetResponseWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.ResultCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagGetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagGetResponse))
+		return
+	}
+	if src[1] != TagGetResponseWithList.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagGetResponseWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.ResultCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.ResultCount); i++ {
-		v, e := DecodeGetDataResult(src)
+		v, e := DecodeGetDataResult(&src)
 		if e != nil {
 			err = e
 			return
@@ -186,5 +196,6 @@ func DecodeGetResponseWithList(src *[]byte) (out GetResponseWithList, err error)
 		out.ResultList = append(out.ResultList, v)
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

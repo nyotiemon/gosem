@@ -87,30 +87,32 @@ func (gr GetRequestNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeGetRequestNormal(src *[]byte) (out GetRequestNormal, err error) {
-	if (*src)[0] != TagGetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
+func DecodeGetRequestNormal(ori *[]byte) (out GetRequestNormal, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagGetRequest))
 		return
 	}
-	if (*src)[1] != TagGetRequestNormal.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagGetRequestNormal))
+	if src[1] != TagGetRequestNormal.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagGetRequestNormal))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
-	out.AttributeInfo, err = DecodeAttributeDescriptor(src)
+	out.InvokePriority = src[2]
+	src = src[3:]
+	out.AttributeInfo, err = DecodeAttributeDescriptor(&src)
 	if err != nil {
 		return
 	}
 
-	haveAccDesc := (*src)[0]
-	(*src) = (*src)[1:]
+	haveAccDesc := src[0]
+	src = src[1:]
 	// SelectiveAccessInfo
 	if haveAccDesc == 0 {
 		var nilAccsDesc *SelectiveAccessDescriptor = nil
 		out.SelectiveAccessInfo = nilAccsDesc
 	} else {
-		accDesc, e := DecodeSelectiveAccessDescriptor(src)
+		accDesc, e := DecodeSelectiveAccessDescriptor(&src)
 		if e != nil {
 			err = e
 			return
@@ -118,6 +120,7 @@ func DecodeGetRequestNormal(src *[]byte) (out GetRequestNormal, err error) {
 		out.SelectiveAccessInfo = &accDesc
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -145,25 +148,28 @@ func (gr GetRequestNext) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeGetRequestNext(src *[]byte) (out GetRequestNext, err error) {
-	if (*src)[0] != TagGetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
-		return
-	}
-	if (*src)[1] != TagGetRequestNext.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagGetRequestNext))
-		return
-	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+func DecodeGetRequestNext(ori *[]byte) (out GetRequestNext, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	_, v, e := DecodeDoubleLongUnsigned(src)
+	if src[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagGetRequest))
+		return
+	}
+	if src[1] != TagGetRequestNext.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagGetRequestNext))
+		return
+	}
+	out.InvokePriority = src[2]
+	src = src[3:]
+
+	_, v, e := DecodeDoubleLongUnsigned(&src)
 	if e != nil {
 		err = e
 		return
 	}
 	out.BlockNum = v
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -198,21 +204,23 @@ func (gr GetRequestWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeGetRequestWithList(src *[]byte) (out GetRequestWithList, err error) {
-	if (*src)[0] != TagGetRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagGetRequest))
-		return
-	}
-	if (*src)[1] != TagGetRequestWithList.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagGetRequestWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeGetRequestWithList(ori *[]byte) (out GetRequestWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.AttributeCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagGetRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagGetRequest))
+		return
+	}
+	if src[1] != TagGetRequestWithList.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagGetRequestWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.AttributeCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.AttributeCount); i++ {
-		v, e := DecodeAttributeDescriptorWithSelection(src)
+		v, e := DecodeAttributeDescriptorWithSelection(&src)
 		if e != nil {
 			err = e
 			return
@@ -220,5 +228,6 @@ func DecodeGetRequestWithList(src *[]byte) (out GetRequestWithList, err error) {
 		out.AttributeInfoList = append(out.AttributeInfoList, v)
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

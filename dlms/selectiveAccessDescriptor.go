@@ -81,6 +81,5 @@ func DecodeSelectiveAccessDescriptor(ori *[]byte) (out SelectiveAccessDescriptor
 	}
 
 	(*ori) = (*ori)[len((*ori))-len(src):]
-
 	return
 }

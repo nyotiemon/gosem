@@ -102,30 +102,32 @@ func (ar ActionRequestNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionRequestNormal(src *[]byte) (out ActionRequestNormal, err error) {
-	if (*src)[0] != TagActionRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionRequest))
+func DecodeActionRequestNormal(ori *[]byte) (out ActionRequestNormal, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagActionRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
 		return
 	}
-	if (*src)[1] != TagActionRequestNormal.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionRequestNormal))
+	if src[1] != TagActionRequestNormal.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionRequestNormal))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
-	out.MethodInfo, err = DecodeMethodDescriptor(src)
+	out.InvokePriority = src[2]
+	src = src[3:]
+	out.MethodInfo, err = DecodeMethodDescriptor(&src)
 	if err != nil {
 		return
 	}
 
-	haveMethodParam := (*src)[0]
-	(*src) = (*src)[1:]
+	haveMethodParam := src[0]
+	src = src[1:]
 	if haveMethodParam == 0 {
 		var nilData *DlmsData = nil
 		out.MethodParam = nilData
 	} else {
-		decoder := NewDataDecoder(src)
-		dt, e := decoder.Decode(src)
+		decoder := NewDataDecoder(&src)
+		dt, e := decoder.Decode(&src)
 		if e != nil {
 			err = e
 			return
@@ -133,6 +135,7 @@ func DecodeActionRequestNormal(src *[]byte) (out ActionRequestNormal, err error)
 		out.MethodParam = &dt
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -160,25 +163,28 @@ func (ar ActionRequestNextPBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionRequestNextPBlock(src *[]byte) (out ActionRequestNextPBlock, err error) {
-	if (*src)[0] != TagActionRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionRequest))
-		return
-	}
-	if (*src)[1] != TagActionRequestNextPBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionRequestNextPBlock))
-		return
-	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+func DecodeActionRequestNextPBlock(ori *[]byte) (out ActionRequestNextPBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	_, v, e := DecodeDoubleLongUnsigned(src)
+	if src[0] != TagActionRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
+		return
+	}
+	if src[1] != TagActionRequestNextPBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionRequestNextPBlock))
+		return
+	}
+	out.InvokePriority = src[2]
+	src = src[3:]
+
+	_, v, e := DecodeDoubleLongUnsigned(&src)
 	if e != nil {
 		err = e
 		return
 	}
 	out.BlockNum = v
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -224,21 +230,23 @@ func (ar ActionRequestWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionRequestWithList(src *[]byte) (out ActionRequestWithList, err error) {
-	if (*src)[0] != TagActionRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionRequest))
-		return
-	}
-	if (*src)[1] != TagActionRequestWithList.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionRequestWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeActionRequestWithList(ori *[]byte) (out ActionRequestWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.MethodInfoCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagActionRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
+		return
+	}
+	if src[1] != TagActionRequestWithList.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionRequestWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.MethodInfoCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.MethodInfoCount); i++ {
-		v, e := DecodeMethodDescriptor(src)
+		v, e := DecodeMethodDescriptor(&src)
 		if e != nil {
 			err = e
 			return
@@ -246,11 +254,11 @@ func DecodeActionRequestWithList(src *[]byte) (out ActionRequestWithList, err er
 		out.MethodInfoList = append(out.MethodInfoList, v)
 	}
 
-	out.MethodParamCount = uint8((*src)[0])
-	(*src) = (*src)[1:]
+	out.MethodParamCount = uint8(src[0])
+	src = src[1:]
 	for i := 0; i < int(out.MethodParamCount); i++ {
-		decoder := NewDataDecoder(src)
-		v, e := decoder.Decode(src)
+		decoder := NewDataDecoder(&src)
+		v, e := decoder.Decode(&src)
 		if e != nil {
 			err = e
 			return
@@ -258,6 +266,7 @@ func DecodeActionRequestWithList(src *[]byte) (out ActionRequestWithList, err er
 		out.MethodParamList = append(out.MethodParamList, v)
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -287,24 +296,27 @@ func (ar ActionRequestWithFirstPBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionRequestWithFirstPBlock(src *[]byte) (out ActionRequestWithFirstPBlock, err error) {
-	if (*src)[0] != TagActionRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionRequest))
+func DecodeActionRequestWithFirstPBlock(ori *[]byte) (out ActionRequestWithFirstPBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagActionRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
 		return
 	}
-	if (*src)[1] != TagActionRequestWithFirstPBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionRequestWithFirstPBlock))
+	if src[1] != TagActionRequestWithFirstPBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionRequestWithFirstPBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
-	out.MethodInfo, err = DecodeMethodDescriptor(src)
+	out.InvokePriority = src[2]
+	src = src[3:]
+	out.MethodInfo, err = DecodeMethodDescriptor(&src)
 	if err != nil {
 		return
 	}
 
-	out.PBlock, err = DecodeDataBlockSA(src)
+	out.PBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -342,21 +354,23 @@ func (ar ActionRequestWithListAndFirstPBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionRequestWithListAndFirstPBlock(src *[]byte) (out ActionRequestWithListAndFirstPBlock, err error) {
-	if (*src)[0] != TagActionRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionRequest))
-		return
-	}
-	if (*src)[1] != TagActionRequestWithListAndFirstPBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionRequestWithListAndFirstPBlock))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeActionRequestWithListAndFirstPBlock(ori *[]byte) (out ActionRequestWithListAndFirstPBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.MethodInfoCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagActionRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
+		return
+	}
+	if src[1] != TagActionRequestWithListAndFirstPBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionRequestWithListAndFirstPBlock))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.MethodInfoCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.MethodInfoCount); i++ {
-		v, e := DecodeMethodDescriptor(src)
+		v, e := DecodeMethodDescriptor(&src)
 		if e != nil {
 			err = e
 			return
@@ -364,8 +378,9 @@ func DecodeActionRequestWithListAndFirstPBlock(src *[]byte) (out ActionRequestWi
 		out.MethodInfoList = append(out.MethodInfoList, v)
 	}
 
-	out.PBlock, err = DecodeDataBlockSA(src)
+	out.PBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -392,19 +407,22 @@ func (ar ActionRequestWithPBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeActionRequestWithPBlock(src *[]byte) (out ActionRequestWithPBlock, err error) {
-	if (*src)[0] != TagActionRequest.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagActionRequest))
+func DecodeActionRequestWithPBlock(ori *[]byte) (out ActionRequestWithPBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagActionRequest.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
 		return
 	}
-	if (*src)[1] != TagActionRequestWithPBlock.Value() {
-		err = ErrWrongTag(1, (*src)[1], byte(TagActionRequestWithPBlock))
+	if src[1] != TagActionRequestWithPBlock.Value() {
+		err = ErrWrongTag(1, src[1], byte(TagActionRequestWithPBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+	out.InvokePriority = src[2]
+	src = src[3:]
 
-	out.PBlock, err = DecodeDataBlockSA(src)
+	out.PBlock, err = DecodeDataBlockSA(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }

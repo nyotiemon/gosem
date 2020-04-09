@@ -89,22 +89,25 @@ func (sr SetResponseNormal) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetResponseNormal(src *[]byte) (out SetResponseNormal, err error) {
-	if (*src)[0] != TagSetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetResponse))
+func DecodeSetResponseNormal(ori *[]byte) (out SetResponseNormal, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagSetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
 		return
 	}
-	if (*src)[1] != TagSetResponseNormal.Value() {
-		err = ErrWrongTag(0, (*src)[1], byte(TagSetResponseNormal))
+	if src[1] != TagSetResponseNormal.Value() {
+		err = ErrWrongTag(0, src[1], byte(TagSetResponseNormal))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	out.Result, err = GetAccessTag(uint8((*src)[3]))
+	out.InvokePriority = src[2]
+	out.Result, err = GetAccessTag(uint8(src[3]))
 	if err != nil {
 		return
 	}
-	(*src) = (*src)[4:]
+	src = src[4:]
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -132,20 +135,23 @@ func (sr SetResponseDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetResponseDataBlock(src *[]byte) (out SetResponseDataBlock, err error) {
-	if (*src)[0] != TagSetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetResponse))
+func DecodeSetResponseDataBlock(ori *[]byte) (out SetResponseDataBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagSetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
 		return
 	}
-	if (*src)[1] != TagSetResponseDataBlock.Value() {
-		err = ErrWrongTag(0, (*src)[1], byte(TagSetResponseDataBlock))
+	if src[1] != TagSetResponseDataBlock.Value() {
+		err = ErrWrongTag(0, src[1], byte(TagSetResponseDataBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	(*src) = (*src)[3:]
+	out.InvokePriority = src[2]
+	src = src[3:]
 
-	_, out.BlockNum, err = DecodeDoubleLongUnsigned(src)
+	_, out.BlockNum, err = DecodeDoubleLongUnsigned(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -176,24 +182,27 @@ func (sr SetResponseLastDataBlock) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetResponseLastDataBlock(src *[]byte) (out SetResponseLastDataBlock, err error) {
-	if (*src)[0] != TagSetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetResponse))
+func DecodeSetResponseLastDataBlock(ori *[]byte) (out SetResponseLastDataBlock, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] != TagSetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
 		return
 	}
-	if (*src)[1] != TagSetResponseLastDataBlock.Value() {
-		err = ErrWrongTag(0, (*src)[1], byte(TagSetResponseDataBlock))
+	if src[1] != TagSetResponseLastDataBlock.Value() {
+		err = ErrWrongTag(0, src[1], byte(TagSetResponseDataBlock))
 		return
 	}
-	out.InvokePriority = (*src)[2]
-	out.Result, err = GetAccessTag(uint8((*src)[3]))
+	out.InvokePriority = src[2]
+	out.Result, err = GetAccessTag(uint8(src[3]))
 	if err != nil {
 		return
 	}
-	(*src) = (*src)[4:]
+	src = src[4:]
 
-	_, out.BlockNum, err = DecodeDoubleLongUnsigned(src)
+	_, out.BlockNum, err = DecodeDoubleLongUnsigned(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -232,31 +241,34 @@ func (sr SetResponseLastDataBlockWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetResponseLastDataBlockWithList(src *[]byte) (out SetResponseLastDataBlockWithList, err error) {
-	if (*src)[0] != TagSetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetResponse))
-		return
-	}
-	if (*src)[1] != TagSetResponseLastDataBlockWithList.Value() {
-		err = ErrWrongTag(0, (*src)[1], byte(TagSetResponseLastDataBlockWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeSetResponseLastDataBlockWithList(ori *[]byte) (out SetResponseLastDataBlockWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.ResultCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagSetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
+		return
+	}
+	if src[1] != TagSetResponseLastDataBlockWithList.Value() {
+		err = ErrWrongTag(0, src[1], byte(TagSetResponseLastDataBlockWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.ResultCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.ResultCount); i++ {
-		v, e := GetAccessTag(uint8((*src)[0]))
+		v, e := GetAccessTag(uint8(src[0]))
 		if e != nil {
 			err = e
 			return
 		}
 		out.ResultList = append(out.ResultList, v)
-		(*src) = (*src)[1:]
+		src = src[1:]
 	}
 
-	_, out.BlockNum, err = DecodeDoubleLongUnsigned(src)
+	_, out.BlockNum, err = DecodeDoubleLongUnsigned(&src)
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
 
@@ -291,28 +303,31 @@ func (sr SetResponseWithList) Encode() []byte {
 	return buf.Bytes()
 }
 
-func DecodeSetResponseWithList(src *[]byte) (out SetResponseWithList, err error) {
-	if (*src)[0] != TagSetResponse.Value() {
-		err = ErrWrongTag(0, (*src)[0], byte(TagSetResponse))
-		return
-	}
-	if (*src)[1] != TagSetResponseWithList.Value() {
-		err = ErrWrongTag(0, (*src)[1], byte(TagSetResponseWithList))
-		return
-	}
-	out.InvokePriority = (*src)[2]
+func DecodeSetResponseWithList(ori *[]byte) (out SetResponseWithList, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
 
-	out.ResultCount = uint8((*src)[3])
-	(*src) = (*src)[4:]
+	if src[0] != TagSetResponse.Value() {
+		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
+		return
+	}
+	if src[1] != TagSetResponseWithList.Value() {
+		err = ErrWrongTag(0, src[1], byte(TagSetResponseWithList))
+		return
+	}
+	out.InvokePriority = src[2]
+
+	out.ResultCount = uint8(src[3])
+	src = src[4:]
 	for i := 0; i < int(out.ResultCount); i++ {
-		v, e := GetAccessTag(uint8((*src)[0]))
+		v, e := GetAccessTag(uint8(src[0]))
 		if e != nil {
 			err = e
 			return
 		}
 		out.ResultList = append(out.ResultList, v)
-		(*src) = (*src)[1:]
+		src = src[1:]
 	}
 
+	(*ori) = (*ori)[len((*ori))-len(src):]
 	return
 }
