@@ -1320,4 +1320,15 @@ func TestDecoder1(t *testing.T) {
 	if t3[4].Value != d5.Value {
 		t.Errorf("should be same as d5 %v, received: %v", d5.Value, t3[4].Value)
 	}
+
+	src = []byte{1, 3, 4, 3, 224, 3, 255, 123, 123, 123}
+	decoder := NewDataDecoder(&src)
+	oriLength := len(src)
+	_, err4 := decoder.Decode(&src)
+	if err4 == nil {
+		t.Errorf("t4 should be error")
+	}
+	if len(src) != oriLength {
+		t.Errorf("src after error should still be the same length (%v)", src)
+	}
 }

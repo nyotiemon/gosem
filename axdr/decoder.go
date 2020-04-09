@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"reflect"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -102,13 +101,15 @@ func NewDataDecoder(in interface{}) *Decoder {
 }
 
 // Decode expect byte second after tag byte.
-func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
+func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
 	r.Tag = dec.tag
 	haveLength, _ := lengthAfterTag[dec.tag]
 	var lengthByte []byte
 	var lengthInt uint64 = 0
 	if haveLength {
-		lengthByte, lengthInt, err = DecodeLength(src)
+		lengthByte, lengthInt, err = DecodeLength(&src)
 		if err != nil {
 			return
 		}
@@ -119,88 +120,87 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	var value interface{}
 	switch dec.tag {
 	case TagNull:
-		panic("not yet implemented")
-
+		err = fmt.Errorf("not yet implemented")
 	case TagArray:
 		output := make([]*DlmsData, lengthInt)
 		// make carbon copy of src to calc rawValue later
-		oriSrc := reflect.ValueOf((*src)).Interface().([]byte)
+		var temp []byte = append(src[:0:0], src...)
 		for i := 0; i < int(lengthInt); i++ {
-			thisDecoder := NewDataDecoder(src)
-			thisDlmsData, thisError := thisDecoder.Decode(src)
+			thisDecoder := NewDataDecoder(&temp)
+			thisDlmsData, thisError := thisDecoder.Decode(&temp)
 			if thisError != nil {
 				err = thisError
 				return
 			}
 			output[i] = &thisDlmsData
 		}
-		rawValue = oriSrc[:len(oriSrc)-len((*src))]
+		rawValue = src[:len(src)-len(temp)]
 		value = output
 
 	case TagStructure:
 		// same same as array
 		output := make([]*DlmsData, lengthInt)
 		// make carbon copy of src to calc rawValue later
-		oriSrc := reflect.ValueOf((*src)).Interface().([]byte)
+		var temp []byte = append(src[:0:0], src...)
 		for i := 0; i < int(lengthInt); i++ {
-			thisDecoder := NewDataDecoder(src)
-			thisDlmsData, thisError := thisDecoder.Decode(src)
+			thisDecoder := NewDataDecoder(&temp)
+			thisDlmsData, thisError := thisDecoder.Decode(&temp)
 			if thisError != nil {
 				err = thisError
 				return
 			}
-			// fmt.Printf("%v: %v; rawLength: %v; rawValue: %v; raw: %v;\n", thisDataTag, thisDlmsData, thisDlmsData.rawLength, thisDlmsData.rawValue, thisDlmsData.raw)
+			// fmt.Printf("%v: %v; rawLength: %v; rawValue: %v; raw: %v;\n", thisDecoder, thisDlmsData, thisDlmsData.rawLength, thisDlmsData.rawValue, thisDlmsData.raw)
 			output[i] = &thisDlmsData
 		}
-		rawValue = oriSrc[:len(oriSrc)-len((*src))]
+		rawValue = src[:len(src)-len(temp)]
 		value = output
 
 	case TagBoolean:
-		rawValue, value, err = DecodeBoolean(src)
+		rawValue, value, err = DecodeBoolean(&src)
 	case TagBitString:
-		rawValue, value, err = DecodeBitString(src, lengthInt)
+		rawValue, value, err = DecodeBitString(&src, lengthInt)
 	case TagDoubleLong:
-		rawValue, value, err = DecodeDoubleLong(src)
+		rawValue, value, err = DecodeDoubleLong(&src)
 	case TagDoubleLongUnsigned:
-		rawValue, value, err = DecodeDoubleLongUnsigned(src)
+		rawValue, value, err = DecodeDoubleLongUnsigned(&src)
 	case TagFloatingPoint:
-		rawValue, value, err = DecodeFloat32(src)
+		rawValue, value, err = DecodeFloat32(&src)
 	case TagOctetString:
-		rawValue, value, err = DecodeOctetString(src, lengthInt)
+		rawValue, value, err = DecodeOctetString(&src, lengthInt)
 	case TagVisibleString:
-		rawValue, value, err = DecodeVisibleString(src, lengthInt)
+		rawValue, value, err = DecodeVisibleString(&src, lengthInt)
 	case TagUTF8String:
-		rawValue, value, err = DecodeUTF8String(src, lengthInt)
+		rawValue, value, err = DecodeUTF8String(&src, lengthInt)
 	case TagBCD:
-		rawValue, value, err = DecodeBCD(src)
+		rawValue, value, err = DecodeBCD(&src)
 	case TagInteger:
-		rawValue, value, err = DecodeInteger(src)
+		rawValue, value, err = DecodeInteger(&src)
 	case TagLong:
-		rawValue, value, err = DecodeLong(src)
+		rawValue, value, err = DecodeLong(&src)
 	case TagUnsigned:
-		rawValue, value, err = DecodeUnsigned(src)
+		rawValue, value, err = DecodeUnsigned(&src)
 	case TagLongUnsigned:
-		rawValue, value, err = DecodeLongUnsigned(src)
+		rawValue, value, err = DecodeLongUnsigned(&src)
 	case TagCompactArray:
-		panic("not yet implemented")
+		err = fmt.Errorf("not yet implemented")
 	case TagLong64:
-		rawValue, value, err = DecodeLong64(src)
+		rawValue, value, err = DecodeLong64(&src)
 	case TagLong64Unsigned:
-		rawValue, value, err = DecodeLong64Unsigned(src)
+		rawValue, value, err = DecodeLong64Unsigned(&src)
 	case TagEnum:
-		rawValue, value, err = DecodeEnum(src)
+		rawValue, value, err = DecodeEnum(&src)
 	case TagFloat32:
-		rawValue, value, err = DecodeFloat32(src)
+		rawValue, value, err = DecodeFloat32(&src)
 	case TagFloat64:
-		rawValue, value, err = DecodeFloat64(src)
+		rawValue, value, err = DecodeFloat64(&src)
 	case TagDateTime:
-		rawValue, value, err = DecodeDateTime(src)
+		rawValue, value, err = DecodeDateTime(&src)
 	case TagDate:
-		rawValue, value, err = DecodeDate(src)
+		rawValue, value, err = DecodeDate(&src)
 	case TagTime:
-		rawValue, value, err = DecodeTime(src)
+		rawValue, value, err = DecodeTime(&src)
 	case TagDontCare:
-		panic("not yet implemented")
+		err = fmt.Errorf("not yet implemented")
 	}
 
 	if err != nil {
@@ -212,8 +212,13 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	r.raw.WriteByte(byte(dec.tag))
 	if haveLength {
 		r.raw.Write(lengthByte)
+	} else {
+		r.rawLength = []byte{byte(len(rawValue))}
 	}
 	r.raw.Write(rawValue)
+
+	// remove bytes from original on success
+	(*ori) = (*ori)[len(r.raw.Bytes())-1:]
 
 	// fmt.Printf("Tag: %v; Value: %v; rawLength: %v; rawValue: %v; raw: %v;\n", r.Tag, r.Value, r.rawLength, r.rawValue, r.raw)
 	return
