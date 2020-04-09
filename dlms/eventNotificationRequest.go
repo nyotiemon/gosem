@@ -35,6 +35,7 @@ func (ev EventNotificationRequest) Encode() []byte {
 		if e != nil {
 			panic(e)
 		}
+		buf.WriteByte(uint8(len(tm)))
 		buf.Write(tm)
 	}
 	buf.Write(ev.AttributeInfo.Encode())
@@ -51,10 +52,12 @@ func DecodeEventNotificationRequest(src *[]byte) (out EventNotificationRequest, 
 
 	haveTime := (*src)[1]
 	(*src) = (*src)[2:]
+
 	if haveTime == 0x0 {
 		var nilTime *time.Time = nil
 		out.Time = nilTime
 	} else {
+		(*src) = (*src)[1:] // length of time
 		_, time, e := DecodeDateTime(src)
 		if e != nil {
 			err = e
