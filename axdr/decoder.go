@@ -119,7 +119,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	var value interface{}
 	switch dec.tag {
 	case TagNull:
-		panic("Not yet implemented")
+		panic("not yet implemented")
 
 	case TagArray:
 		output := make([]*DlmsData, lengthInt)
@@ -182,7 +182,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	case TagLongUnsigned:
 		rawValue, value, err = DecodeLongUnsigned(src)
 	case TagCompactArray:
-		panic("Not yet implemented")
+		panic("not yet implemented")
 	case TagLong64:
 		rawValue, value, err = DecodeLong64(src)
 	case TagLong64Unsigned:
@@ -200,7 +200,7 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 	case TagTime:
 		rawValue, value, err = DecodeTime(src)
 	case TagDontCare:
-		panic("Not yet implemented")
+		panic("not yet implemented")
 	}
 
 	if err != nil {
@@ -221,19 +221,20 @@ func (dec *Decoder) Decode(src *[]byte) (r DlmsData, err error) {
 
 func DecodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 	if (*src)[0] > byte(128) {
-		lOfLength := int((*src)[0]) - 128     // L-of-length part
-		realLength := (*src)[1 : lOfLength+1] // real length part
-		if len(realLength) < lOfLength {
+		lOfLength := int((*src)[0]) - 128 // L-of-length part
+		if len((*src)) < lOfLength+1 {
 			err = ErrLengthLess
 			return
 		}
-		outByte = (*src)[0 : lOfLength+1] // L-of-length and length
-
-		buf := []byte{0, 0, 0, 0, 0, 0, 0, 0}
+		realLength := (*src)[1 : lOfLength+1] // real length part
 
 		if len(realLength) > 8 {
 			err = fmt.Errorf("length value is bigger than uint64 max value. This Decoder is limited to uint64")
+			return
 		} else {
+			outByte = (*src)[0 : lOfLength+1] // L-of-length and length
+
+			buf := []byte{0, 0, 0, 0, 0, 0, 0, 0}
 			bufStart := 7
 			outStart := len(realLength) - 1
 			for outStart >= 0 {
@@ -241,9 +242,10 @@ func DecodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 				outStart--
 				bufStart--
 			}
+
+			outVal = binary.BigEndian.Uint64(buf[:])
+			(*src) = (*src)[1+len(realLength):]
 		}
-		outVal = binary.BigEndian.Uint64(buf[:])
-		(*src) = (*src)[1+len(realLength):]
 
 	} else {
 		outByte = append(outByte, (*src)[0])
