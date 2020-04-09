@@ -71,4 +71,15 @@ func TestSelectiveAccessDescriptor_Decode(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t2 AccessParameter Failed. get: %d, should:%v", a.AccessParameter.Value, b.AccessParameter.Value)
 	}
+
+	// --- making sure src wont change if decode fail
+	src = []byte{2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 255, 0, 0, 18, 0, 0}
+	oriLength := len(src)
+	a, e = DecodeSelectiveAccessDescriptor(&src)
+	if e == nil {
+		t.Errorf("t3 should fail")
+	}
+	if len(src) != oriLength {
+		t.Errorf("t3. src should not change on fail (%v)", src)
+	}
 }

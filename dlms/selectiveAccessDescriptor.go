@@ -64,19 +64,23 @@ func (s *SelectiveAccessDescriptor) Encode() []byte {
 	return out.Bytes()
 }
 
-func DecodeSelectiveAccessDescriptor(src *[]byte) (out SelectiveAccessDescriptor, err error) {
-	if (*src)[0] == AccessSelectorRange.Value() {
+func DecodeSelectiveAccessDescriptor(ori *[]byte) (out SelectiveAccessDescriptor, err error) {
+	var src []byte = append((*ori)[:0:0], (*ori)...)
+
+	if src[0] == AccessSelectorRange.Value() {
 		out.AccessSelector = AccessSelectorRange
 	} else {
 		out.AccessSelector = AccessSelectorEntry
 	}
-	(*src) = (*src)[1:] // remove access-selector byte
+	src = src[1:] // remove access-selector byte
 
-	var axdrDecoder Decoder = *NewDataDecoder(src)
-	out.AccessParameter, err = axdrDecoder.Decode(src)
+	var axdrDecoder Decoder = *NewDataDecoder(&src)
+	out.AccessParameter, err = axdrDecoder.Decode(&src)
 	if err != nil {
 		return
 	}
+
+	(*ori) = (*ori)[len((*ori))-len(src):]
 
 	return
 }
