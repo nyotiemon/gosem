@@ -47,7 +47,7 @@ func (o *Obis) Bytes() []byte {
 
 func DecodeObis(src *[]byte) (outVal Obis, err error) {
 	if len(*src) < 6 {
-		err = fmt.Errorf("Byte slice length must be at least 6 bytes")
+		err = fmt.Errorf("byte slice length must be at least 6 bytes")
 		return
 	}
 	btVal := [6]byte{(*src)[0], (*src)[1], (*src)[2], (*src)[3], (*src)[4], (*src)[5]}

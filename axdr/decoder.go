@@ -232,7 +232,7 @@ func DecodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 		buf := []byte{0, 0, 0, 0, 0, 0, 0, 0}
 
 		if len(realLength) > 8 {
-			err = fmt.Errorf("Length value is bigger than uint64 max value. This Decoder is limited to uint64")
+			err = fmt.Errorf("length value is bigger than uint64 max value. This Decoder is limited to uint64")
 		} else {
 			bufStart := 7
 			outStart := len(realLength) - 1
@@ -351,7 +351,7 @@ func DecodeUTF8String(src *[]byte, length uint64) (outByte []byte, outVal string
 	for sb.Len() < len(outByte) {
 		r, _ := utf8.DecodeRune(outByte[sb.Len():])
 		if r == utf8.RuneError {
-			err = fmt.Errorf("Byte slice contain invalid UTF-8 runes")
+			err = fmt.Errorf("byte slice contain invalid UTF-8 runes")
 			return
 		}
 		sb.WriteRune(r)
@@ -540,7 +540,7 @@ func DecodeDateTime(src *[]byte) (outByte []byte, outVal time.Time, err error) {
 	outByte = (*src)[:12]
 
 	if outByte[11] == 0xff {
-		err = fmt.Errorf("Clock status value(%v) not OK(0x00)", outByte[11])
+		err = fmt.Errorf("clock status value(%v) not OK(0x00)", outByte[11])
 		return
 	}
 

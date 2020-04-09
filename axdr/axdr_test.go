@@ -1197,12 +1197,12 @@ func TestDecodeDate(t *testing.T) {
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
-		// compare length byte
+		// compare byte value
 		sameByte := bytes.Compare(table.bt, bt)
 		if sameByte != 0 {
 			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
 		}
-		// compare length value
+		// compare time value
 		sameValue := (table.val == val)
 		if !sameValue {
 			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
@@ -1229,12 +1229,12 @@ func TestDecodeTime(t *testing.T) {
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
-		// compare length byte
+		// compare byte value
 		sameByte := bytes.Compare(table.bt, bt)
 		if sameByte != 0 {
 			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
 		}
-		// compare length value
+		// compare time value
 		sameValue := (table.val == val)
 		if !sameValue {
 			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)
@@ -1261,12 +1261,12 @@ func TestDecodeDateTime(t *testing.T) {
 		if err != nil {
 			t.Errorf("combination %v failed. got an error:%v", idx, err)
 		}
-		// compare length byte
+		// compare byte value
 		sameByte := bytes.Compare(table.bt, bt)
 		if sameByte != 0 {
 			t.Errorf("combination %v failed. Byte get: %v, should:%v", idx, bt, table.bt)
 		}
-		// compare length value
+		// compare time value
 		sameValue := (table.val == val)
 		if !sameValue {
 			t.Errorf("combination %v failed. Value get: %v, should:%v", idx, val, table.val)

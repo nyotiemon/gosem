@@ -159,7 +159,7 @@ func (d *DlmsData) Encode() []byte {
 		panic("Value to encode cannot be nil")
 	}
 
-	errDataType := fmt.Errorf("Cannot encode value %v with tag %v", d.Value, d.Tag)
+	errDataType := fmt.Errorf("cannot encode value %v with tag %v", d.Value, d.Tag)
 	var dataLength []byte
 
 	switch d.Tag {

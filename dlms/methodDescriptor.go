@@ -31,7 +31,7 @@ func (ad *MethodDescriptor) Encode() []byte {
 
 func DecodeMethodDescriptor(src *[]byte) (out MethodDescriptor, err error) {
 	if len(*src) < 9 {
-		err = fmt.Errorf("Byte slice length must be at least 9 bytes")
+		err = fmt.Errorf("byte slice length must be at least 9 bytes")
 		return
 	}
 

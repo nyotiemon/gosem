@@ -60,7 +60,7 @@ func (gr *SetResponse) Decode(src *[]byte) (out CosemPDU, err error) {
 	case TagSetResponseWithList.Value():
 		out, err = DecodeSetResponseWithList(src)
 	default:
-		err = fmt.Errorf("Byte tag not recognized (%v)", (*src)[1])
+		err = fmt.Errorf("byte tag not recognized (%v)", (*src)[1])
 	}
 
 	return

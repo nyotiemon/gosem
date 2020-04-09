@@ -159,7 +159,7 @@ func GetAccessTag(in uint8) (out AccessResultTag, err error) {
 	case 250:
 		out = TagAccOtherReason
 	default:
-		err = fmt.Errorf("Value not recognized.")
+		err = fmt.Errorf("value not recognized.")
 	}
 
 	return
@@ -194,7 +194,7 @@ func GetActionTag(in uint8) (out ActionResultTag, err error) {
 	case 250:
 		out = TagActOtherReason
 	default:
-		err = fmt.Errorf("Value not recognized")
+		err = fmt.Errorf("value not recognized")
 	}
 
 	return

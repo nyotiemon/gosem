@@ -138,7 +138,7 @@ func EncodeBitString(data string) ([]byte, error) {
 
 	data = strings.ReplaceAll(data, " ", "")
 	if len(strings.Trim(data, "01")) > 0 {
-		return []byte{}, fmt.Errorf("Data must be a string of binary, example: 11100000")
+		return []byte{}, fmt.Errorf("data must be a string of binary, example: 11100000")
 	}
 
 	for i := 0; i < len(data); i += 8 {
@@ -184,7 +184,7 @@ func EncodeOctetString(data string) ([]byte, error) {
 		for i, v := range s {
 			bt, ok := strconv.ParseUint(v, 10, 8)
 			if ok != nil {
-				return nil, fmt.Errorf("Failed to parse input as byte for Obis")
+				return nil, fmt.Errorf("failed to parse input as byte for Obis")
 			}
 			bv[i] = uint8(bt)
 		}
@@ -199,7 +199,7 @@ func EncodeOctetString(data string) ([]byte, error) {
 func EncodeVisibleString(data string) ([]byte, error) {
 	for i := 0; i < len(data); i++ {
 		if data[i] > '\u007F' { // taken from unicode.MaxASCII
-			return []byte{}, fmt.Errorf("Data to encode is not a valid ASCII string")
+			return []byte{}, fmt.Errorf("data to encode is not a valid ASCII string")
 		}
 	}
 	return []byte(data), nil
@@ -208,7 +208,7 @@ func EncodeVisibleString(data string) ([]byte, error) {
 // An ordered sequence of characters encoded as UTF-8
 func EncodeUTF8String(data string) ([]byte, error) {
 	if valid := utf8.ValidString(data); !valid {
-		return []byte{}, fmt.Errorf("Data to encode is not a valid UTF-8 string")
+		return []byte{}, fmt.Errorf("data to encode is not a valid UTF-8 string")
 	}
 	rs := []rune(data)
 
@@ -236,7 +236,7 @@ func EncodeBCD(data int8) ([]byte, error) {
 // note: this is not part of A-XDR encoder
 func EncodeBCDs(data string) ([]byte, error) {
 	if _, err := strconv.ParseInt(data, 10, 64); err != nil {
-		return []byte{}, fmt.Errorf("Data is non-encodable")
+		return []byte{}, fmt.Errorf("data is non-encodable")
 	}
 	db := []byte(data)
 	dl := (len(db) + 1) / 2

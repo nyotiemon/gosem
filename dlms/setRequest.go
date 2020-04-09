@@ -60,7 +60,7 @@ func (gr *SetRequest) Decode(src *[]byte) (out CosemPDU, err error) {
 	case TagSetRequestWithListAndFirstDataBlock.Value():
 		out, err = DecodeSetRequestWithListAndFirstDataBlock(src)
 	default:
-		err = fmt.Errorf("Byte tag not recognized (%v)", (*src)[1])
+		err = fmt.Errorf("byte tag not recognized (%v)", (*src)[1])
 	}
 
 	return
