@@ -18,7 +18,7 @@ func CreateAttributeDescriptor(c uint16, i string, a int8) *AttributeDescriptor 
 	return &AttributeDescriptor{ClassId: c, InstanceId: ob, AttributeId: a}
 }
 
-func (ad *AttributeDescriptor) Encode() []byte {
+func (ad AttributeDescriptor) Encode() []byte {
 	var output []byte
 	var c [2]byte
 	binary.BigEndian.PutUint16(c[:], ad.ClassId)

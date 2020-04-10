@@ -21,7 +21,7 @@ func CreateAttributeDescriptorWithSelection(c uint16, i string, a int8, sad *Sel
 	return &AttributeDescriptorWithSelection{ClassId: c, InstanceId: ob, AttributeId: a, AccessDescriptor: sad}
 }
 
-func (ad *AttributeDescriptorWithSelection) Encode() []byte {
+func (ad AttributeDescriptorWithSelection) Encode() []byte {
 	var output []byte
 	var c [2]byte
 	binary.BigEndian.PutUint16(c[:], ad.ClassId)

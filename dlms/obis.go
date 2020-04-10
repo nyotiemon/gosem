@@ -37,11 +37,11 @@ func CreateObis(str string) *Obis {
 	return o
 }
 
-func (o *Obis) String() string {
+func (o Obis) String() string {
 	return o.stringValue
 }
 
-func (o *Obis) Bytes() []byte {
+func (o Obis) Bytes() []byte {
 	return o.byteValue[:]
 }
 

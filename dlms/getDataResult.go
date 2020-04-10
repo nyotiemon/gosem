@@ -30,7 +30,7 @@ func CreateGetDataResult(value interface{}) *GetDataResult {
 	}
 }
 
-func (dt *GetDataResult) Encode() []byte {
+func (dt GetDataResult) Encode() []byte {
 	var output bytes.Buffer
 	if dt.IsData == true {
 		output.WriteByte(0x1)
@@ -45,7 +45,7 @@ func (dt *GetDataResult) Encode() []byte {
 	return output.Bytes()
 }
 
-func (dt *GetDataResult) ValueAsData() DlmsData {
+func (dt GetDataResult) ValueAsData() DlmsData {
 	if !dt.IsData {
 		panic("Value is DataAccessResult!")
 	}
@@ -53,7 +53,7 @@ func (dt *GetDataResult) ValueAsData() DlmsData {
 	return dt.Value.(DlmsData)
 }
 
-func (dt *GetDataResult) ValueAsAccess() AccessResultTag {
+func (dt GetDataResult) ValueAsAccess() AccessResultTag {
 	if dt.IsData {
 		panic("Value is DlmsData!")
 	}
@@ -131,7 +131,7 @@ func CreateDataBlockG(lastBlock bool, blockNum uint32, result interface{}) *Data
 	}
 }
 
-func (dt *DataBlockG) Encode() []byte {
+func (dt DataBlockG) Encode() []byte {
 	var output bytes.Buffer
 
 	if dt.LastBlock {
@@ -161,7 +161,7 @@ func (dt *DataBlockG) Encode() []byte {
 	return output.Bytes()
 }
 
-func (dt *DataBlockG) ResultAsBytes() []byte {
+func (dt DataBlockG) ResultAsBytes() []byte {
 	if dt.IsResult {
 		panic("Value is DataAccessResult!")
 	}
@@ -169,7 +169,7 @@ func (dt *DataBlockG) ResultAsBytes() []byte {
 	return dt.Result.([]byte)
 }
 
-func (dt *DataBlockG) ResultAsAccess() AccessResultTag {
+func (dt DataBlockG) ResultAsAccess() AccessResultTag {
 	if !dt.IsResult {
 		panic("Value is byte slice!")
 	}
@@ -234,7 +234,7 @@ func CreateDataBlockSA(lastBlock bool, blockNum uint32, result interface{}) *Dat
 	}
 }
 
-func (dt *DataBlockSA) Encode() []byte {
+func (dt DataBlockSA) Encode() []byte {
 	var output bytes.Buffer
 
 	if dt.LastBlock {
@@ -288,7 +288,7 @@ func CreateActResponse(result ActionResultTag, returnParam *GetDataResult) *ActR
 	return &ActResponse{Result: result, ReturnParam: returnParam}
 }
 
-func (dt *ActResponse) Encode() []byte {
+func (dt ActResponse) Encode() []byte {
 	var output bytes.Buffer
 
 	output.WriteByte(byte(dt.Result))

@@ -57,7 +57,7 @@ func CreateSelectiveAccessDescriptor(as accesSelector, ap interface{}) *Selectiv
 	}
 }
 
-func (s *SelectiveAccessDescriptor) Encode() []byte {
+func (s SelectiveAccessDescriptor) Encode() []byte {
 	var out bytes.Buffer
 	out.WriteByte(byte(s.AccessSelector.Value()))
 	out.Write(s.AccessParameter.Encode())
