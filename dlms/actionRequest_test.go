@@ -3,6 +3,7 @@ package cosem
 import (
 	"bytes"
 	. "gosem/axdr"
+	"reflect"
 	"testing"
 )
 
@@ -447,44 +448,68 @@ func TestDecode_ActionRequest(t *testing.T) {
 
 	// ------------------  ActionRequestNormal
 	src := []byte{195, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
-	_, e := sr.Decode(&src)
+	res, e := sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for ActionRequestNormal Failed. err:%v", e)
+	}
+	_, assertTrue := res.(ActionRequestNormal)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionRequestNormal instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  ActionRequestNextPBlock
 	src = []byte{195, 2, 81, 0, 0, 0, 1}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for ActionRequestNextPBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionRequestNextPBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionRequestNextPBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  ActionRequestWithList
 	src = []byte{195, 3, 81, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for ActionRequestWithList Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionRequestWithList)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionRequestWithList instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  ActionRequestWithFirstPBlock
 	src = []byte{195, 4, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for ActionRequestWithFirstPBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionRequestWithFirstPBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionRequestWithFirstPBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  ActionRequestWithListAndFirstPBlock
 	src = []byte{195, 5, 81, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for ActionRequestWithListAndFirstPBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionRequestWithListAndFirstPBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionRequestWithListAndFirstPBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  ActionRequestWithPBlock
 	src = []byte{195, 6, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for ActionRequestWithPBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionRequestWithPBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionRequestWithPBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  Error test

@@ -2,6 +2,7 @@ package cosem
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 )
 
@@ -103,7 +104,7 @@ func TestDecode_SetResponseNormal(t *testing.T) {
 
 	a, err := DecodeSetResponseNormal(&src)
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeSetRequestNormal. err:%v", err)
+		t.Errorf("t1 Failed to DecodeSetResponseNormal. err:%v", err)
 	}
 
 	if a.InvokePriority != x.InvokePriority {
@@ -125,7 +126,7 @@ func TestDecode_SetResponseDataBlock(t *testing.T) {
 
 	a, err := DecodeSetResponseDataBlock(&src)
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeSetRequestNormal. err:%v", err)
+		t.Errorf("t1 Failed to DecodeSetResponseNormal. err:%v", err)
 	}
 
 	if a.InvokePriority != x.InvokePriority {
@@ -147,7 +148,7 @@ func TestDecode_SetResponseLastDataBlock(t *testing.T) {
 
 	a, err := DecodeSetResponseLastDataBlock(&src)
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeSetRequestNormal. err:%v", err)
+		t.Errorf("t1 Failed to DecodeSetResponseNormal. err:%v", err)
 	}
 
 	if a.InvokePriority != x.InvokePriority {
@@ -174,7 +175,7 @@ func TestDecode_SetResponseLastDataBlockWithList(t *testing.T) {
 
 	a, err := DecodeSetResponseLastDataBlockWithList(&src)
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeSetRequestNormal. err:%v", err)
+		t.Errorf("t1 Failed to DecodeSetResponseNormal. err:%v", err)
 	}
 
 	if a.InvokePriority != x.InvokePriority {
@@ -213,7 +214,7 @@ func TestDecode_SetResponseWithList(t *testing.T) {
 
 	a, err := DecodeSetResponseWithList(&src)
 	if err != nil {
-		t.Errorf("t1 Failed to DecodeSetRequestNormal. err:%v", err)
+		t.Errorf("t1 Failed to DecodeSetResponseNormal. err:%v", err)
 	}
 
 	if a.InvokePriority != x.InvokePriority {
@@ -246,37 +247,57 @@ func TestDecode_SetResponse(t *testing.T) {
 
 	// ------------------  SetResponseNormal
 	src := []byte{197, 1, 81, 0}
-	_, e := sr.Decode(&src)
+	res, e := sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetResponseNormal Failed. err:%v", e)
+	}
+	_, assertTrue := res.(SetResponseNormal)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetResponseNormal instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetResponseDataBlock
 	src = []byte{197, 2, 81, 0, 0, 0, 1}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetResponseDataBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetResponseDataBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetResponseDataBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetResponseLastDataBlock
 	src = []byte{197, 3, 81, 0, 0, 0, 0, 1}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetResponseLastDataBlock Failed. err:%v", e)
 	}
-
-	// ------------------  SetRequestWithList
-	src = []byte{197, 4, 81, 3, 0, 1, 250, 0, 0, 0, 1}
-	_, e = sr.Decode(&src)
-	if e != nil {
-		t.Errorf("Decode for SetRequestWithList Failed. err:%v", e)
+	_, assertTrue = res.(SetResponseLastDataBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetResponseLastDataBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetResponseLastDataBlockWithList
-	src = []byte{197, 5, 81, 3, 0, 1, 250}
-	_, e = sr.Decode(&src)
+	src = []byte{197, 4, 81, 3, 0, 1, 250, 0, 0, 0, 1}
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetResponseLastDataBlockWithList Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetResponseLastDataBlockWithList)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetResponseLastDataBlockWithList instead of %v", reflect.TypeOf(res).Name())
+	}
+
+	// ------------------  SetResponseWithList
+	src = []byte{197, 5, 81, 3, 0, 1, 250}
+	res, e = sr.Decode(&src)
+	if e != nil {
+		t.Errorf("Decode for SetResponseWithList Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetResponseWithList)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetResponseWithList instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  Error test

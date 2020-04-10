@@ -3,6 +3,7 @@ package cosem
 import (
 	"bytes"
 	. "gosem/axdr"
+	"reflect"
 	"testing"
 )
 
@@ -226,5 +227,60 @@ func TestDecode_ActionResponseNextPBlock(t *testing.T) {
 
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
+	}
+}
+
+func TestDecode_ActionResponse(t *testing.T) {
+	var sr ActionResponse
+
+	// ------------------  ActionResponseNormal
+	srcActionResponseNormal := []byte{199, 1, 81, 0, 1, 0, 0}
+	res, e := sr.Decode(&srcActionResponseNormal)
+	if e != nil {
+		t.Errorf("Decode for ActionResponseNormal Failed. err:%v", e)
+	}
+	_, assertTrue := res.(ActionResponseNormal)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionResponseNormal instead of %v", reflect.TypeOf(res).Name())
+	}
+
+	// ------------------  ActionResponseWithPBlock
+	srcActionResponseWithPBlock := []byte{199, 2, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	res, e = sr.Decode(&srcActionResponseWithPBlock)
+	if e != nil {
+		t.Errorf("Decode for ActionResponseWithPBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionResponseWithPBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionResponseWithPBlock instead of %v", reflect.TypeOf(res).Name())
+	}
+
+	// ------------------  ActionResponseWithList
+	srcActionResponseWithList := []byte{199, 3, 81, 1, 0, 1, 0, 0}
+	res, e = sr.Decode(&srcActionResponseWithList)
+	if e != nil {
+		t.Errorf("Decode for ActionResponseWithList Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionResponseWithList)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionResponseWithList instead of %v", reflect.TypeOf(res).Name())
+	}
+
+	// ------------------  ActionResponseNextPBlock
+	srcActionResponseNextPBlock := []byte{199, 4, 81, 0, 0, 0, 1}
+	res, e = sr.Decode(&srcActionResponseNextPBlock)
+	if e != nil {
+		t.Errorf("Decode for ActionResponseNextPBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ActionResponseNextPBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ActionResponseNextPBlock instead of %v", reflect.TypeOf(res).Name())
+	}
+
+	// ------------------  Error test
+	srcError := []byte{255, 255, 255}
+	_, wow := sr.Decode(&srcError)
+	if wow == nil {
+		t.Errorf("Decode should've return error.")
 	}
 }

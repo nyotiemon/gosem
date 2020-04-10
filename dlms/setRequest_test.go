@@ -3,6 +3,7 @@ package cosem
 import (
 	"bytes"
 	. "gosem/axdr"
+	"reflect"
 	"testing"
 )
 
@@ -490,37 +491,57 @@ func TestDecode_SetRequest(t *testing.T) {
 
 	// ------------------  SetRequestNormal
 	src := []byte{193, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 9, 5, 1, 2, 3, 4, 5}
-	_, e := sr.Decode(&src)
+	res, e := sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestNormal Failed. err:%v", e)
+	}
+	_, assertTrue := res.(SetRequestNormal)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetRequestNormal instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetRequestWithFirstDataBlock
 	src = []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestWithFirstDataBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetRequestWithFirstDataBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetRequestWithFirstDataBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetRequestWithDataBlock
 	src = []byte{193, 3, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestWithDataBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetRequestWithDataBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetRequestWithDataBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetRequestWithList
 	src = []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 9, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestWithList Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetRequestWithList)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetRequestWithList instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  SetRequestWithListAndFirstDataBlock
 	src = []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
-	_, e = sr.Decode(&src)
+	res, e = sr.Decode(&src)
 	if e != nil {
 		t.Errorf("Decode for SetRequestWithListAndFirstDataBlock Failed. err:%v", e)
+	}
+	_, assertTrue = res.(SetRequestWithListAndFirstDataBlock)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return SetRequestWithListAndFirstDataBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  Error test
