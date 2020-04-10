@@ -18,7 +18,7 @@ func CreateMethodDescriptor(c uint16, i string, a int8) *MethodDescriptor {
 	return &MethodDescriptor{ClassId: c, InstanceId: ob, MethodId: a}
 }
 
-func (ad MethodDescriptor) Encode() []byte {
+func (ad MethodDescriptor) Encode() (out []byte, err error) {
 	var output []byte
 	var c [2]byte
 	binary.BigEndian.PutUint16(c[:], ad.ClassId)
@@ -26,7 +26,8 @@ func (ad MethodDescriptor) Encode() []byte {
 	output = append(output, ad.InstanceId.Bytes()...)
 	output = append(output, byte(ad.MethodId))
 
-	return output
+	out = output
+	return
 }
 
 func DecodeMethodDescriptor(ori *[]byte) (out MethodDescriptor, err error) {

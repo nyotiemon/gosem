@@ -10,7 +10,10 @@ func TestNew_ActionRequestNormal(t *testing.T) {
 	var mthDesc MethodDescriptor = *CreateMethodDescriptor(1, "1.0.0.3.0.255", 2)
 	var dt DlmsData = *CreateAxdrOctetString("0102030405")
 	var a ActionRequestNormal = *CreateActionRequestNormal(81, mthDesc, &dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{195, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -20,7 +23,10 @@ func TestNew_ActionRequestNormal(t *testing.T) {
 	// with nil Data
 	var nilData *DlmsData = nil
 	var b ActionRequestNormal = *CreateActionRequestNormal(81, mthDesc, nilData)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{195, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -31,7 +37,10 @@ func TestNew_ActionRequestNormal(t *testing.T) {
 
 func TestNew_ActionRequestNextPBlock(t *testing.T) {
 	var a ActionRequestNextPBlock = *CreateActionRequestNextPBlock(81, 1)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{195, 2, 81, 0, 0, 0, 1}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -44,7 +53,10 @@ func TestNew_ActionRequestWithList(t *testing.T) {
 	var md1 MethodDescriptor = *CreateMethodDescriptor(1, "1.0.0.3.0.255", 2)
 	var dt1 DlmsData = *CreateAxdrOctetString("0102030405")
 	var a ActionRequestWithList = *CreateActionRequestWithList(81, []MethodDescriptor{md1}, []DlmsData{dt1})
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{195, 3, 81, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -55,7 +67,10 @@ func TestNew_ActionRequestWithList(t *testing.T) {
 	var md2 MethodDescriptor = *CreateMethodDescriptor(1, "0.0.8.0.0.255", 2)
 	var dt2 DlmsData = *CreateAxdrDoubleLong(69)
 	var b ActionRequestWithList = *CreateActionRequestWithList(81, []MethodDescriptor{md1, md2}, []DlmsData{dt1, dt2})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{195, 3, 81, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -67,7 +82,10 @@ func TestNew_ActionRequestWithFirstPBlock(t *testing.T) {
 	var md MethodDescriptor = *CreateMethodDescriptor(1, "1.0.0.3.0.255", 2)
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 	var a ActionRequestWithFirstPBlock = *CreateActionRequestWithFirstPBlock(81, md, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{195, 4, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -81,7 +99,10 @@ func TestNew_ActionRequestWithListAndFirstPBlock(t *testing.T) {
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 
 	var a ActionRequestWithListAndFirstPBlock = *CreateActionRequestWithListAndFirstPBlock(81, []MethodDescriptor{a1}, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{195, 5, 81, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -91,7 +112,10 @@ func TestNew_ActionRequestWithListAndFirstPBlock(t *testing.T) {
 	// with 2 MethodDescriptor
 	var a2 MethodDescriptor = *CreateMethodDescriptor(1, "0.0.8.0.0.255", 2)
 	var b ActionRequestWithListAndFirstPBlock = *CreateActionRequestWithListAndFirstPBlock(81, []MethodDescriptor{a1, a2}, dt)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{195, 5, 81, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -112,7 +136,10 @@ func TestNew_ActionRequestWithPBlock(t *testing.T) {
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 
 	var a ActionRequestWithPBlock = *CreateActionRequestWithPBlock(81, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{195, 6, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {

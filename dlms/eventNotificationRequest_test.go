@@ -13,7 +13,10 @@ func TestNew_EventNotificationRequest(t *testing.T) {
 	var attrVal DlmsData = *CreateAxdrBoolean(true)
 
 	var a EventNotificationRequest = *CreateEventNotificationRequest(&tm, attrDesc, attrVal)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{194, 1, 12, 5, 220, 1, 1, 1, 0, 0, 0, 255, 0, 0, 0, 0, 1, 1, 0, 0, 3, 0, 255, 2, 3, 255}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -23,7 +26,10 @@ func TestNew_EventNotificationRequest(t *testing.T) {
 	// --- with nil time
 	var nilTime *time.Time = nil
 	a = *CreateEventNotificationRequest(nilTime, attrDesc, attrVal)
-	t1 = a.Encode()
+	t1, e = a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result = []byte{194, 0, 0, 1, 1, 0, 0, 3, 0, 255, 2, 3, 255}
 
 	res = bytes.Compare(t1, result)

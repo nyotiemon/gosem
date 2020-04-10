@@ -11,9 +11,12 @@ func TestNewGetRequestNormal(t *testing.T) {
 	var attrDesc AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
 	var accsDesc SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
 
-	a := gr.New(TagGetRequestNormal)
+	a, _ := gr.New(TagGetRequestNormal)
 	a = *CreateGetRequestNormal(81, attrDesc, &accsDesc)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{192, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -22,7 +25,10 @@ func TestNewGetRequestNormal(t *testing.T) {
 
 	var nilAccsDesc *SelectiveAccessDescriptor = nil
 	b := *CreateGetRequestNormal(81, attrDesc, nilAccsDesc)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{192, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -33,9 +39,12 @@ func TestNewGetRequestNormal(t *testing.T) {
 func TestNewGetRequestNext(t *testing.T) {
 	var gr GetRequest
 
-	a := gr.New(TagGetRequestNext)
+	a, _ := gr.New(TagGetRequestNext)
 	a = *CreateGetRequestNext(81, 2)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{192, 2, 81, 0, 0, 0, 2}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -48,9 +57,12 @@ func TestNewGetRequestWithList(t *testing.T) {
 	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
 	var a1 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
 
-	a := gr.New(TagGetRequestWithList)
+	a, _ := gr.New(TagGetRequestWithList)
 	a = *CreateGetRequestWithList(69, []AttributeDescriptorWithSelection{a1})
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{192, 3, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -59,7 +71,10 @@ func TestNewGetRequestWithList(t *testing.T) {
 
 	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
 	b := *CreateGetRequestWithList(69, []AttributeDescriptorWithSelection{a1, a2})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{192, 3, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -103,8 +118,8 @@ func TestDecode_GetRequestNormal(t *testing.T) {
 	if a.SelectiveAccessInfo.AccessSelector != b.SelectiveAccessInfo.AccessSelector {
 		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessSelector get: %v, should:%v", a.SelectiveAccessInfo.AccessSelector, b.SelectiveAccessInfo.AccessSelector)
 	}
-	aByte := a.SelectiveAccessInfo.AccessParameter.Encode()
-	bByte := b.SelectiveAccessInfo.AccessParameter.Encode()
+	aByte, _ := a.SelectiveAccessInfo.AccessParameter.Encode()
+	bByte, _ := b.SelectiveAccessInfo.AccessParameter.Encode()
 	res = bytes.Compare(aByte, bByte)
 	if res != 0 {
 		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessParameter get: %v, should:%v", aByte, bByte)

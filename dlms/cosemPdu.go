@@ -52,10 +52,10 @@ func (s cosemTag) Value() uint8 {
 }
 
 type CosemI interface {
-	New() CosemPDU
+	New() (out CosemPDU, err error)
 	Decode() (out CosemPDU, err error)
 }
 
 type CosemPDU interface {
-	Encode() []byte
+	Encode() ([]byte, error)
 }

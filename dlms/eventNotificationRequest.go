@@ -24,7 +24,7 @@ func CreateEventNotificationRequest(tm *time.Time, attInfo AttributeDescriptor, 
 	}
 }
 
-func (ev EventNotificationRequest) Encode() []byte {
+func (ev EventNotificationRequest) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagEvenNotificationRequest))
 	if ev.Time == nil {
@@ -33,15 +33,27 @@ func (ev EventNotificationRequest) Encode() []byte {
 		buf.WriteByte(1)
 		tm, e := EncodeDateTime(ev.getTimebyValue())
 		if e != nil {
-			panic(e)
+			err = e
+			return
 		}
 		buf.WriteByte(uint8(len(tm)))
 		buf.Write(tm)
 	}
-	buf.Write(ev.AttributeInfo.Encode())
-	buf.Write(ev.AttributeValue.Encode())
+	attInfo, eInfo := ev.AttributeInfo.Encode()
+	if eInfo != nil {
+		err = eInfo
+		return
+	}
+	buf.Write(attInfo)
+	attValue, eValue := ev.AttributeValue.Encode()
+	if eValue != nil {
+		err = eValue
+		return
+	}
+	buf.Write(attValue)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeEventNotificationRequest(ori *[]byte) (out EventNotificationRequest, err error) {

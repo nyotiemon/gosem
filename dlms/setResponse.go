@@ -25,21 +25,22 @@ func (s setResponseTag) Value() uint8 {
 // SetResponse implement CosemI
 type SetResponse struct{}
 
-func (gr *SetResponse) New(tag setResponseTag) CosemPDU {
+func (gr *SetResponse) New(tag setResponseTag) (out CosemPDU, err error) {
 	switch tag {
 	case TagSetResponseNormal:
-		return &SetResponseNormal{}
+		out = &SetResponseNormal{}
 	case TagSetResponseDataBlock:
-		return &SetResponseDataBlock{}
+		out = &SetResponseDataBlock{}
 	case TagSetResponseLastDataBlock:
-		return &SetResponseLastDataBlock{}
+		out = &SetResponseLastDataBlock{}
 	case TagSetResponseLastDataBlockWithList:
-		return &SetResponseLastDataBlockWithList{}
+		out = &SetResponseLastDataBlockWithList{}
 	case TagSetResponseWithList:
-		return &SetResponseWithList{}
+		out = &SetResponseWithList{}
 	default:
-		panic("Tag not recognized!")
+		err = fmt.Errorf("tag not recognized!")
 	}
+	return
 }
 
 func (gr *SetResponse) Decode(src *[]byte) (out CosemPDU, err error) {
@@ -79,14 +80,15 @@ func CreateSetResponseNormal(invokeId uint8, result AccessResultTag) *SetRespons
 	}
 }
 
-func (sr SetResponseNormal) Encode() []byte {
+func (sr SetResponseNormal) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(TagSetResponse.Value())
 	buf.WriteByte(TagSetResponseNormal.Value())
 	buf.WriteByte(sr.InvokePriority)
 	buf.WriteByte(sr.Result.Value())
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetResponseNormal(ori *[]byte) (out SetResponseNormal, err error) {
@@ -124,7 +126,7 @@ func CreateSetResponseDataBlock(invokeId uint8, blockNum uint32) *SetResponseDat
 	}
 }
 
-func (sr SetResponseDataBlock) Encode() []byte {
+func (sr SetResponseDataBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(TagSetResponse.Value())
 	buf.WriteByte(TagSetResponseDataBlock.Value())
@@ -132,7 +134,8 @@ func (sr SetResponseDataBlock) Encode() []byte {
 	blockNum, _ := EncodeDoubleLongUnsigned(sr.BlockNum)
 	buf.Write(blockNum)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetResponseDataBlock(ori *[]byte) (out SetResponseDataBlock, err error) {
@@ -170,7 +173,7 @@ func CreateSetResponseLastDataBlock(invokeId uint8, result AccessResultTag, bloc
 	}
 }
 
-func (sr SetResponseLastDataBlock) Encode() []byte {
+func (sr SetResponseLastDataBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(TagSetResponse.Value())
 	buf.WriteByte(TagSetResponseLastDataBlock.Value())
@@ -179,7 +182,8 @@ func (sr SetResponseLastDataBlock) Encode() []byte {
 	blockNum, _ := EncodeDoubleLongUnsigned(sr.BlockNum)
 	buf.Write(blockNum)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetResponseLastDataBlock(ori *[]byte) (out SetResponseLastDataBlock, err error) {
@@ -226,7 +230,7 @@ func CreateSetResponseLastDataBlockWithList(invokeId uint8, resList []AccessResu
 	}
 }
 
-func (sr SetResponseLastDataBlockWithList) Encode() []byte {
+func (sr SetResponseLastDataBlockWithList) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(TagSetResponse.Value())
 	buf.WriteByte(TagSetResponseLastDataBlockWithList.Value())
@@ -238,7 +242,8 @@ func (sr SetResponseLastDataBlockWithList) Encode() []byte {
 	blockNum, _ := EncodeDoubleLongUnsigned(sr.BlockNum)
 	buf.Write(blockNum)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetResponseLastDataBlockWithList(ori *[]byte) (out SetResponseLastDataBlockWithList, err error) {
@@ -290,7 +295,7 @@ func CreateSetResponseWithList(invokeId uint8, resList []AccessResultTag) *SetRe
 	}
 }
 
-func (sr SetResponseWithList) Encode() []byte {
+func (sr SetResponseWithList) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(TagSetResponse.Value())
 	buf.WriteByte(TagSetResponseWithList.Value())
@@ -300,7 +305,8 @@ func (sr SetResponseWithList) Encode() []byte {
 		buf.WriteByte(acc.Value())
 	}
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetResponseWithList(ori *[]byte) (out SetResponseWithList, err error) {

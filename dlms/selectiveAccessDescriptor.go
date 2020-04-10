@@ -57,11 +57,18 @@ func CreateSelectiveAccessDescriptor(as accesSelector, ap interface{}) *Selectiv
 	}
 }
 
-func (s SelectiveAccessDescriptor) Encode() []byte {
-	var out bytes.Buffer
-	out.WriteByte(byte(s.AccessSelector.Value()))
-	out.Write(s.AccessParameter.Encode())
-	return out.Bytes()
+func (s SelectiveAccessDescriptor) Encode() (out []byte, err error) {
+	var buf bytes.Buffer
+	buf.WriteByte(byte(s.AccessSelector.Value()))
+	val, e := s.AccessParameter.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(val)
+
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSelectiveAccessDescriptor(ori *[]byte) (out SelectiveAccessDescriptor, err error) {

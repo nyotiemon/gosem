@@ -25,21 +25,22 @@ func (s setRequestTag) Value() uint8 {
 // SetRequest implement CosemI
 type SetRequest struct{}
 
-func (gr *SetRequest) New(tag setRequestTag) CosemPDU {
+func (gr *SetRequest) New(tag setRequestTag) (out CosemPDU, err error) {
 	switch tag {
 	case TagSetRequestNormal:
-		return &SetRequestNormal{}
+		out = &SetRequestNormal{}
 	case TagSetRequestWithFirstDataBlock:
-		return &SetRequestWithFirstDataBlock{}
+		out = &SetRequestWithFirstDataBlock{}
 	case TagSetRequestWithDataBlock:
-		return &SetRequestWithDataBlock{}
+		out = &SetRequestWithDataBlock{}
 	case TagSetRequestWithList:
-		return &SetRequestWithList{}
+		out = &SetRequestWithList{}
 	case TagSetRequestWithListAndFirstDataBlock:
-		return &SetRequestWithListAndFirstDataBlock{}
+		out = &SetRequestWithListAndFirstDataBlock{}
 	default:
-		panic("Tag not recognized!")
+		err = fmt.Errorf("tag not recognized!")
 	}
+	return
 }
 
 func (gr *SetRequest) Decode(src *[]byte) (out CosemPDU, err error) {
@@ -83,21 +84,37 @@ func CreateSetRequestNormal(invokeId uint8, att AttributeDescriptor, acc *Select
 	}
 }
 
-func (sr SetRequestNormal) Encode() []byte {
+func (sr SetRequestNormal) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagSetRequest))
 	buf.WriteByte(byte(TagSetRequestNormal))
 	buf.WriteByte(byte(sr.InvokePriority))
-	buf.Write(sr.AttributeInfo.Encode())
+	attInfo, e := sr.AttributeInfo.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(attInfo)
 	if sr.SelectiveAccessInfo == nil {
 		buf.WriteByte(0x0)
 	} else {
 		buf.WriteByte(0x1)
-		buf.Write(sr.SelectiveAccessInfo.Encode())
+		selInfo, e := sr.SelectiveAccessInfo.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(selInfo)
 	}
-	buf.Write(sr.Value.Encode())
+	val, eVal := sr.Value.Encode()
+	if eVal != nil {
+		err = eVal
+		return
+	}
+	buf.Write(val)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetRequestNormal(ori *[]byte) (out SetRequestNormal, err error) {
@@ -157,21 +174,38 @@ func CreateSetRequestWithFirstDataBlock(invokeId uint8, att AttributeDescriptor,
 	}
 }
 
-func (sr SetRequestWithFirstDataBlock) Encode() []byte {
+func (sr SetRequestWithFirstDataBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagSetRequest))
 	buf.WriteByte(byte(TagSetRequestWithFirstDataBlock))
 	buf.WriteByte(byte(sr.InvokePriority))
-	buf.Write(sr.AttributeInfo.Encode())
+	attInfo, e := sr.AttributeInfo.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(attInfo)
 	if sr.SelectiveAccessInfo == nil {
 		buf.WriteByte(0x0)
 	} else {
 		buf.WriteByte(0x1)
-		buf.Write(sr.SelectiveAccessInfo.Encode())
+		selInfo, e := sr.SelectiveAccessInfo.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(selInfo)
 	}
-	buf.Write(sr.DataBlock.Encode())
 
-	return buf.Bytes()
+	val, eVal := sr.DataBlock.Encode()
+	if eVal != nil {
+		err = eVal
+		return
+	}
+	buf.Write(val)
+
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetRequestWithFirstDataBlock(ori *[]byte) (out SetRequestWithFirstDataBlock, err error) {
@@ -226,14 +260,20 @@ func CreateSetRequestWithDataBlock(invokeId uint8, dt DataBlockSA) *SetRequestWi
 	}
 }
 
-func (sr SetRequestWithDataBlock) Encode() []byte {
+func (sr SetRequestWithDataBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagSetRequest))
 	buf.WriteByte(byte(TagSetRequestWithDataBlock))
 	buf.WriteByte(byte(sr.InvokePriority))
-	buf.Write(sr.DataBlock.Encode())
+	val, e := sr.DataBlock.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(val)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetRequestWithDataBlock(ori *[]byte) (out SetRequestWithDataBlock, err error) {
@@ -281,21 +321,32 @@ func CreateSetRequestWithList(invokeId uint8, attList []AttributeDescriptorWithS
 	}
 }
 
-func (sr SetRequestWithList) Encode() []byte {
+func (sr SetRequestWithList) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagSetRequest))
 	buf.WriteByte(byte(TagSetRequestWithList))
 	buf.WriteByte(byte(sr.InvokePriority))
 	buf.WriteByte(byte(sr.AttributeCount))
 	for _, attr := range sr.AttributeInfoList {
-		buf.Write(attr.Encode())
+		attInfo, e := attr.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(attInfo)
 	}
 	buf.WriteByte(byte(sr.ValueCount))
 	for _, val := range sr.ValueList {
-		buf.Write(val.Encode())
+		dt, e := val.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(dt)
 	}
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetRequestWithList(ori *[]byte) (out SetRequestWithList, err error) {
@@ -358,18 +409,29 @@ func CreateSetRequestWithListAndFirstDataBlock(invokeId uint8, attList []Attribu
 	}
 }
 
-func (sr SetRequestWithListAndFirstDataBlock) Encode() []byte {
+func (sr SetRequestWithListAndFirstDataBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagSetRequest))
 	buf.WriteByte(byte(TagSetRequestWithListAndFirstDataBlock))
 	buf.WriteByte(byte(sr.InvokePriority))
 	buf.WriteByte(byte(sr.AttributeCount))
 	for _, attr := range sr.AttributeInfoList {
-		buf.Write(attr.Encode())
+		val, e := attr.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(val)
 	}
-	buf.Write(sr.DataBlock.Encode())
+	val, e := sr.DataBlock.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(val)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeSetRequestWithListAndFirstDataBlock(ori *[]byte) (out SetRequestWithListAndFirstDataBlock, err error) {

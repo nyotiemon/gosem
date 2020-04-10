@@ -12,9 +12,12 @@ func TestNewGetResponseNormal(t *testing.T) {
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
 	var ret GetDataResult = *CreateGetDataResultAsData(dt)
 
-	a := gr.New(TagGetResponseNormal)
+	a, _ := gr.New(TagGetResponseNormal)
 	a = *CreateGetResponseNormal(81, ret)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{196, 1, 81, 1, 5, 0, 0, 0, 69}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -26,9 +29,12 @@ func TestNewGetResponseWithDataBlock(t *testing.T) {
 	var gr GetResponse
 	var dbg DataBlockG = *CreateDataBlockGAsData(true, 1, "07D20C04030A060BFF007800")
 
-	a := gr.New(TagGetResponseWithDataBlock)
+	a, _ := gr.New(TagGetResponseWithDataBlock)
 	a = *CreateGetResponseWithDataBlock(81, dbg)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{196, 2, 81, 1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -36,10 +42,13 @@ func TestNewGetResponseWithDataBlock(t *testing.T) {
 	}
 
 	// ---
-	b := gr.New(TagGetResponseWithDataBlock)
+	b, _ := gr.New(TagGetResponseWithDataBlock)
 	dbg = *CreateDataBlockGAsResult(true, 1, TagAccSuccess)
 	b = *CreateGetResponseWithDataBlock(81, dbg)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{196, 2, 81, 1, 0, 0, 0, 1, 1, 0}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -51,9 +60,12 @@ func TestNewGetResponseWithList(t *testing.T) {
 	var gr GetResponse
 	var gdr1 GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
 
-	a := gr.New(TagGetResponseWithList)
+	a, _ := gr.New(TagGetResponseWithList)
 	a = *CreateGetResponseWithList(69, []GetDataResult{gdr1})
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{196, 3, 69, 1, 0, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -63,7 +75,10 @@ func TestNewGetResponseWithList(t *testing.T) {
 	var dt1 DlmsData = *CreateAxdrDoubleLong(1)
 	var gdr2 GetDataResult = *CreateGetDataResultAsData(dt1)
 	b := *CreateGetResponseWithList(69, []GetDataResult{gdr1, gdr2})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{196, 3, 69, 2, 0, 0, 1, 5, 0, 0, 0, 1}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -159,18 +174,18 @@ func TestDecode_GetResponseWithList(t *testing.T) {
 	if a.ResultList[0].IsData {
 		t.Errorf("t1 Failed. ResultList[0].IsData should be false, get: %v", a.ResultList[0].IsData)
 	}
-	a1DescObis := a.ResultList[0].ValueAsAccess()
-	b1DescObis := b.ResultList[0].ValueAsAccess()
+	a1DescObis, _ := a.ResultList[0].ValueAsAccess()
+	b1DescObis, _ := b.ResultList[0].ValueAsAccess()
 	if a1DescObis != b1DescObis {
 		t.Errorf("t1 Failed. ResultList[0].Value get: %v, should: %v", a1DescObis, b1DescObis)
 	}
 	if !a.ResultList[1].IsData {
 		t.Errorf("t1 Failed. ResultList[0].IsData should be true, get: %v", a.ResultList[1].IsData)
 	}
-	a2DescObis := a.ResultList[1].ValueAsData().Value
-	b2DescObis := b.ResultList[1].ValueAsData().Value
-	if a2DescObis != b2DescObis {
-		t.Errorf("t1 Failed. ResultList[1].Value get: %v, should: %v", a2DescObis, b2DescObis)
+	a2DescObis, _ := a.ResultList[1].ValueAsData()
+	b2DescObis, _ := b.ResultList[1].ValueAsData()
+	if a2DescObis.Value != b2DescObis.Value {
+		t.Errorf("t1 Failed. ResultList[1].Value get: %v, should: %v", a2DescObis.Value, b2DescObis.Value)
 	}
 
 	if len(src) > 0 {
@@ -205,7 +220,7 @@ func TestDecode_GetResponse(t *testing.T) {
 	if !assertGetResponseWithDataBlock {
 		t.Errorf("Decode supposed to return GetResponseWithDataBlock instead of %v", reflect.TypeOf(b).Name())
 	}
-	valY := y.Result.ResultAsBytes()
+	valY, _ := y.Result.ResultAsBytes()
 	res := bytes.Compare(valY, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
 	if res != 0 {
 		t.Errorf("GetResponseWithDataBlock Result wrong. get: %d, should: %v", valY, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})

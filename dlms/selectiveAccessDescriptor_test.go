@@ -8,7 +8,10 @@ import (
 
 func TestSelectiveAccessDescriptor_Encode(t *testing.T) {
 	var a SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 
 	res := bytes.Compare(t1, result)
@@ -19,7 +22,10 @@ func TestSelectiveAccessDescriptor_Encode(t *testing.T) {
 	timeStart := time.Date(2020, time.January, 1, 10, 0, 0, 0, time.UTC)
 	timeEnd := time.Date(2020, time.January, 1, 11, 0, 0, 0, time.UTC)
 	var b SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorRange, []time.Time{timeStart, timeEnd})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{1, 2, 4, 2, 4, 18, 0, 8, 9, 6, 0, 0, 1, 0, 0, 255, 15, 2, 18, 0, 0, 25, 7, 228, 1, 1, 3, 10, 0, 0, 0, 0, 0, 0, 25, 7, 228, 1, 1, 3, 11, 0, 0, 0, 0, 0, 0, 1, 0}
 
 	res = bytes.Compare(t2, result)
@@ -41,8 +47,8 @@ func TestSelectiveAccessDescriptor_Decode(t *testing.T) {
 		t.Errorf("t1 AccessSelector Failed. get: %d, should:%v", a.AccessSelector, b.AccessSelector)
 	}
 
-	aByte := a.AccessParameter.Encode()
-	bByte := b.AccessParameter.Encode()
+	aByte, _ := a.AccessParameter.Encode()
+	bByte, _ := b.AccessParameter.Encode()
 
 	res := bytes.Compare(aByte, bByte)
 	if res != 0 {
@@ -64,8 +70,8 @@ func TestSelectiveAccessDescriptor_Decode(t *testing.T) {
 		t.Errorf("t2 AccessSelector Failed. get: %d, should:%v", a.AccessSelector, b.AccessSelector)
 	}
 
-	aByte = a.AccessParameter.Encode()
-	bByte = b.AccessParameter.Encode()
+	aByte, _ = a.AccessParameter.Encode()
+	bByte, _ = b.AccessParameter.Encode()
 
 	res = bytes.Compare(aByte, bByte)
 	if res != 0 {

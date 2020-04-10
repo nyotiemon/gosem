@@ -3,6 +3,7 @@ package cosem
 import (
 	"bytes"
 	"encoding/hex"
+	"fmt"
 	. "gosem/axdr"
 )
 
@@ -30,35 +31,45 @@ func CreateGetDataResult(value interface{}) *GetDataResult {
 	}
 }
 
-func (dt GetDataResult) Encode() []byte {
-	var output bytes.Buffer
+func (dt GetDataResult) Encode() (out []byte, err error) {
+	var buf bytes.Buffer
 	if dt.IsData == true {
-		output.WriteByte(0x1)
+		buf.WriteByte(0x1)
 		value := dt.Value.(DlmsData)
-		output.Write(value.Encode())
+		enc, e := value.Encode()
+		if err != nil {
+			err = e
+			return
+		}
+		buf.Write(enc)
 	} else {
-		output.WriteByte(0x0)
+		buf.WriteByte(0x0)
 		value := dt.Value.(AccessResultTag)
-		output.WriteByte(byte(value))
+		buf.WriteByte(byte(value))
 	}
 
-	return output.Bytes()
+	out = buf.Bytes()
+	return
 }
 
-func (dt GetDataResult) ValueAsData() DlmsData {
+func (dt GetDataResult) ValueAsData() (out DlmsData, err error) {
 	if !dt.IsData {
-		panic("Value is DataAccessResult!")
+		err = fmt.Errorf("value is DataAccessResult!")
+		return
 	}
+	out = dt.Value.(DlmsData)
 
-	return dt.Value.(DlmsData)
+	return
 }
 
-func (dt GetDataResult) ValueAsAccess() AccessResultTag {
+func (dt GetDataResult) ValueAsAccess() (out AccessResultTag, err error) {
 	if dt.IsData {
-		panic("Value is DlmsData!")
+		err = fmt.Errorf("value is DlmsData!")
+		return
 	}
+	out = dt.Value.(AccessResultTag)
 
-	return dt.Value.(AccessResultTag)
+	return
 }
 
 func DecodeGetDataResult(ori *[]byte) (out GetDataResult, err error) {
@@ -131,50 +142,56 @@ func CreateDataBlockG(lastBlock bool, blockNum uint32, result interface{}) *Data
 	}
 }
 
-func (dt DataBlockG) Encode() []byte {
-	var output bytes.Buffer
+func (dt DataBlockG) Encode() (out []byte, err error) {
+	var buf bytes.Buffer
 
 	if dt.LastBlock {
-		output.WriteByte(0x1)
+		buf.WriteByte(0x1)
 	} else {
-		output.WriteByte(0x0)
+		buf.WriteByte(0x0)
 	}
 
 	blk, e := EncodeDoubleLongUnsigned(dt.BlockNumber)
 	if e != nil {
-		panic(e)
+		err = e
+		return
 	}
-	output.Write(blk)
+	buf.Write(blk)
 
 	if dt.IsResult == true {
-		output.WriteByte(0x1)
+		buf.WriteByte(0x1)
 		value := dt.Result.(AccessResultTag)
-		output.WriteByte(byte(value))
+		buf.WriteByte(byte(value))
 	} else {
-		output.WriteByte(0x0)
+		buf.WriteByte(0x0)
 		value := dt.Result.([]byte)
 		// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
-		output.WriteByte(byte(len(value)))
-		output.Write(value)
+		buf.WriteByte(byte(len(value)))
+		buf.Write(value)
 	}
 
-	return output.Bytes()
+	out = buf.Bytes()
+	return
 }
 
-func (dt DataBlockG) ResultAsBytes() []byte {
+func (dt DataBlockG) ResultAsBytes() (out []byte, err error) {
 	if dt.IsResult {
-		panic("Value is DataAccessResult!")
+		err = fmt.Errorf("value is DataAccessResult!")
+	} else {
+		out = dt.Result.([]byte)
 	}
 
-	return dt.Result.([]byte)
+	return
 }
 
-func (dt DataBlockG) ResultAsAccess() AccessResultTag {
+func (dt DataBlockG) ResultAsAccess() (out AccessResultTag, err error) {
 	if !dt.IsResult {
-		panic("Value is byte slice!")
+		err = fmt.Errorf("value is byte slice!")
+	} else {
+		out = dt.Result.(AccessResultTag)
 	}
 
-	return dt.Result.(AccessResultTag)
+	return
 }
 
 func DecodeDataBlockG(ori *[]byte) (out DataBlockG, err error) {
@@ -234,26 +251,28 @@ func CreateDataBlockSA(lastBlock bool, blockNum uint32, result interface{}) *Dat
 	}
 }
 
-func (dt DataBlockSA) Encode() []byte {
-	var output bytes.Buffer
+func (dt DataBlockSA) Encode() (out []byte, err error) {
+	var buf bytes.Buffer
 
 	if dt.LastBlock {
-		output.WriteByte(0x1)
+		buf.WriteByte(0x1)
 	} else {
-		output.WriteByte(0x0)
+		buf.WriteByte(0x0)
 	}
 
 	blk, e := EncodeDoubleLongUnsigned(dt.BlockNumber)
 	if e != nil {
-		panic(e)
+		err = e
+		return
 	}
-	output.Write(blk)
+	buf.Write(blk)
 
 	// not sure if length is limited only 1 byte, or does it follow KLV as in axdr
-	output.WriteByte(byte(len(dt.Raw)))
-	output.Write(dt.Raw)
+	buf.WriteByte(byte(len(dt.Raw)))
+	buf.Write(dt.Raw)
 
-	return output.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeDataBlockSA(ori *[]byte) (out DataBlockSA, err error) {
@@ -288,19 +307,25 @@ func CreateActResponse(result ActionResultTag, returnParam *GetDataResult) *ActR
 	return &ActResponse{Result: result, ReturnParam: returnParam}
 }
 
-func (dt ActResponse) Encode() []byte {
-	var output bytes.Buffer
+func (dt ActResponse) Encode() (out []byte, err error) {
+	var buf bytes.Buffer
 
-	output.WriteByte(byte(dt.Result))
+	buf.WriteByte(byte(dt.Result))
 
 	if dt.ReturnParam == nil {
-		output.WriteByte(0x0)
+		buf.WriteByte(0x0)
 	} else {
-		output.WriteByte(0x1)
-		output.Write(dt.ReturnParam.Encode())
+		buf.WriteByte(0x1)
+		enc, e := dt.ReturnParam.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(enc)
 	}
 
-	return output.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeActResponse(ori *[]byte) (out ActResponse, err error) {

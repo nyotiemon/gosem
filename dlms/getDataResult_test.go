@@ -20,7 +20,10 @@ func TestAccessResult(t *testing.T) {
 func TestGetDataResultAsResult(t *testing.T) {
 	var a GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{0, 0}
 
 	res := bytes.Compare(t1, result)
@@ -33,7 +36,10 @@ func TestGetDataResultAsData(t *testing.T) {
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
 	var a GetDataResult = *CreateGetDataResultAsData(dt)
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{1, 5, 0, 0, 0, 69}
 
 	res := bytes.Compare(t1, result)
@@ -46,7 +52,10 @@ func TestGetDataResult(t *testing.T) {
 	rs := TagAccSuccess
 	var a GetDataResult = *CreateGetDataResult(rs)
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{0, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -55,7 +64,10 @@ func TestGetDataResult(t *testing.T) {
 
 	var dt DlmsData = *CreateAxdrDoubleLong(69)
 	var b GetDataResult = *CreateGetDataResult(dt)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{1, 5, 0, 0, 0, 69}
 
 	res = bytes.Compare(t2, result)
@@ -75,7 +87,10 @@ func TestGetDataResult(t *testing.T) {
 func TestDataBlockGAsData(t *testing.T) {
 	var a DataBlockG = *CreateDataBlockGAsData(true, 1, "07D20C04030A060BFF007800")
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 
 	res := bytes.Compare(t1, result)
@@ -84,7 +99,10 @@ func TestDataBlockGAsData(t *testing.T) {
 	}
 
 	var b DataBlockG = *CreateDataBlockGAsData(true, 1, []byte{1, 0, 0, 3, 0, 255})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{1, 0, 0, 0, 1, 0, 6, 1, 0, 0, 3, 0, 255}
 
 	res = bytes.Compare(t2, result)
@@ -104,7 +122,10 @@ func TestDataBlockGAsData(t *testing.T) {
 func TestDataBlockGAsResult(t *testing.T) {
 	var a DataBlockG = *CreateDataBlockGAsResult(true, 1, TagAccSuccess)
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{1, 0, 0, 0, 1, 1, 0}
 
 	res := bytes.Compare(t1, result)
@@ -116,7 +137,10 @@ func TestDataBlockGAsResult(t *testing.T) {
 func TestDataBlockG(t *testing.T) {
 	var a DataBlockG = *CreateDataBlockG(true, 1, "07D20C04030A060BFF007800")
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 
 	res := bytes.Compare(t1, result)
@@ -125,7 +149,10 @@ func TestDataBlockG(t *testing.T) {
 	}
 
 	var b DataBlockG = *CreateDataBlockG(true, 1, []byte{1, 0, 0, 3, 0, 255})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{1, 0, 0, 0, 1, 0, 6, 1, 0, 0, 3, 0, 255}
 
 	res = bytes.Compare(t2, result)
@@ -135,7 +162,10 @@ func TestDataBlockG(t *testing.T) {
 
 	var c DataBlockG = *CreateDataBlockG(true, 1, TagAccSuccess)
 
-	t3 := c.Encode()
+	t3, e := c.Encode()
+	if e != nil {
+		t.Errorf("t3 Encode Failed. err: %v", e)
+	}
 	result = []byte{1, 0, 0, 0, 1, 1, 0}
 
 	res = bytes.Compare(t3, result)
@@ -148,7 +178,10 @@ func TestDataBlockSA(t *testing.T) {
 	// with hexstring
 	var a DataBlockSA = *CreateDataBlockSA(true, 1, "07D20C04030A060BFF007800")
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{1, 0, 0, 0, 1, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 
 	res := bytes.Compare(t1, result)
@@ -158,7 +191,10 @@ func TestDataBlockSA(t *testing.T) {
 
 	// with byte slice
 	var b DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 0, 0, 3, 0, 255})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{1, 0, 0, 0, 1, 6, 1, 0, 0, 3, 0, 255}
 
 	res = bytes.Compare(t2, result)
@@ -181,7 +217,10 @@ func TestActResponse(t *testing.T) {
 	var ret GetDataResult = *CreateGetDataResultAsData(dt)
 	var a ActResponse = *CreateActResponse(TagActSuccess, &ret)
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{0, 1, 1, 5, 0, 0, 0, 69}
 
 	res := bytes.Compare(t1, result)
@@ -192,7 +231,10 @@ func TestActResponse(t *testing.T) {
 	// with nil GetDataResult
 	var nilRet *GetDataResult = nil
 	var b ActResponse = *CreateActResponse(TagActReadWriteDenied, nilRet)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{3, 0}
 
 	res = bytes.Compare(t2, result)
@@ -251,7 +293,7 @@ func TestDecode_DataBlockG(t *testing.T) {
 	if a.IsResult {
 		t.Errorf("t1 Failed. IsResult should be false")
 	}
-	val := a.ResultAsBytes()
+	val, _ := a.ResultAsBytes()
 	res := bytes.Compare(val, []byte{7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0})
 	if res != 0 {
 		t.Errorf("t1 Failed. Result is not correct (%v)", val)
@@ -273,8 +315,9 @@ func TestDecode_DataBlockG(t *testing.T) {
 	if !b.IsResult {
 		t.Errorf("t2 Failed. IsResult should be true")
 	}
-	if b.ResultAsAccess() != TagAccSuccess {
-		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", b.Result)
+	_, eTag := b.ResultAsAccess()
+	if eTag != nil {
+		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", eTag)
 	}
 
 }
@@ -315,7 +358,8 @@ func TestDecode_ActResponse(t *testing.T) {
 	if a.ReturnParam.IsData == true {
 		t.Errorf("ReturnParam.IsData should not be true (%v)", a.ReturnParam.IsData)
 	}
-	if a.ReturnParam.ValueAsAccess() != TagAccSuccess {
-		t.Errorf("ReturnParam.Value should be TagAccSuccess (%v)", a.ReturnParam.Value)
+	tag, err := a.ReturnParam.ValueAsAccess()
+	if tag != TagAccSuccess || err != nil {
+		t.Errorf("ReturnParam.Value should be TagAccSuccess (%v, err: %v)", tag, err)
 	}
 }

@@ -10,7 +10,10 @@ func TestNew_ActionResponseNormal(t *testing.T) {
 	var ret GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
 	var ares ActResponse = *CreateActResponse(TagActSuccess, &ret)
 	var a ActionResponseNormal = *CreateActionResponseNormal(81, ares)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 
 	result := []byte{199, 1, 81, 0, 1, 0, 0}
 	res := bytes.Compare(t1, result)
@@ -22,7 +25,10 @@ func TestNew_ActionResponseNormal(t *testing.T) {
 func TestNew_ActionResponseWithPBlock(t *testing.T) {
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 	var a ActionResponseWithPBlock = *CreateActionResponseWithPBlock(81, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 
 	result := []byte{199, 2, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
@@ -36,7 +42,10 @@ func TestNew_ActionResponseWithList(t *testing.T) {
 	var ret GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
 	var ares1 ActResponse = *CreateActResponse(TagActSuccess, &ret)
 	var a ActionResponseWithList = *CreateActionResponseWithList(81, []ActResponse{ares1})
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 
 	result := []byte{199, 3, 81, 1, 0, 1, 0, 0}
 	res := bytes.Compare(t1, result)
@@ -49,7 +58,10 @@ func TestNew_ActionResponseWithList(t *testing.T) {
 	var ret2 GetDataResult = *CreateGetDataResultAsData(dt)
 	var ares2 ActResponse = *CreateActResponse(TagActSuccess, &ret2)
 	var b ActionResponseWithList = *CreateActionResponseWithList(81, []ActResponse{ares1, ares2})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 
 	result = []byte{199, 3, 81, 2, 0, 1, 0, 0, 0, 1, 1, 5, 0, 0, 0, 69}
 	res = bytes.Compare(t2, result)
@@ -60,7 +72,10 @@ func TestNew_ActionResponseWithList(t *testing.T) {
 
 func TestNew_ActionResponseNextPBlock(t *testing.T) {
 	var a ActionResponseNextPBlock = *CreateActionResponseNextPBlock(81, 1)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{199, 4, 81, 0, 0, 0, 1}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -147,8 +162,8 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 		t.Errorf("t1 Failed. ResponseList[0].Result get: %v, should:%v", a.ResponseList[0].Result, b.ResponseList[0].Result)
 	}
 
-	aData1 := a.ResponseList[0].ReturnParam.ValueAsAccess()
-	bData1 := b.ResponseList[0].ReturnParam.ValueAsAccess()
+	aData1, _ := a.ResponseList[0].ReturnParam.ValueAsAccess()
+	bData1, _ := b.ResponseList[0].ReturnParam.ValueAsAccess()
 	if aData1 != bData1 {
 		t.Errorf("t1 Failed. ResponseList[0].ReturnParam.Value get: %v, should:%v", aData1, bData1)
 	}
@@ -180,10 +195,10 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 		t.Errorf("t1 Failed. ResponseList[1].ReturnParam.IsData get: %v, should:%v", a.ResponseList[1].ReturnParam.IsData, b.ResponseList[1].ReturnParam.IsData)
 	}
 
-	aData2 := a.ResponseList[1].ReturnParam.ValueAsData().Value
-	bData2 := b.ResponseList[1].ReturnParam.ValueAsData().Value
-	if aData2 != bData2 {
-		t.Errorf("t1 Failed. ResponseList[1].ReturnParam.Value get: %v, should:%v", aData2, bData2)
+	aData2, _ := a.ResponseList[1].ReturnParam.ValueAsData()
+	bData2, _ := b.ResponseList[1].ReturnParam.ValueAsData()
+	if aData2.Value != bData2.Value {
+		t.Errorf("t1 Failed. ResponseList[1].ReturnParam.Value get: %v, should:%v", aData2.Value, bData2.Value)
 	}
 
 	if len(src) > 0 {

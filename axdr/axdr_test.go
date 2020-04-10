@@ -504,7 +504,10 @@ func TestEncodeDateTime(t *testing.T) {
 func TestDlmsData(t *testing.T) {
 	var tDD DlmsData
 	tDD = DlmsData{Tag: TagBoolean, Value: true}
-	encodedBool := tDD.Encode()
+	encodedBool, err := tDD.Encode()
+	if err != nil {
+		t.Errorf("DlmsData EncodeBoolean get error. %d", err)
+	}
 	res := bytes.Compare(encodedBool, []byte{byte(TagBoolean), 255})
 	if res != 0 {
 		t.Errorf("DlmsData EncodeBoolean get raw failed. val: %d", encodedBool)
@@ -526,41 +529,38 @@ func TestDlmsData_NilValue(t *testing.T) {
 	var tDD DlmsData
 	tDD = DlmsData{Tag: TagBoolean, Value: nil}
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Should've panic on nil value")
-		}
-	}()
-	tDD.Encode()
+	_, err := tDD.Encode()
+	if err == nil {
+		t.Errorf("Should've panic on nil value")
+	}
 }
 
 func TestDlmsData_WrongBoolValue(t *testing.T) {
 	var tDD DlmsData
 	tDD = DlmsData{Tag: TagBoolean, Value: 1234}
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Should've panic on wrong Value to Tag")
-		}
-	}()
-	tDD.Encode()
+	_, err := tDD.Encode()
+	if err == nil {
+		t.Errorf("Should've panic on wrong Value to Tag")
+	}
 }
 
 func TestDlmsData_WrongBitStringValue(t *testing.T) {
 	var tDD DlmsData
 	tDD = DlmsData{Tag: TagBitString, Value: "ABCDEFG"}
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Should've panic on value is not strings of binary")
-		}
-	}()
-	tDD.Encode()
+	_, err := tDD.Encode()
+	if err == nil {
+		t.Errorf("Should've panic on value is not strings of binary")
+	}
 }
 
 func TestDlmsData_DateTime(t *testing.T) {
 	tDD := DlmsData{Tag: TagDateTime, Value: "9999-12-30 23:59:59"}
-	encoded := tDD.Encode()
+	encoded, err := tDD.Encode()
+	if err != nil {
+		t.Errorf("DlmsData Encode DateTime get error. %d", err)
+	}
 	res := bytes.Compare(encoded, []byte{byte(TagDateTime), 39, 15, 12, 30, 4, 23, 59, 59, 0, 0, 0, 0})
 	if res != 0 {
 		t.Errorf("DlmsData Encode DateTime get raw failed. val: %d", encoded)
@@ -568,7 +568,10 @@ func TestDlmsData_DateTime(t *testing.T) {
 
 	dt := time.Date(20000, time.December, 30, 23, 59, 59, 0, time.UTC)
 	tDD.Value = dt
-	encoded = tDD.Encode()
+	encoded, err = tDD.Encode()
+	if err != nil {
+		t.Errorf("DlmsData Encode DateTime get error. %d", err)
+	}
 	res = bytes.Compare(encoded, []byte{byte(TagDateTime), 78, 32, 12, 30, 6, 23, 59, 59, 0, 0, 0, 0})
 	if res != 0 {
 		t.Errorf("DlmsData Encode DateTime get raw failed. val: %d", encoded)
@@ -624,7 +627,10 @@ func TestDlmsData_Array(t *testing.T) {
 	d2 := DlmsData{Tag: TagBitString, Value: "111"}
 	d3 := DlmsData{Tag: TagDateTime, Value: "2020-03-11 18:00:00"}
 	tDD := DlmsData{Tag: TagArray, Value: []*DlmsData{&d1, &d2, &d3}}
-	encoded := tDD.Encode()
+	encoded, err := tDD.Encode()
+	if err != nil {
+		t.Errorf("DlmsData Encode Array get error. %d", err)
+	}
 	res := bytes.Compare(encoded, []byte{byte(TagArray), 3, byte(TagBoolean), 255, byte(TagBitString), 3, 224, byte(TagDateTime), 7, 228, 3, 11, 3, 18, 0, 0, 0, 0, 0, 0})
 	if res != 0 {
 		t.Errorf("t1 failed. val: %d", encoded)
@@ -644,14 +650,20 @@ func TestDlmsData_Array(t *testing.T) {
 	}
 
 	tDD = DlmsData{Tag: TagArray, Value: []*DlmsData{&DlmsData{Tag: TagBoolean, Value: true}, &DlmsData{Tag: TagBoolean, Value: false}}}
-	encoded = tDD.Encode()
+	encoded, err = tDD.Encode()
+	if err != nil {
+		t.Errorf("DlmsData Encode Array get error. %d", err)
+	}
 	res = bytes.Compare(encoded, []byte{byte(TagArray), 2, byte(TagBoolean), 255, byte(TagBoolean), 0})
 	if res != 0 {
 		t.Errorf("t2 failed. val: %d", encoded)
 	}
 
 	tDD = DlmsData{Tag: TagArray, Value: []*DlmsData{}}
-	encoded = tDD.Encode()
+	encoded, err = tDD.Encode()
+	if err != nil {
+		t.Errorf("DlmsData Encode Array get error. %d", err)
+	}
 	res = bytes.Compare(encoded, []byte{byte(TagArray), 0})
 	if res != 0 {
 		t.Errorf("t3 failed. val: %d", encoded)

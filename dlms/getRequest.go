@@ -23,17 +23,19 @@ func (s getRequestTag) Value() uint8 {
 // GetRequest implement CosemI
 type GetRequest struct{}
 
-func (gr *GetRequest) New(tag getRequestTag) CosemPDU {
+func (gr *GetRequest) New(tag getRequestTag) (out CosemPDU, err error) {
 	switch tag {
 	case TagGetRequestNormal:
-		return &GetRequestNormal{}
+		out = &GetRequestNormal{}
 	case TagGetRequestNext:
-		return &GetRequestNext{}
+		out = &GetRequestNext{}
 	case TagGetRequestWithList:
-		return &GetRequestWithList{}
+		out = &GetRequestWithList{}
 	default:
-		panic("Tag not recognized!")
+		err = fmt.Errorf("tag not recognized!")
 	}
+
+	return
 }
 
 func (gr *GetRequest) Decode(src *[]byte) (out CosemPDU, err error) {
@@ -71,20 +73,31 @@ func CreateGetRequestNormal(invokeId uint8, att AttributeDescriptor, acc *Select
 	}
 }
 
-func (gr GetRequestNormal) Encode() []byte {
+func (gr GetRequestNormal) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagGetRequest))
 	buf.WriteByte(byte(TagGetRequestNormal))
 	buf.WriteByte(byte(gr.InvokePriority))
-	buf.Write(gr.AttributeInfo.Encode())
+	attInfo, e := gr.AttributeInfo.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(attInfo)
 	if gr.SelectiveAccessInfo == nil {
 		buf.WriteByte(0x0)
 	} else {
 		buf.WriteByte(0x1)
-		buf.Write(gr.SelectiveAccessInfo.Encode())
+		selInfo, e := gr.SelectiveAccessInfo.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(selInfo)
 	}
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeGetRequestNormal(ori *[]byte) (out GetRequestNormal, err error) {
@@ -137,7 +150,7 @@ func CreateGetRequestNext(invokeId uint8, blockNum uint32) *GetRequestNext {
 	}
 }
 
-func (gr GetRequestNext) Encode() []byte {
+func (gr GetRequestNext) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagGetRequest))
 	buf.WriteByte(byte(TagGetRequestNext))
@@ -145,7 +158,8 @@ func (gr GetRequestNext) Encode() []byte {
 	blockNum, _ := EncodeDoubleLongUnsigned(gr.BlockNum)
 	buf.Write(blockNum)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeGetRequestNext(ori *[]byte) (out GetRequestNext, err error) {
@@ -191,17 +205,23 @@ func CreateGetRequestWithList(invokeId uint8, attList []AttributeDescriptorWithS
 	}
 }
 
-func (gr GetRequestWithList) Encode() []byte {
+func (gr GetRequestWithList) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagGetRequest))
 	buf.WriteByte(byte(TagGetRequestWithList))
 	buf.WriteByte(byte(gr.InvokePriority))
 	buf.WriteByte(byte(len(gr.AttributeInfoList)))
 	for _, attr := range gr.AttributeInfoList {
-		buf.Write(attr.Encode())
+		val, e := attr.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(val)
 	}
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeGetRequestWithList(ori *[]byte) (out GetRequestWithList, err error) {

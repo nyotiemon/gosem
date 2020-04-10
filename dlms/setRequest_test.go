@@ -12,7 +12,10 @@ func TestNew_SetRequestNormal(t *testing.T) {
 	var dt DlmsData = *CreateAxdrOctetString("0102030405")
 
 	var a SetRequestNormal = *CreateSetRequestNormal(81, attrDesc, &accsDesc, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{193, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 9, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -21,7 +24,10 @@ func TestNew_SetRequestNormal(t *testing.T) {
 
 	var nilAccsDesc *SelectiveAccessDescriptor = nil
 	var b SetRequestNormal = *CreateSetRequestNormal(81, attrDesc, nilAccsDesc, dt)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{193, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 9, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -36,7 +42,10 @@ func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 
 	var a SetRequestWithFirstDataBlock = *CreateSetRequestWithFirstDataBlock(81, attrDesc, &accsDesc, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -45,7 +54,10 @@ func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
 
 	var nilAccsDesc *SelectiveAccessDescriptor = nil
 	var b SetRequestWithFirstDataBlock = *CreateSetRequestWithFirstDataBlock(81, attrDesc, nilAccsDesc, dt)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -57,7 +69,10 @@ func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
 func TestNew_SetRequestWithDataBlock(t *testing.T) {
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 	var a SetRequestWithDataBlock = *CreateSetRequestWithDataBlock(81, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{193, 3, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -71,7 +86,10 @@ func TestNew_SetRequestWithList(t *testing.T) {
 	var d1 DlmsData = *CreateAxdrOctetString("0102030405")
 
 	var a SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1}, []DlmsData{d1})
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 9, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -81,7 +99,10 @@ func TestNew_SetRequestWithList(t *testing.T) {
 	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
 	var d2 DlmsData = *CreateAxdrDoubleLong(69)
 	var b SetRequestWithList = *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{a1, a2}, []DlmsData{d1, d2})
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{193, 4, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 2, 9, 5, 1, 2, 3, 4, 5, 5, 0, 0, 0, 69}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -109,8 +130,8 @@ func TestNew_SetRequestWithList(t *testing.T) {
 			t.Errorf("t5 should've panic on wrong Value")
 		}
 	}()
-	e := *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{}, []DlmsData{})
-	e.Encode()
+	ex := *CreateSetRequestWithList(69, []AttributeDescriptorWithSelection{}, []DlmsData{})
+	ex.Encode()
 }
 
 func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
@@ -119,7 +140,10 @@ func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	var dt DataBlockSA = *CreateDataBlockSA(true, 1, []byte{1, 2, 3, 4, 5})
 
 	var a SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{a1}, dt)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -128,7 +152,10 @@ func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 
 	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
 	var b SetRequestWithListAndFirstDataBlock = *CreateSetRequestWithListAndFirstDataBlock(69, []AttributeDescriptorWithSelection{a1, a2}, dt)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
@@ -173,8 +200,8 @@ func TestDecode_SetRequestNormal(t *testing.T) {
 	if a.SelectiveAccessInfo.AccessSelector != b.SelectiveAccessInfo.AccessSelector {
 		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessSelector get: %v, should:%v", a.SelectiveAccessInfo.AccessSelector, b.SelectiveAccessInfo.AccessSelector)
 	}
-	aByte := a.SelectiveAccessInfo.AccessParameter.Encode()
-	bByte := b.SelectiveAccessInfo.AccessParameter.Encode()
+	aByte, _ := a.SelectiveAccessInfo.AccessParameter.Encode()
+	bByte, _ := b.SelectiveAccessInfo.AccessParameter.Encode()
 	res = bytes.Compare(aByte, bByte)
 	if res != 0 {
 		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessParameter get: %v, should:%v", aByte, bByte)
@@ -238,8 +265,8 @@ func TestDecode_SetRequestWithFirstDataBlock(t *testing.T) {
 	if a.SelectiveAccessInfo.AccessSelector != b.SelectiveAccessInfo.AccessSelector {
 		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessSelector get: %v, should:%v", a.SelectiveAccessInfo.AccessSelector, b.SelectiveAccessInfo.AccessSelector)
 	}
-	aByte := a.SelectiveAccessInfo.AccessParameter.Encode()
-	bByte := b.SelectiveAccessInfo.AccessParameter.Encode()
+	aByte, _ := a.SelectiveAccessInfo.AccessParameter.Encode()
+	bByte, _ := b.SelectiveAccessInfo.AccessParameter.Encode()
 	res = bytes.Compare(aByte, bByte)
 	if res != 0 {
 		t.Errorf("t1 Failed. SelectiveAccessInfo.AccessParameter get: %v, should:%v", aByte, bByte)

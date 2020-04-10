@@ -24,19 +24,20 @@ func (s actionResponseTag) Value() uint8 {
 // ActionResponse implement CosemI
 type ActionResponse struct{}
 
-func (gr *ActionResponse) New(tag actionResponseTag) CosemPDU {
+func (gr *ActionResponse) New(tag actionResponseTag) (out CosemPDU, err error) {
 	switch tag {
 	case TagActionResponseNormal:
-		return &ActionResponseNormal{}
+		out = &ActionResponseNormal{}
 	case TagActionResponseWithPBlock:
-		return &ActionResponseWithPBlock{}
+		out = &ActionResponseWithPBlock{}
 	case TagActionResponseWithList:
-		return &ActionResponseWithList{}
+		out = &ActionResponseWithList{}
 	case TagActionResponseNextPBlock:
-		return &ActionResponseNextPBlock{}
+		out = &ActionResponseNextPBlock{}
 	default:
-		panic("Tag not recognized!")
+		err = fmt.Errorf("tag not recognized!")
 	}
+	return
 }
 
 func (gr *ActionResponse) Decode(src *[]byte) (out CosemPDU, err error) {
@@ -73,14 +74,20 @@ func CreateActionResponseNormal(invokeId uint8, res ActResponse) *ActionResponse
 	}
 }
 
-func (ar ActionResponseNormal) Encode() []byte {
+func (ar ActionResponseNormal) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagActionResponse))
 	buf.WriteByte(byte(TagActionResponseNormal))
 	buf.WriteByte(byte(ar.InvokePriority))
-	buf.Write(ar.Response.Encode())
+	val, e := ar.Response.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(val)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeActionResponseNormal(ori *[]byte) (out ActionResponseNormal, err error) {
@@ -115,14 +122,20 @@ func CreateActionResponseWithPBlock(invokeId uint8, dt DataBlockSA) *ActionRespo
 	}
 }
 
-func (ar ActionResponseWithPBlock) Encode() []byte {
+func (ar ActionResponseWithPBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagActionResponse))
 	buf.WriteByte(byte(TagActionResponseWithPBlock))
 	buf.WriteByte(byte(ar.InvokePriority))
-	buf.Write(ar.PBlock.Encode())
+	val, e := ar.PBlock.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(val)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeActionResponseWithPBlock(ori *[]byte) (out ActionResponseWithPBlock, err error) {
@@ -162,17 +175,23 @@ func CreateActionResponseWithList(invokeId uint8, resList []ActResponse) *Action
 	}
 }
 
-func (ar ActionResponseWithList) Encode() []byte {
+func (ar ActionResponseWithList) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagActionResponse))
 	buf.WriteByte(byte(TagActionResponseWithList))
 	buf.WriteByte(byte(ar.InvokePriority))
 	buf.WriteByte(byte(ar.ResponseCount))
 	for _, res := range ar.ResponseList {
-		buf.Write(res.Encode())
+		val, e := res.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(val)
 	}
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeActionResponseWithList(ori *[]byte) (out ActionResponseWithList, err error) {
@@ -215,7 +234,7 @@ func CreateActionResponseNextPBlock(invokeId uint8, blockNum uint32) *ActionResp
 	}
 }
 
-func (ar ActionResponseNextPBlock) Encode() []byte {
+func (ar ActionResponseNextPBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagActionResponse))
 	buf.WriteByte(byte(TagActionResponseNextPBlock))
@@ -223,7 +242,8 @@ func (ar ActionResponseNextPBlock) Encode() []byte {
 	blockNum, _ := EncodeDoubleLongUnsigned(ar.BlockNum)
 	buf.Write(blockNum)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeActionResponseNextPBlock(ori *[]byte) (out ActionResponseNextPBlock, err error) {

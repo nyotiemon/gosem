@@ -8,7 +8,10 @@ import (
 func TestMethodDescriptor(t *testing.T) {
 	var a MethodDescriptor = *CreateMethodDescriptor(1, "1.0.0.3.0.255", 2)
 
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{0, 1, 1, 0, 0, 3, 0, 255, 2}
 
 	res := bytes.Compare(t1, result)

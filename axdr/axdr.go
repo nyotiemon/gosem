@@ -154,9 +154,10 @@ func CreateAxdrTime(data time.Time) *DlmsData {
 // Encodes Value of DlmsData object according to the Tag
 // It will panic if Value is nil, data type does not match
 // the Tag or if failed happen in encoding length/value level.
-func (d *DlmsData) Encode() []byte {
+func (d *DlmsData) Encode() (out []byte, err error) {
 	if d.Value == nil {
-		panic("Value to encode cannot be nil")
+		err = fmt.Errorf("Value to encode cannot be nil")
+		return
 	}
 
 	errDataType := fmt.Errorf("cannot encode value %v with tag %v", d.Value, d.Tag)
@@ -169,13 +170,15 @@ func (d *DlmsData) Encode() []byte {
 	case TagArray:
 		data, ok := d.Value.([]*DlmsData)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeArray(data)
 		d.rawValue = rawValue
 
 		if dl, errLength := EncodeLength(len(data)); errLength != nil {
-			panic(errLength)
+			err = errLength
+			return
 		} else {
 			dataLength = dl
 		}
@@ -184,13 +187,14 @@ func (d *DlmsData) Encode() []byte {
 		// what's the difference between array & structure?
 		data, ok := d.Value.([]*DlmsData)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
 		}
 		rawValue, _ := EncodeStructure(data)
 		d.rawValue = rawValue
 
 		if dl, errLength := EncodeLength(len(data)); errLength != nil {
-			panic(errLength)
+			err = errLength
+			return
 		} else {
 			dataLength = dl
 		}
@@ -198,7 +202,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagBoolean:
 		data, ok := d.Value.(bool)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeBoolean(data)
 		d.rawValue = rawValue
@@ -206,11 +211,13 @@ func (d *DlmsData) Encode() []byte {
 	case TagBitString:
 		data, ok := d.Value.(string)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeBitString(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
@@ -218,7 +225,8 @@ func (d *DlmsData) Encode() []byte {
 		// length of bitstring is count by bits, not bytes
 		// length of "1110" is 4, not 1
 		if dl, errLength := EncodeLength(len(data)); errLength != nil {
-			panic(errLength)
+			err = errLength
+			return
 		} else {
 			dataLength = dl
 		}
@@ -226,7 +234,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagDoubleLong:
 		data, ok := d.Value.(int32)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeDoubleLong(data)
 		d.rawValue = rawValue
@@ -234,7 +243,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagDoubleLongUnsigned:
 		data, ok := d.Value.(uint32)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeDoubleLongUnsigned(data)
 		d.rawValue = rawValue
@@ -242,7 +252,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagFloatingPoint:
 		data, ok := d.Value.(float32)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeFloat32(data)
 		d.rawValue = rawValue
@@ -250,17 +261,20 @@ func (d *DlmsData) Encode() []byte {
 	case TagOctetString:
 		data, ok := d.Value.(string)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeOctetString(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
 
 		if dl, errLength := EncodeLength(len(d.rawValue)); errLength != nil {
-			panic(errLength)
+			err = errLength
+			return
 		} else {
 			dataLength = dl
 		}
@@ -268,17 +282,20 @@ func (d *DlmsData) Encode() []byte {
 	case TagVisibleString:
 		data, ok := d.Value.(string)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeVisibleString(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
 
 		if dl, errLength := EncodeLength(len(d.rawValue)); errLength != nil {
-			panic(errLength)
+			err = errLength
+			return
 		} else {
 			dataLength = dl
 		}
@@ -286,17 +303,20 @@ func (d *DlmsData) Encode() []byte {
 	case TagUTF8String:
 		data, ok := d.Value.(string)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeUTF8String(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
 
 		if dl, errLength := EncodeLength(len(d.rawValue)); errLength != nil {
-			panic(errLength)
+			err = errLength
+			return
 		} else {
 			dataLength = dl
 		}
@@ -304,7 +324,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagBCD:
 		data, ok := d.Value.(int8)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeBCD(data)
 		d.rawValue = rawValue
@@ -312,7 +333,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagInteger:
 		data, ok := d.Value.(int8)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeInteger(data)
 		d.rawValue = rawValue
@@ -320,7 +342,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagLong:
 		data, ok := d.Value.(int16)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeLong(data)
 		d.rawValue = rawValue
@@ -328,7 +351,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagUnsigned:
 		data, ok := d.Value.(uint8)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeUnsigned(data)
 		d.rawValue = rawValue
@@ -336,18 +360,21 @@ func (d *DlmsData) Encode() []byte {
 	case TagLongUnsigned:
 		data, ok := d.Value.(uint16)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeLongUnsigned(data)
 		d.rawValue = rawValue
 
 	case TagCompactArray:
-		panic("Not yet implemented")
+		err = fmt.Errorf("not yet implemented")
+		return
 
 	case TagLong64:
 		data, ok := d.Value.(int64)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeLong64(data)
 		d.rawValue = rawValue
@@ -355,7 +382,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagLong64Unsigned:
 		data, ok := d.Value.(uint64)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeLong64Unsigned(data)
 		d.rawValue = rawValue
@@ -363,7 +391,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagEnum:
 		data, ok := d.Value.(uint8)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeEnum(data)
 		d.rawValue = rawValue
@@ -371,7 +400,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagFloat32:
 		data, ok := d.Value.(float32)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeFloat32(data)
 		d.rawValue = rawValue
@@ -379,7 +409,8 @@ func (d *DlmsData) Encode() []byte {
 	case TagFloat64:
 		data, ok := d.Value.(float64)
 		if !ok {
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeFloat64(data)
 		d.rawValue = rawValue
@@ -394,11 +425,13 @@ func (d *DlmsData) Encode() []byte {
 			v, _ := d.Value.(string)
 			data, _ = time.Parse("2006-01-02 15:04:05", v)
 		default:
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeDateTime(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
@@ -412,11 +445,13 @@ func (d *DlmsData) Encode() []byte {
 			v, _ := d.Value.(string)
 			data, _ = time.Parse("2006-01-02", v)
 		default:
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeDate(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
@@ -430,11 +465,13 @@ func (d *DlmsData) Encode() []byte {
 			v, _ := d.Value.(string)
 			data, _ = time.Parse("15:04:05", v)
 		default:
-			panic(errDataType)
+			err = errDataType
+			return
 		}
 
 		if rv, errEncoding := EncodeTime(data); errEncoding != nil {
-			panic(errEncoding)
+			err = errEncoding
+			return
 		} else {
 			d.rawValue = rv
 		}
@@ -451,7 +488,7 @@ func (d *DlmsData) Encode() []byte {
 		d.raw.Write(dataLength)
 	}
 	d.raw.Write(d.rawValue)
-	return d.raw.Bytes()
+	return d.raw.Bytes(), nil
 }
 
 // Return bytes of raw data if Encode() has been called before

@@ -8,7 +8,10 @@ import (
 func TestNew_SetResponseNormal(t *testing.T) {
 
 	var a SetResponseNormal = *CreateSetResponseNormal(81, TagAccSuccess)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{197, 1, 81, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
@@ -19,7 +22,10 @@ func TestNew_SetResponseNormal(t *testing.T) {
 func TestNew_SetResponseDataBlock(t *testing.T) {
 
 	var a SetResponseDataBlock = *CreateSetResponseDataBlock(81, 1)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{197, 2, 81, 0, 0, 0, 1}
 
 	res := bytes.Compare(t1, result)
@@ -31,7 +37,10 @@ func TestNew_SetResponseDataBlock(t *testing.T) {
 func TestNew_SetResponseLastDataBlock(t *testing.T) {
 
 	var a SetResponseLastDataBlock = *CreateSetResponseLastDataBlock(81, TagAccSuccess, 1)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{197, 3, 81, 0, 0, 0, 0, 1}
 
 	res := bytes.Compare(t1, result)
@@ -44,7 +53,10 @@ func TestNew_SetResponseLastDataBlockWithList(t *testing.T) {
 
 	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var a SetResponseLastDataBlockWithList = *CreateSetResponseLastDataBlockWithList(81, resList, 1)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{197, 4, 81, 3, 0, 1, 250, 0, 0, 0, 1}
 
 	res := bytes.Compare(t1, result)
@@ -65,7 +77,10 @@ func TestNew_SetResponseWithList(t *testing.T) {
 
 	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var a SetResponseWithList = *CreateSetResponseWithList(81, resList)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{197, 5, 81, 3, 0, 1, 250}
 
 	res := bytes.Compare(t1, result)

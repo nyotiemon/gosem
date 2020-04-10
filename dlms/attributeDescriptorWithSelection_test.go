@@ -8,7 +8,10 @@ import (
 func TestAttributeDescriptorWithSelection(t *testing.T) {
 	var nilSAD *SelectiveAccessDescriptor = nil
 	var a AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, nilSAD)
-	t1 := a.Encode()
+	t1, e := a.Encode()
+	if e != nil {
+		t.Errorf("t1 Encode Failed. err: %v", e)
+	}
 	result := []byte{0, 1, 1, 0, 0, 3, 0, 255, 2, 0}
 
 	res := bytes.Compare(t1, result)
@@ -18,7 +21,10 @@ func TestAttributeDescriptorWithSelection(t *testing.T) {
 
 	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
 	var b AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
-	t2 := b.Encode()
+	t2, e := b.Encode()
+	if e != nil {
+		t.Errorf("t2 Encode Failed. err: %v", e)
+	}
 	result = []byte{0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	res = bytes.Compare(t2, result)
 	if res != 0 {

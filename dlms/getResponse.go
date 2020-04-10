@@ -22,17 +22,18 @@ func (s getResponseTag) Value() uint8 {
 // GetResponse implement CosemI
 type GetResponse struct{}
 
-func (gr *GetResponse) New(tag getResponseTag) CosemPDU {
+func (gr *GetResponse) New(tag getResponseTag) (out CosemPDU, err error) {
 	switch tag {
 	case TagGetResponseNormal:
-		return &GetResponseNormal{}
+		out = &GetResponseNormal{}
 	case TagGetResponseWithDataBlock:
-		return &GetResponseWithDataBlock{}
+		out = &GetResponseWithDataBlock{}
 	case TagGetResponseWithList:
-		return &GetResponseWithList{}
+		out = &GetResponseWithList{}
 	default:
-		panic("Tag not recognized!")
+		err = fmt.Errorf("Tag not recognized!")
 	}
+	return
 }
 
 func (gr *GetResponse) Decode(src *[]byte) (out CosemPDU, err error) {
@@ -68,14 +69,20 @@ func CreateGetResponseNormal(invokeId uint8, res GetDataResult) *GetResponseNorm
 	}
 }
 
-func (gr GetResponseNormal) Encode() []byte {
+func (gr GetResponseNormal) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagGetResponse))
 	buf.WriteByte(byte(TagGetResponseNormal))
 	buf.WriteByte(byte(gr.InvokePriority))
-	buf.Write(gr.Result.Encode())
+	res, e := gr.Result.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(res)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeGetResponseNormal(ori *[]byte) (out GetResponseNormal, err error) {
@@ -111,14 +118,20 @@ func CreateGetResponseWithDataBlock(invokeId uint8, res DataBlockG) *GetResponse
 	}
 }
 
-func (gr GetResponseWithDataBlock) Encode() []byte {
+func (gr GetResponseWithDataBlock) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagGetResponse))
 	buf.WriteByte(byte(TagGetResponseWithDataBlock))
 	buf.WriteByte(byte(gr.InvokePriority))
-	buf.Write(gr.Result.Encode())
+	val, e := gr.Result.Encode()
+	if e != nil {
+		err = e
+		return
+	}
+	buf.Write(val)
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeGetResponseWithDataBlock(ori *[]byte) (out GetResponseWithDataBlock, err error) {
@@ -159,17 +172,23 @@ func CreateGetResponseWithList(invokeId uint8, resList []GetDataResult) *GetResp
 	}
 }
 
-func (gr GetResponseWithList) Encode() []byte {
+func (gr GetResponseWithList) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
 	buf.WriteByte(byte(TagGetResponse))
 	buf.WriteByte(byte(TagGetResponseWithList))
 	buf.WriteByte(byte(gr.InvokePriority))
 	buf.WriteByte(byte(len(gr.ResultList)))
 	for _, res := range gr.ResultList {
-		buf.Write(res.Encode())
+		val, e := res.Encode()
+		if e != nil {
+			err = e
+			return
+		}
+		buf.Write(val)
 	}
 
-	return buf.Bytes()
+	out = buf.Bytes()
+	return
 }
 
 func DecodeGetResponseWithList(ori *[]byte) (out GetResponseWithList, err error) {

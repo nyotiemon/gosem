@@ -108,7 +108,10 @@ func EncodeArray(data []*DlmsData) ([]byte, error) {
 	var output bytes.Buffer
 
 	for _, d := range data {
-		res := d.Encode()
+		res, err := d.Encode()
+		if err != nil {
+			return []byte{}, nil
+		}
 		output.Write(res)
 	}
 
