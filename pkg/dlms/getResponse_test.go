@@ -35,7 +35,7 @@ func TestNewGetResponseWithDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
 	}
-	result := []byte{196, 2, 81, 1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
+	result := []byte{196, 2, 81, 255, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
@@ -49,7 +49,7 @@ func TestNewGetResponseWithDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t2 Encode Failed. err: %v", e)
 	}
-	result = []byte{196, 2, 81, 1, 0, 0, 0, 1, 1, 0}
+	result = []byte{196, 2, 81, 255, 0, 0, 0, 1, 1, 0}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)

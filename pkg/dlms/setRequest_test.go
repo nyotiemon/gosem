@@ -47,7 +47,7 @@ func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
 	}
-	result := []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result := []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 255, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
@@ -59,7 +59,7 @@ func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t2 Encode Failed. err: %v", e)
 	}
-	result = []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result = []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 0, 255, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
@@ -74,7 +74,7 @@ func TestNew_SetRequestWithDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
 	}
-	result := []byte{193, 3, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result := []byte{193, 3, 81, 255, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
@@ -145,7 +145,7 @@ func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
 	}
-	result := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 255, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
@@ -157,7 +157,7 @@ func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	if e != nil {
 		t.Errorf("t2 Encode Failed. err: %v", e)
 	}
-	result = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result = []byte{193, 5, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 255, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res = bytes.Compare(t2, result)
 	if res != 0 {
 		t.Errorf("t2 failed. get: %d, should:%v", t2, result)

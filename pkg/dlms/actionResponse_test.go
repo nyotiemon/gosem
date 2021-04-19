@@ -31,7 +31,7 @@ func TestNew_ActionResponseWithPBlock(t *testing.T) {
 		t.Errorf("t1 Encode Failed. err: %v", e)
 	}
 
-	result := []byte{199, 2, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
+	result := []byte{199, 2, 81, 255, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	res := bytes.Compare(t1, result)
 	if res != 0 {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
