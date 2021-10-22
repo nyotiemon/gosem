@@ -4,7 +4,7 @@ import "fmt"
 
 type cosemTag uint8
 
-var (
+const (
 	// ---- standardized DLMS APDUs
 	TagInitiateRequest          cosemTag = 1
 	TagReadRequest              cosemTag = 5
@@ -80,7 +80,7 @@ type CosemPDU interface {
 func DecodeCosem(src *[]byte) (out CosemPDU, err error) {
 	var t cosemTag
 	if !t.isExist((*src)[0]) {
-		err = fmt.Errorf("byte idx 0 (%v) is not recognized, or relevant DLMS/COSEM is not yet implemented.", (*src)[0])
+		err = fmt.Errorf("byte idx 0 (%v) is not recognized, or relevant DLMS/COSEM is not yet implemented", (*src)[0])
 		return
 	}
 

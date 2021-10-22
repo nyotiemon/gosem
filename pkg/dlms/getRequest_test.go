@@ -7,12 +7,10 @@ import (
 )
 
 func TestNewGetRequestNormal(t *testing.T) {
-	var gr GetRequest
 	var attrDesc AttributeDescriptor = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
 	var accsDesc SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
 
-	a, _ := gr.New(TagGetRequestNormal)
-	a = *CreateGetRequestNormal(81, attrDesc, &accsDesc)
+	a := *CreateGetRequestNormal(81, attrDesc, &accsDesc)
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
@@ -23,7 +21,7 @@ func TestNewGetRequestNormal(t *testing.T) {
 		t.Errorf("t1 Failed. get: %d, should:%v", t1, result)
 	}
 
-	var nilAccsDesc *SelectiveAccessDescriptor = nil
+	var nilAccsDesc *SelectiveAccessDescriptor
 	b := *CreateGetRequestNormal(81, attrDesc, nilAccsDesc)
 	t2, e := b.Encode()
 	if e != nil {
@@ -37,10 +35,7 @@ func TestNewGetRequestNormal(t *testing.T) {
 }
 
 func TestNewGetRequestNext(t *testing.T) {
-	var gr GetRequest
-
-	a, _ := gr.New(TagGetRequestNext)
-	a = *CreateGetRequestNext(81, 2)
+	a := *CreateGetRequestNext(81, 2)
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
@@ -53,12 +48,10 @@ func TestNewGetRequestNext(t *testing.T) {
 }
 
 func TestNewGetRequestWithList(t *testing.T) {
-	var gr GetRequest
 	var sad SelectiveAccessDescriptor = *CreateSelectiveAccessDescriptor(AccessSelectorEntry, []uint32{0, 5})
 	var a1 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, &sad)
 
-	a, _ := gr.New(TagGetRequestWithList)
-	a = *CreateGetRequestWithList(69, []AttributeDescriptorWithSelection{a1})
+	a := *CreateGetRequestWithList(69, []AttributeDescriptorWithSelection{a1})
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
@@ -138,7 +131,7 @@ func TestDecode_GetRequestNormal(t *testing.T) {
 	}
 
 	attrDesc = *CreateAttributeDescriptor(1, "1.0.0.3.0.255", 2)
-	var nilAccsDesc *SelectiveAccessDescriptor = nil
+	var nilAccsDesc *SelectiveAccessDescriptor
 	b = *CreateGetRequestNormal(81, attrDesc, nilAccsDesc)
 
 	if a.InvokePriority != b.InvokePriority {
@@ -217,6 +210,9 @@ func TestDecode_GetRequestWithList(t *testing.T) {
 	// ---------------------- with 2 AttributeDescriptor
 	src = []byte{192, 3, 69, 2, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 0, 1, 0, 0, 8, 0, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	a, err = DecodeGetRequestWithList(&src)
+	if err != nil {
+		t.Errorf("t1 Failed to DecodeGetRequestWithList. err:%v", err)
+	}
 
 	var a2 AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "0.0.8.0.0.255", 2, &sad)
 	b = *CreateGetRequestWithList(69, []AttributeDescriptorWithSelection{a1, a2})

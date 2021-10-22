@@ -6,7 +6,6 @@ import (
 )
 
 func TestDecode_cosem(t *testing.T) {
-
 	// ------------------  GetRequestNormal
 	srcGetRequestNormal := []byte{192, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	res, e := DecodeCosem(&srcGetRequestNormal)

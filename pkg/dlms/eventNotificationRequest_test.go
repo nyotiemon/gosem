@@ -2,9 +2,9 @@ package dlms
 
 import (
 	"bytes"
+	"gosem/pkg/axdr"
 	"testing"
 	"time"
-	"gosem/pkg/axdr"
 )
 
 func TestNew_EventNotificationRequest(t *testing.T) {
@@ -24,7 +24,7 @@ func TestNew_EventNotificationRequest(t *testing.T) {
 	}
 
 	// --- with nil time
-	var nilTime *time.Time = nil
+	var nilTime *time.Time
 	a = *CreateEventNotificationRequest(nilTime, attrDesc, attrVal)
 	t1, e = a.Encode()
 	if e != nil {

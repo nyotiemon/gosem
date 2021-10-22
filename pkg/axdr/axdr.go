@@ -156,7 +156,7 @@ func CreateAxdrTime(data time.Time) *DlmsData {
 // the Tag or if failed happen in encoding length/value level.
 func (d *DlmsData) Encode() (out []byte, err error) {
 	if d.Value == nil {
-		err = fmt.Errorf("Value to encode cannot be nil")
+		err = fmt.Errorf("value to encode cannot be nil")
 		return
 	}
 
@@ -188,6 +188,7 @@ func (d *DlmsData) Encode() (out []byte, err error) {
 		data, ok := d.Value.([]*DlmsData)
 		if !ok {
 			err = errDataType
+			return
 		}
 		rawValue, _ := EncodeStructure(data)
 		d.rawValue = rawValue
@@ -417,13 +418,12 @@ func (d *DlmsData) Encode() (out []byte, err error) {
 
 	case TagDateTime:
 		var data time.Time
-		switch d.Value.(type) {
+		switch value := d.Value.(type) {
 		case time.Time:
-			data, _ = d.Value.(time.Time)
+			data = value
 		case string:
 			// max year value using parse string is 9999, over will give year 0000
-			v, _ := d.Value.(string)
-			data, _ = time.Parse("2006-01-02 15:04:05", v)
+			data, _ = time.Parse("2006-01-02 15:04:05", value)
 		default:
 			err = errDataType
 			return
@@ -438,12 +438,11 @@ func (d *DlmsData) Encode() (out []byte, err error) {
 
 	case TagDate:
 		var data time.Time
-		switch d.Value.(type) {
+		switch value := d.Value.(type) {
 		case time.Time:
-			data, _ = d.Value.(time.Time)
+			data = value
 		case string:
-			v, _ := d.Value.(string)
-			data, _ = time.Parse("2006-01-02", v)
+			data, _ = time.Parse("2006-01-02", value)
 		default:
 			err = errDataType
 			return
@@ -458,12 +457,11 @@ func (d *DlmsData) Encode() (out []byte, err error) {
 
 	case TagTime:
 		var data time.Time
-		switch d.Value.(type) {
+		switch value := d.Value.(type) {
 		case time.Time:
-			data, _ = d.Value.(time.Time)
+			data = value
 		case string:
-			v, _ := d.Value.(string)
-			data, _ = time.Parse("15:04:05", v)
+			data, _ = time.Parse("15:04:05", value)
 		default:
 			err = errDataType
 			return
@@ -478,7 +476,6 @@ func (d *DlmsData) Encode() (out []byte, err error) {
 
 	case TagDontCare:
 		d.rawValue = []byte{0}
-
 	}
 
 	d.raw.Reset()

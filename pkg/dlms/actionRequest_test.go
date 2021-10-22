@@ -2,9 +2,9 @@ package dlms
 
 import (
 	"bytes"
+	"gosem/pkg/axdr"
 	"reflect"
 	"testing"
-	"gosem/pkg/axdr"
 )
 
 func TestNew_ActionRequestNormal(t *testing.T) {
@@ -22,7 +22,7 @@ func TestNew_ActionRequestNormal(t *testing.T) {
 	}
 
 	// with nil Data
-	var nilData *axdr.DlmsData = nil
+	var nilData *axdr.DlmsData
 	var b ActionRequestNormal = *CreateActionRequestNormal(81, mthDesc, nilData)
 	t2, e := b.Encode()
 	if e != nil {
@@ -332,9 +332,9 @@ func TestDecode_ActionRequestWithFirstPBlock(t *testing.T) {
 	if a.PBlock.BlockNumber != b.PBlock.BlockNumber {
 		t.Errorf("t1 Failed. PBlock.BlockNumber get: %v, should:%v", a.PBlock.BlockNumber, b.PBlock.BlockNumber)
 	}
-	res = bytes.Compare(a.PBlock.Raw, a.PBlock.Raw)
+	res = bytes.Compare(a.PBlock.Raw, b.PBlock.Raw)
 	if res != 0 {
-		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, a.PBlock.Raw)
+		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, b.PBlock.Raw)
 	}
 
 	if len(src) > 0 {
@@ -376,9 +376,9 @@ func TestDecode_ActionRequestWithListAndFirstPBlock(t *testing.T) {
 	if a.PBlock.BlockNumber != b.PBlock.BlockNumber {
 		t.Errorf("t1 Failed. PBlock.BlockNumber get: %v, should:%v", a.PBlock.BlockNumber, b.PBlock.BlockNumber)
 	}
-	res := bytes.Compare(a.PBlock.Raw, a.PBlock.Raw)
+	res := bytes.Compare(a.PBlock.Raw, b.PBlock.Raw)
 	if res != 0 {
-		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, a.PBlock.Raw)
+		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, b.PBlock.Raw)
 	}
 
 	if len(src) > 0 {
@@ -433,9 +433,9 @@ func TestDecode_ActionRequestWithPBlock(t *testing.T) {
 	if a.PBlock.BlockNumber != b.PBlock.BlockNumber {
 		t.Errorf("t1 Failed. PBlock.BlockNumber get: %v, should:%v", a.PBlock.BlockNumber, b.PBlock.BlockNumber)
 	}
-	res := bytes.Compare(a.PBlock.Raw, a.PBlock.Raw)
+	res := bytes.Compare(a.PBlock.Raw, b.PBlock.Raw)
 	if res != 0 {
-		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, a.PBlock.Raw)
+		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, b.PBlock.Raw)
 	}
 
 	if len(src) > 0 {

@@ -79,7 +79,7 @@ var (
 
 // Get dataTag equivalent of supplied uint8
 func getDataTag(in uint8) (t dataTag) {
-	t, _ = mapToDataTag[in]
+	t = mapToDataTag[in]
 	return
 }
 
@@ -102,12 +102,12 @@ func NewDataDecoder(in interface{}) *Decoder {
 
 // Decode expect byte second after tag byte.
 func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	r.Tag = dec.tag
-	haveLength, _ := lengthAfterTag[dec.tag]
+	haveLength := lengthAfterTag[dec.tag]
 	var lengthByte []byte
-	var lengthInt uint64 = 0
+	var lengthInt uint64
 	if haveLength {
 		lengthByte, lengthInt, err = DecodeLength(&src)
 		if err != nil {
@@ -124,7 +124,7 @@ func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
 	case TagArray:
 		output := make([]*DlmsData, lengthInt)
 		// make carbon copy of src to calc rawValue later
-		var temp []byte = append(src[:0:0], src...)
+		var temp = append(src[:0:0], src...)
 		for i := 0; i < int(lengthInt); i++ {
 			thisDecoder := NewDataDecoder(&temp)
 			thisDlmsData, thisError := thisDecoder.Decode(&temp)
@@ -141,7 +141,7 @@ func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
 		// same same as array
 		output := make([]*DlmsData, lengthInt)
 		// make carbon copy of src to calc rawValue later
-		var temp []byte = append(src[:0:0], src...)
+		var temp = append(src[:0:0], src...)
 		for i := 0; i < int(lengthInt); i++ {
 			thisDecoder := NewDataDecoder(&temp)
 			thisDlmsData, thisError := thisDecoder.Decode(&temp)
@@ -248,10 +248,9 @@ func DecodeLength(src *[]byte) (outByte []byte, outVal uint64, err error) {
 				bufStart--
 			}
 
-			outVal = binary.BigEndian.Uint64(buf[:])
+			outVal = binary.BigEndian.Uint64(buf)
 			(*src) = (*src)[1+len(realLength):]
 		}
-
 	} else {
 		outByte = append(outByte, (*src)[0])
 		outVal = uint64((*src)[0])

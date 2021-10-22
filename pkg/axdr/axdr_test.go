@@ -80,7 +80,7 @@ func TestEncodeLength(t *testing.T) {
 
 	t13, err := EncodeLength(0)
 	res = bytes.Compare(t13, []byte{0})
-	if err != nil {
+	if res != 0 || err != nil {
 		t.Errorf("t13 failed. val: %d, err:%v", t13, err)
 	}
 }
@@ -201,7 +201,6 @@ func TestEncodeOctetString(t *testing.T) {
 	if res != 0 || err != nil {
 		t.Errorf("t2 failed. val: %d, err:%v", ts, err)
 	}
-
 }
 
 func TestEncodeVisibleString(t *testing.T) {
@@ -502,8 +501,7 @@ func TestEncodeDateTime(t *testing.T) {
 }
 
 func TestDlmsData(t *testing.T) {
-	var tDD DlmsData
-	tDD = DlmsData{Tag: TagBoolean, Value: true}
+	tDD := DlmsData{Tag: TagBoolean, Value: true}
 	encodedBool, err := tDD.Encode()
 	if err != nil {
 		t.Errorf("DlmsData EncodeBoolean get error. %d", err)
@@ -526,8 +524,7 @@ func TestDlmsData(t *testing.T) {
 }
 
 func TestDlmsData_NilValue(t *testing.T) {
-	var tDD DlmsData
-	tDD = DlmsData{Tag: TagBoolean, Value: nil}
+	tDD := DlmsData{Tag: TagBoolean, Value: nil}
 
 	_, err := tDD.Encode()
 	if err == nil {
@@ -536,8 +533,7 @@ func TestDlmsData_NilValue(t *testing.T) {
 }
 
 func TestDlmsData_WrongBoolValue(t *testing.T) {
-	var tDD DlmsData
-	tDD = DlmsData{Tag: TagBoolean, Value: 1234}
+	tDD := DlmsData{Tag: TagBoolean, Value: 1234}
 
 	_, err := tDD.Encode()
 	if err == nil {
@@ -546,8 +542,7 @@ func TestDlmsData_WrongBoolValue(t *testing.T) {
 }
 
 func TestDlmsData_WrongBitStringValue(t *testing.T) {
-	var tDD DlmsData
-	tDD = DlmsData{Tag: TagBitString, Value: "ABCDEFG"}
+	tDD := DlmsData{Tag: TagBitString, Value: "ABCDEFG"}
 
 	_, err := tDD.Encode()
 	if err == nil {
@@ -649,7 +644,7 @@ func TestDlmsData_Array(t *testing.T) {
 		t.Errorf("t1.3 failed. val: %d", d3.Raw())
 	}
 
-	tDD = DlmsData{Tag: TagArray, Value: []*DlmsData{&DlmsData{Tag: TagBoolean, Value: true}, &DlmsData{Tag: TagBoolean, Value: false}}}
+	tDD = DlmsData{Tag: TagArray, Value: []*DlmsData{{Tag: TagBoolean, Value: true}, {Tag: TagBoolean, Value: false}}}
 	encoded, err = tDD.Encode()
 	if err != nil {
 		t.Errorf("DlmsData Encode Array get error. %d", err)
@@ -703,7 +698,6 @@ func TestDecodeLength(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %d, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeBoolean(t *testing.T) {
@@ -757,7 +751,6 @@ func TestDecodeBitString(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeDoubleLong(t *testing.T) {
@@ -791,7 +784,6 @@ func TestDecodeDoubleLong(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeDoubleLongUnsigned(t *testing.T) {

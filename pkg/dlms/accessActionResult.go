@@ -40,8 +40,8 @@ const (
 	TagActOtherReason             ActionResultTag = 250
 )
 
-func (tag AccessResultTag) String() string {
-	switch tag {
+func (s AccessResultTag) String() string {
+	switch s {
 	case TagAccSuccess:
 		return "success"
 	case TagAccHardwareFault:
@@ -79,8 +79,8 @@ func (tag AccessResultTag) String() string {
 	}
 }
 
-func (tag ActionResultTag) String() string {
-	switch tag {
+func (s ActionResultTag) String() string {
+	switch s {
 	case TagActSuccess:
 		return "success"
 	case TagActHardwareFault:
@@ -159,7 +159,7 @@ func GetAccessTag(in uint8) (out AccessResultTag, err error) {
 	case 250:
 		out = TagAccOtherReason
 	default:
-		err = fmt.Errorf("value not recognized.")
+		err = fmt.Errorf("value not recognized")
 	}
 
 	return

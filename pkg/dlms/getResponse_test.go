@@ -2,18 +2,16 @@ package dlms
 
 import (
 	"bytes"
+	"gosem/pkg/axdr"
 	"reflect"
 	"testing"
-	"gosem/pkg/axdr"
 )
 
 func TestNewGetResponseNormal(t *testing.T) {
-	var gr GetResponse
 	var dt axdr.DlmsData = *axdr.CreateAxdrDoubleLong(69)
 	var ret GetDataResult = *CreateGetDataResultAsData(dt)
 
-	a, _ := gr.New(TagGetResponseNormal)
-	a = *CreateGetResponseNormal(81, ret)
+	a := *CreateGetResponseNormal(81, ret)
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
@@ -26,11 +24,9 @@ func TestNewGetResponseNormal(t *testing.T) {
 }
 
 func TestNewGetResponseWithDataBlock(t *testing.T) {
-	var gr GetResponse
 	var dbg DataBlockG = *CreateDataBlockGAsData(true, 1, "07D20C04030A060BFF007800")
 
-	a, _ := gr.New(TagGetResponseWithDataBlock)
-	a = *CreateGetResponseWithDataBlock(81, dbg)
+	a := *CreateGetResponseWithDataBlock(81, dbg)
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
@@ -42,9 +38,8 @@ func TestNewGetResponseWithDataBlock(t *testing.T) {
 	}
 
 	// ---
-	b, _ := gr.New(TagGetResponseWithDataBlock)
 	dbg = *CreateDataBlockGAsResult(true, 1, TagAccSuccess)
-	b = *CreateGetResponseWithDataBlock(81, dbg)
+	b := *CreateGetResponseWithDataBlock(81, dbg)
 	t2, e := b.Encode()
 	if e != nil {
 		t.Errorf("t2 Encode Failed. err: %v", e)
@@ -57,11 +52,9 @@ func TestNewGetResponseWithDataBlock(t *testing.T) {
 }
 
 func TestNewGetResponseWithList(t *testing.T) {
-	var gr GetResponse
 	var gdr1 GetDataResult = *CreateGetDataResultAsResult(TagAccSuccess)
 
-	a, _ := gr.New(TagGetResponseWithList)
-	a = *CreateGetResponseWithList(69, []GetDataResult{gdr1})
+	a := *CreateGetResponseWithList(69, []GetDataResult{gdr1})
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)

@@ -38,7 +38,7 @@ func (gr *SetResponse) New(tag setResponseTag) (out CosemPDU, err error) {
 	case TagSetResponseWithList:
 		out = &SetResponseWithList{}
 	default:
-		err = fmt.Errorf("tag not recognized!")
+		err = fmt.Errorf("tag not recognized")
 	}
 	return
 }
@@ -92,7 +92,7 @@ func (sr SetResponseNormal) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseNormal(ori *[]byte) (out SetResponseNormal, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -139,7 +139,7 @@ func (sr SetResponseDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseDataBlock(ori *[]byte) (out SetResponseDataBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -187,7 +187,7 @@ func (sr SetResponseLastDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseLastDataBlock(ori *[]byte) (out SetResponseLastDataBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -247,7 +247,7 @@ func (sr SetResponseLastDataBlockWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseLastDataBlockWithList(ori *[]byte) (out SetResponseLastDataBlockWithList, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -310,7 +310,7 @@ func (sr SetResponseWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseWithList(ori *[]byte) (out SetResponseWithList, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))

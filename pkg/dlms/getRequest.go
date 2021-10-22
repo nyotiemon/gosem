@@ -32,7 +32,7 @@ func (gr *GetRequest) New(tag getRequestTag) (out CosemPDU, err error) {
 	case TagGetRequestWithList:
 		out = &GetRequestWithList{}
 	default:
-		err = fmt.Errorf("tag not recognized!")
+		err = fmt.Errorf("tag not recognized")
 	}
 
 	return
@@ -101,7 +101,7 @@ func (gr GetRequestNormal) Encode() (out []byte, err error) {
 }
 
 func DecodeGetRequestNormal(ori *[]byte) (out GetRequestNormal, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagGetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagGetRequest))
@@ -122,7 +122,7 @@ func DecodeGetRequestNormal(ori *[]byte) (out GetRequestNormal, err error) {
 	src = src[1:]
 	// SelectiveAccessInfo
 	if haveAccDesc == 0 {
-		var nilAccsDesc *SelectiveAccessDescriptor = nil
+		var nilAccsDesc *SelectiveAccessDescriptor
 		out.SelectiveAccessInfo = nilAccsDesc
 	} else {
 		accDesc, e := DecodeSelectiveAccessDescriptor(&src)
@@ -163,7 +163,7 @@ func (gr GetRequestNext) Encode() (out []byte, err error) {
 }
 
 func DecodeGetRequestNext(ori *[]byte) (out GetRequestNext, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagGetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagGetRequest))
@@ -225,7 +225,7 @@ func (gr GetRequestWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeGetRequestWithList(ori *[]byte) (out GetRequestWithList, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	var src = append((*ori)[:0:0], (*ori)...)
 
 	if src[0] != TagGetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagGetRequest))

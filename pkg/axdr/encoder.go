@@ -39,66 +39,58 @@ func ValidNumberType(k interface{}) (reflect.Kind, error) {
 // byte is L-of-length or not. If it is, then the rest bits are
 // the value of L-of-length, else is the length itself.
 // Sample (int -> hex). 3->03, 131->81 83, 25000->82 61 A8
-func EncodeLength(data_length interface{}) ([]byte, error) {
+func EncodeLength(dataLength interface{}) ([]byte, error) {
 	var output []byte
 
-	data_type, err := ValidNumberType(data_length)
+	dataType, err := ValidNumberType(dataLength)
 	if err != nil {
 		return output, err
 	}
 
-	var true_length []byte
-	if data_type == reflect.Int {
-		value := data_length.(int)
+	var trueLength []byte
+	switch dataType {
+	case reflect.Int:
+		value := dataLength.(int)
 		if value < 0 {
 			return output, fmt.Errorf("%v value cannot be negative", value)
 		}
-		true_length = make([]byte, 4)
-		binary.BigEndian.PutUint32(true_length, uint32(value))
-
-	} else if data_type == reflect.Int64 {
-		value := data_length.(int64)
+		trueLength = make([]byte, 4)
+		binary.BigEndian.PutUint32(trueLength, uint32(value))
+	case reflect.Int64:
+		value := dataLength.(int64)
 		if value < 0 {
 			return output, fmt.Errorf("%v value cannot be negative", value)
 		}
-		true_length = make([]byte, 8)
-		binary.BigEndian.PutUint64(true_length, uint64(value))
-
-	} else if data_type == reflect.Uint {
-		value := data_length.(uint)
-		if value < 0 {
-			return output, fmt.Errorf("%v value cannot be negative", value)
-		}
-		true_length = make([]byte, 8)
-		binary.BigEndian.PutUint64(true_length, uint64(value))
-
-	} else if data_type == reflect.Uint64 {
-		value := data_length.(uint64)
-		if value < 0 {
-			return output, fmt.Errorf("%v value cannot be negative", value)
-		}
-		true_length = make([]byte, 8)
-		binary.BigEndian.PutUint64(true_length, value)
+		trueLength = make([]byte, 8)
+		binary.BigEndian.PutUint64(trueLength, uint64(value))
+	case reflect.Uint:
+		value := dataLength.(uint)
+		trueLength = make([]byte, 8)
+		binary.BigEndian.PutUint64(trueLength, uint64(value))
+	case reflect.Uint64:
+		value := dataLength.(uint64)
+		trueLength = make([]byte, 8)
+		binary.BigEndian.PutUint64(trueLength, value)
 	}
 
-	for i, val := range true_length {
+	for i, val := range trueLength {
 		if val != 0x00 {
-			true_length = true_length[i:]
+			trueLength = trueLength[i:]
 			break
 		}
-		if i == len(true_length)-1 && val == 0x00 {
-			true_length = true_length[i:]
+		if i == len(trueLength)-1 && val == 0x00 {
+			trueLength = trueLength[i:]
 		}
 	}
 
-	if len(true_length) == 1 {
-		if true_length[0] > 127 {
+	if len(trueLength) == 1 {
+		if trueLength[0] > 127 {
 			output = append(output, byte(129))
 		}
-		output = append(output, true_length...)
+		output = append(output, trueLength...)
 	} else {
-		output = append(output, byte(128+len(true_length)))
-		output = append(output, true_length...)
+		output = append(output, byte(128+len(trueLength)))
+		output = append(output, trueLength...)
 	}
 
 	return output, nil
@@ -124,7 +116,7 @@ func EncodeStructure(data []*DlmsData) ([]byte, error) {
 }
 
 func EncodeBoolean(data bool) ([]byte, error) {
-	if data == true {
+	if data {
 		return []byte{0xFF}, nil
 	} else {
 		return []byte{0x00}, nil
@@ -146,12 +138,12 @@ func EncodeBitString(data string) ([]byte, error) {
 
 	for i := 0; i < len(data); i += 8 {
 		if i+8 > len(data) {
-			str = string(data[i:])
+			str = data[i:]
 			for len(str) < 8 {
 				str += "0"
 			}
 		} else {
-			str = string(data[i : i+8])
+			str = data[i : i+8]
 		}
 		thisByte, err := strconv.ParseUint(str, 2, 8)
 		if err != nil {

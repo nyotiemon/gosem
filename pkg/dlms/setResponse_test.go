@@ -7,7 +7,6 @@ import (
 )
 
 func TestNew_SetResponseNormal(t *testing.T) {
-
 	var a SetResponseNormal = *CreateSetResponseNormal(81, TagAccSuccess)
 	t1, e := a.Encode()
 	if e != nil {
@@ -21,7 +20,6 @@ func TestNew_SetResponseNormal(t *testing.T) {
 }
 
 func TestNew_SetResponseDataBlock(t *testing.T) {
-
 	var a SetResponseDataBlock = *CreateSetResponseDataBlock(81, 1)
 	t1, e := a.Encode()
 	if e != nil {
@@ -36,7 +34,6 @@ func TestNew_SetResponseDataBlock(t *testing.T) {
 }
 
 func TestNew_SetResponseLastDataBlock(t *testing.T) {
-
 	var a SetResponseLastDataBlock = *CreateSetResponseLastDataBlock(81, TagAccSuccess, 1)
 	t1, e := a.Encode()
 	if e != nil {
@@ -51,7 +48,6 @@ func TestNew_SetResponseLastDataBlock(t *testing.T) {
 }
 
 func TestNew_SetResponseLastDataBlockWithList(t *testing.T) {
-
 	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var a SetResponseLastDataBlockWithList = *CreateSetResponseLastDataBlockWithList(81, resList, 1)
 	t1, e := a.Encode()
@@ -75,7 +71,6 @@ func TestNew_SetResponseLastDataBlockWithList(t *testing.T) {
 }
 
 func TestNew_SetResponseWithList(t *testing.T) {
-
 	resList := []AccessResultTag{TagAccSuccess, TagAccHardwareFault, TagAccOtherReason}
 	var a SetResponseWithList = *CreateSetResponseWithList(81, resList)
 	t1, e := a.Encode()
