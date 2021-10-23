@@ -292,6 +292,17 @@ func TestDecode_cosem(t *testing.T) {
 		t.Errorf("Decode supposed to return ActionResponseNextPBlock instead of %v", reflect.TypeOf(res).Name())
 	}
 
+	// ------------------  ExceptionResponse
+	srcExceptionResponse := []byte{216, 1, 2}
+	res, e = DecodeCosem(&srcExceptionResponse)
+	if e != nil {
+		t.Errorf("Decode for ExceptionResponse Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ExceptionResponse)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ExceptionResponse instead of %v", reflect.TypeOf(res).Name())
+	}
+
 	// ------------------  Error test
 	srcError := []byte{255, 255, 255}
 	_, wow := DecodeCosem(&srcError)

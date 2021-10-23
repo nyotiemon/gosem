@@ -45,6 +45,10 @@ func ErrWrongTag(idx int, get byte, correct byte) error {
 	return fmt.Errorf("wrong data tag on index %v, expecting %v instead of %v", idx, correct, get)
 }
 
+func ErrWrongLength(current int, correct byte) error {
+	return fmt.Errorf("wrong data length, received %d, expecting %v", current, correct)
+}
+
 // Value will return primitive value of the target.
 // This is used for comparing with non custom typed object
 func (s cosemTag) Value() uint8 {
@@ -60,7 +64,8 @@ func (s cosemTag) isExist(bt byte) bool {
 		TagActionRequest.Value(),
 		TagGetResponse.Value(),
 		TagSetResponse.Value(),
-		TagActionResponse.Value():
+		TagActionResponse.Value(),
+		TagExceptionResponse.Value():
 		return true
 	}
 
@@ -105,6 +110,8 @@ func DecodeCosem(src *[]byte) (out CosemPDU, err error) {
 		out, err = decoder.Decode(src)
 	case TagEventNotificationRequest.Value():
 		out, err = DecodeEventNotificationRequest(src)
+	case TagExceptionResponse.Value():
+		out, err = DecodeExceptionResponse(src)
 	}
 
 	return
