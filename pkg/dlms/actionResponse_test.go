@@ -205,7 +205,6 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_ActionResponseNextPBlock(t *testing.T) {

@@ -57,7 +57,7 @@ func (ev EventNotificationRequest) Encode() (out []byte, err error) {
 }
 
 func DecodeEventNotificationRequest(ori *[]byte) (out EventNotificationRequest, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagEventNotificationRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagEventNotificationRequest))

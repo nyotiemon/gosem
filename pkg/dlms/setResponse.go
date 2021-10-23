@@ -92,7 +92,7 @@ func (sr SetResponseNormal) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseNormal(ori *[]byte) (out SetResponseNormal, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -139,7 +139,7 @@ func (sr SetResponseDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseDataBlock(ori *[]byte) (out SetResponseDataBlock, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -187,7 +187,7 @@ func (sr SetResponseLastDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseLastDataBlock(ori *[]byte) (out SetResponseLastDataBlock, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -247,7 +247,7 @@ func (sr SetResponseLastDataBlockWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseLastDataBlockWithList(ori *[]byte) (out SetResponseLastDataBlockWithList, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))
@@ -310,7 +310,7 @@ func (sr SetResponseWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeSetResponseWithList(ori *[]byte) (out SetResponseWithList, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetResponse))

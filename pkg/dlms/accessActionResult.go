@@ -3,6 +3,7 @@ package dlms
 import "fmt"
 
 type AccessResultTag uint8
+
 type ActionResultTag uint8
 
 const (

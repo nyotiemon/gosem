@@ -319,7 +319,6 @@ func TestDecode_DataBlockG(t *testing.T) {
 	if eTag != nil {
 		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", eTag)
 	}
-
 }
 
 func TestDecode_DataBlockSA(t *testing.T) {
@@ -339,7 +338,6 @@ func TestDecode_DataBlockSA(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t1 Failed. Result is not correct (%v)", a.Raw)
 	}
-
 }
 
 func TestDecode_ActResponse(t *testing.T) {

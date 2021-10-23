@@ -13,21 +13,21 @@ import (
 	"unicode/utf8"
 )
 
-var validIntType = map[reflect.Kind]reflect.Kind{
-	reflect.Int:    reflect.Int,
-	reflect.Int8:   reflect.Int8,
-	reflect.Int16:  reflect.Int16,
-	reflect.Int32:  reflect.Int32,
-	reflect.Int64:  reflect.Int64,
-	reflect.Uint:   reflect.Uint,
-	reflect.Uint8:  reflect.Uint8,
-	reflect.Uint16: reflect.Uint16,
-	reflect.Uint32: reflect.Uint32,
-	reflect.Uint64: reflect.Uint64,
-}
-
 // Check if input is a valid u/int 8-64
 func ValidNumberType(k interface{}) (reflect.Kind, error) {
+	validIntType := map[reflect.Kind]reflect.Kind{
+		reflect.Int:    reflect.Int,
+		reflect.Int8:   reflect.Int8,
+		reflect.Int16:  reflect.Int16,
+		reflect.Int32:  reflect.Int32,
+		reflect.Int64:  reflect.Int64,
+		reflect.Uint:   reflect.Uint,
+		reflect.Uint8:  reflect.Uint8,
+		reflect.Uint16: reflect.Uint16,
+		reflect.Uint32: reflect.Uint32,
+		reflect.Uint64: reflect.Uint64,
+	}
+
 	if what, ok := validIntType[reflect.TypeOf(k).Kind()]; ok {
 		return what, nil
 	}

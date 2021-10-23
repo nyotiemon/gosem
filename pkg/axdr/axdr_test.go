@@ -817,7 +817,6 @@ func TestDecodeDoubleLongUnsigned(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeOctetString(t *testing.T) {
@@ -851,7 +850,6 @@ func TestDecodeOctetString(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeVisibleString(t *testing.T) {
@@ -884,7 +882,6 @@ func TestDecodeVisibleString(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeUTF8String(t *testing.T) {
@@ -918,7 +915,6 @@ func TestDecodeUTF8String(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeBCD(t *testing.T) {
@@ -951,7 +947,6 @@ func TestDecodeBCD(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 // DecodeInteger == DecodeBCD == DecodeEnum
@@ -986,7 +981,6 @@ func TestDecodeLong(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeUnsigned(t *testing.T) {
@@ -1019,7 +1013,6 @@ func TestDecodeUnsigned(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeLongUnsigned(t *testing.T) {
@@ -1052,7 +1045,6 @@ func TestDecodeLongUnsigned(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeLong64(t *testing.T) {
@@ -1118,7 +1110,6 @@ func TestDecodeLong64Unsigned(t *testing.T) {
 			t.Errorf("combination %v failed. Reminder get: %v, should:[1, 2, 3]", idx, table.src)
 		}
 	}
-
 }
 
 func TestDecodeFloat32(t *testing.T) {

@@ -86,7 +86,6 @@ func TestNewGetRequestWithList(t *testing.T) {
 func TestDecode_GetRequestNormal(t *testing.T) {
 	src := []byte{192, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	a, err := DecodeGetRequestNormal(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetRequestNormal. err:%v", err)
 	}
@@ -158,7 +157,6 @@ func TestDecode_GetRequestNormal(t *testing.T) {
 func TestDecode_GetRequestNext(t *testing.T) {
 	src := []byte{192, 2, 81, 0, 0, 0, 2}
 	a, err := DecodeGetRequestNext(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetRequestNext. err:%v", err)
 	}
@@ -174,13 +172,11 @@ func TestDecode_GetRequestNext(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_GetRequestWithList(t *testing.T) {
 	src := []byte{192, 3, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	a, err := DecodeGetRequestWithList(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetRequestWithList. err:%v", err)
 	}
@@ -239,7 +235,6 @@ func TestDecode_GetRequestWithList(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_GetRequest(t *testing.T) {

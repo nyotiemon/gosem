@@ -33,7 +33,6 @@ func TestNew_ActionRequestNormal(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
 	}
-
 }
 
 func TestNew_ActionRequestNextPBlock(t *testing.T) {
@@ -192,7 +191,6 @@ func TestDecode_ActionRequestNormal(t *testing.T) {
 	if a.MethodParam != nil {
 		t.Errorf("t2 Failed. MethodParam should be nil, get: %v", a.MethodParam)
 	}
-
 }
 
 func TestDecode_ActionRequestNextPBlock(t *testing.T) {
@@ -221,7 +219,6 @@ func TestDecode_ActionRequestWithList(t *testing.T) {
 	// ---------------------- with 1 MethodDescriptor
 	src := []byte{195, 3, 81, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 9, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeActionRequestWithList(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeActionRequestWithList. err:%v", err)
 	}
@@ -297,7 +294,6 @@ func TestDecode_ActionRequestWithList(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_ActionRequestWithFirstPBlock(t *testing.T) {
@@ -345,7 +341,6 @@ func TestDecode_ActionRequestWithFirstPBlock(t *testing.T) {
 func TestDecode_ActionRequestWithListAndFirstPBlock(t *testing.T) {
 	src := []byte{195, 5, 81, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeActionRequestWithListAndFirstPBlock(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeActionRequestWithListAndFirstPBlock. err:%v", err)
 	}
@@ -410,7 +405,6 @@ func TestDecode_ActionRequestWithListAndFirstPBlock(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_ActionRequestWithPBlock(t *testing.T) {

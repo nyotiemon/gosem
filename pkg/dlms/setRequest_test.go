@@ -34,7 +34,6 @@ func TestNew_SetRequestNormal(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
 	}
-
 }
 
 func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
@@ -64,7 +63,6 @@ func TestNew_SetRequestWithFirstDataBlock(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t2 Failed. get: %d, should:%v", t2, result)
 	}
-
 }
 
 func TestNew_SetRequestWithDataBlock(t *testing.T) {
@@ -175,7 +173,6 @@ func TestNew_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 func TestDecode_SetRequestNormal(t *testing.T) {
 	src := []byte{193, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 9, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestNormal(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestNormal. err:%v", err)
 	}
@@ -240,7 +237,6 @@ func TestDecode_SetRequestNormal(t *testing.T) {
 func TestDecode_SetRequestWithFirstDataBlock(t *testing.T) {
 	src := []byte{193, 2, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestWithFirstDataBlock(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestWithFirstDataBlock. err:%v", err)
 	}
@@ -309,7 +305,6 @@ func TestDecode_SetRequestWithFirstDataBlock(t *testing.T) {
 func TestDecode_SetRequestWithDataBlock(t *testing.T) {
 	src := []byte{193, 3, 81, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestWithDataBlock(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestWithDataBlock. err:%v", err)
 	}
@@ -333,13 +328,11 @@ func TestDecode_SetRequestWithDataBlock(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_SetRequestWithList(t *testing.T) {
 	src := []byte{193, 4, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 9, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestWithList(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestWithList. err:%v", err)
 	}
@@ -416,13 +409,11 @@ func TestDecode_SetRequestWithList(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	src := []byte{193, 5, 69, 1, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0, 1, 0, 0, 0, 1, 5, 1, 2, 3, 4, 5}
 	a, err := DecodeSetRequestWithListAndFirstDataBlock(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeSetRequestWithListAndFirstDataBlock. err:%v", err)
 	}
@@ -486,7 +477,6 @@ func TestDecode_SetRequestWithListAndFirstDataBlock(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_SetRequest(t *testing.T) {

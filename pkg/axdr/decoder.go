@@ -15,10 +15,63 @@ type Decoder struct {
 	tag dataTag
 }
 
-var (
-	ErrLengthLess = errors.New("not enough byte length provided")
+var ErrLengthLess = errors.New("not enough byte length provided")
 
-	lengthAfterTag = map[dataTag]bool{
+// Get dataTag equivalent of supplied uint8
+func getDataTag(in uint8) (t dataTag) {
+	mapToDataTag := map[uint8]dataTag{
+		0:   TagNull,
+		1:   TagArray,
+		2:   TagStructure,
+		3:   TagBoolean,
+		4:   TagBitString,
+		5:   TagDoubleLong,
+		6:   TagDoubleLongUnsigned,
+		7:   TagFloatingPoint,
+		9:   TagOctetString,
+		10:  TagVisibleString,
+		12:  TagUTF8String,
+		13:  TagBCD,
+		15:  TagInteger,
+		16:  TagLong,
+		17:  TagUnsigned,
+		18:  TagLongUnsigned,
+		19:  TagCompactArray,
+		20:  TagLong64,
+		21:  TagLong64Unsigned,
+		22:  TagEnum,
+		23:  TagFloat32,
+		24:  TagFloat64,
+		25:  TagDateTime,
+		26:  TagDate,
+		27:  TagTime,
+		255: TagDontCare,
+	}
+
+	t = mapToDataTag[in]
+	return
+}
+
+// Create new decode from either supplied dataTag or byte slice pointer.
+// If input is byte slice, it will remove first byte from source
+func NewDataDecoder(in interface{}) *Decoder {
+	switch src := in.(type) {
+	case dataTag:
+		return &Decoder{tag: src}
+
+	case *[]byte:
+		tag := getDataTag(uint8((*src)[0]))
+		(*src) = (*src)[1:]
+		return &Decoder{tag: tag}
+
+	default:
+		panic("Input must be either dataTag or byte slice pointer")
+	}
+}
+
+// Decode expect byte second after tag byte.
+func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
+	lengthAfterTag := map[dataTag]bool{
 		TagNull:               false,
 		TagArray:              true,
 		TagStructure:          true,
@@ -47,62 +100,7 @@ var (
 		TagDontCare:           false,
 	}
 
-	mapToDataTag = map[uint8]dataTag{
-		0:   TagNull,
-		1:   TagArray,
-		2:   TagStructure,
-		3:   TagBoolean,
-		4:   TagBitString,
-		5:   TagDoubleLong,
-		6:   TagDoubleLongUnsigned,
-		7:   TagFloatingPoint,
-		9:   TagOctetString,
-		10:  TagVisibleString,
-		12:  TagUTF8String,
-		13:  TagBCD,
-		15:  TagInteger,
-		16:  TagLong,
-		17:  TagUnsigned,
-		18:  TagLongUnsigned,
-		19:  TagCompactArray,
-		20:  TagLong64,
-		21:  TagLong64Unsigned,
-		22:  TagEnum,
-		23:  TagFloat32,
-		24:  TagFloat64,
-		25:  TagDateTime,
-		26:  TagDate,
-		27:  TagTime,
-		255: TagDontCare,
-	}
-)
-
-// Get dataTag equivalent of supplied uint8
-func getDataTag(in uint8) (t dataTag) {
-	t = mapToDataTag[in]
-	return
-}
-
-// Create new decode from either supplied dataTag or byte slice pointer.
-// If input is byte slice, it will remove first byte from source
-func NewDataDecoder(in interface{}) *Decoder {
-	switch src := in.(type) {
-	case dataTag:
-		return &Decoder{tag: src}
-
-	case *[]byte:
-		tag := getDataTag(uint8((*src)[0]))
-		(*src) = (*src)[1:]
-		return &Decoder{tag: tag}
-
-	default:
-		panic("Input must be either dataTag or byte slice pointer")
-	}
-}
-
-// Decode expect byte second after tag byte.
-func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	r.Tag = dec.tag
 	haveLength := lengthAfterTag[dec.tag]
@@ -124,7 +122,7 @@ func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
 	case TagArray:
 		output := make([]*DlmsData, lengthInt)
 		// make carbon copy of src to calc rawValue later
-		var temp = append(src[:0:0], src...)
+		temp := append([]byte(nil), src...)
 		for i := 0; i < int(lengthInt); i++ {
 			thisDecoder := NewDataDecoder(&temp)
 			thisDlmsData, thisError := thisDecoder.Decode(&temp)
@@ -141,7 +139,7 @@ func (dec *Decoder) Decode(ori *[]byte) (r DlmsData, err error) {
 		// same same as array
 		output := make([]*DlmsData, lengthInt)
 		// make carbon copy of src to calc rawValue later
-		var temp = append(src[:0:0], src...)
+		temp := append([]byte(nil), src...)
 		for i := 0; i < int(lengthInt); i++ {
 			thisDecoder := NewDataDecoder(&temp)
 			thisDlmsData, thisError := thisDecoder.Decode(&temp)

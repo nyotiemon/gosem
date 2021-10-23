@@ -90,7 +90,6 @@ func TestNewGetResponseWithList(t *testing.T) {
 func TestDecode_GetResponseNormal(t *testing.T) {
 	src := []byte{196, 1, 81, 1, 5, 0, 0, 0, 69}
 	a, err := DecodeGetResponseNormal(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetResponseNormal. err:%v", err)
 	}
@@ -113,7 +112,6 @@ func TestDecode_GetResponseNormal(t *testing.T) {
 func TestDecode_GetResponseWithDataBlock(t *testing.T) {
 	src := []byte{196, 2, 81, 1, 0, 0, 0, 1, 0, 12, 7, 210, 12, 4, 3, 10, 6, 11, 255, 0, 120, 0}
 	a, err := DecodeGetResponseWithDataBlock(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetResponseWithDataBlock. err:%v", err)
 	}
@@ -144,7 +142,6 @@ func TestDecode_GetResponseWithDataBlock(t *testing.T) {
 func TestDecode_GetResponseWithList(t *testing.T) {
 	src := []byte{196, 3, 69, 2, 0, 0, 1, 5, 0, 0, 0, 1}
 	a, err := DecodeGetResponseWithList(&src)
-
 	if err != nil {
 		t.Errorf("t1 Failed to DecodeGetResponseWithList. err:%v", err)
 	}
@@ -184,7 +181,6 @@ func TestDecode_GetResponseWithList(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t1 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_GetResponse(t *testing.T) {

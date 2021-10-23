@@ -118,7 +118,7 @@ func (sr SetRequestNormal) Encode() (out []byte, err error) {
 }
 
 func DecodeSetRequestNormal(ori *[]byte) (out SetRequestNormal, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
@@ -209,7 +209,7 @@ func (sr SetRequestWithFirstDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetRequestWithFirstDataBlock(ori *[]byte) (out SetRequestWithFirstDataBlock, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
@@ -277,7 +277,7 @@ func (sr SetRequestWithDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetRequestWithDataBlock(ori *[]byte) (out SetRequestWithDataBlock, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
@@ -350,7 +350,7 @@ func (sr SetRequestWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeSetRequestWithList(ori *[]byte) (out SetRequestWithList, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetRequest))
@@ -435,7 +435,7 @@ func (sr SetRequestWithListAndFirstDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeSetRequestWithListAndFirstDataBlock(ori *[]byte) (out SetRequestWithListAndFirstDataBlock, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagSetRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagSetRequest))

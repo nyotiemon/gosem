@@ -72,7 +72,7 @@ func (s SelectiveAccessDescriptor) Encode() (out []byte, err error) {
 }
 
 func DecodeSelectiveAccessDescriptor(ori *[]byte) (out SelectiveAccessDescriptor, err error) {
-	var src = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] == AccessSelectorRange.Value() {
 		out.AccessSelector = AccessSelectorRange
