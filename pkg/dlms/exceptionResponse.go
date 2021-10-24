@@ -4,12 +4,39 @@ import (
 	"bytes"
 )
 
-type ExceptionResponse struct {
-	StateError   uint8
-	ServiceError uint8
+type stateErrorTag uint8
+
+const (
+	TagServiceNotAllowed stateErrorTag = 0x1
+	TagServiceUnknown    stateErrorTag = 0x2
+)
+
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s stateErrorTag) Value() uint8 {
+	return uint8(s)
 }
 
-func CreateExceptionResponse(stateError uint8, serviceError uint8) *ExceptionResponse {
+type serviceErrorTag uint8
+
+const (
+	TagOperationNotPossible serviceErrorTag = 0x1
+	TagServiceNotSupported  serviceErrorTag = 0x2
+	TagOtherReason          serviceErrorTag = 0x3
+)
+
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s serviceErrorTag) Value() uint8 {
+	return uint8(s)
+}
+
+type ExceptionResponse struct {
+	StateError   stateErrorTag
+	ServiceError serviceErrorTag
+}
+
+func CreateExceptionResponse(stateError stateErrorTag, serviceError serviceErrorTag) *ExceptionResponse {
 	return &ExceptionResponse{
 		StateError:   stateError,
 		ServiceError: serviceError,
@@ -18,9 +45,9 @@ func CreateExceptionResponse(stateError uint8, serviceError uint8) *ExceptionRes
 
 func (er ExceptionResponse) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
-	buf.WriteByte(byte(TagExceptionResponse))
-	buf.WriteByte(byte(er.StateError))
-	buf.WriteByte(byte(er.ServiceError))
+	buf.WriteByte(TagExceptionResponse.Value())
+	buf.WriteByte(er.StateError.Value())
+	buf.WriteByte(er.ServiceError.Value())
 
 	out = buf.Bytes()
 	return
@@ -39,8 +66,8 @@ func DecodeExceptionResponse(ori *[]byte) (out ExceptionResponse, err error) {
 		return
 	}
 
-	out.StateError = src[1]
-	out.ServiceError = src[2]
+	out.StateError = stateErrorTag(src[1])
+	out.ServiceError = serviceErrorTag(src[2])
 	src = src[3:]
 
 	(*ori) = (*ori)[len((*ori))-len(src):]
