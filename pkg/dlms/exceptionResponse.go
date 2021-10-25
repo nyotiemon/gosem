@@ -4,39 +4,39 @@ import (
 	"bytes"
 )
 
-type stateErrorTag uint8
+type exceptionStateErrorTag uint8
 
 const (
-	TagServiceNotAllowed stateErrorTag = 0x1
-	TagServiceUnknown    stateErrorTag = 0x2
+	TagExcServiceNotAllowed exceptionStateErrorTag = 1
+	TagExcServiceUnknown    exceptionStateErrorTag = 2
 )
 
 // Value will return primitive value of the target.
 // This is used for comparing with non custom typed object
-func (s stateErrorTag) Value() uint8 {
+func (s exceptionStateErrorTag) Value() uint8 {
 	return uint8(s)
 }
 
-type serviceErrorTag uint8
+type exceptionServiceErrorTag uint8
 
 const (
-	TagOperationNotPossible serviceErrorTag = 0x1
-	TagServiceNotSupported  serviceErrorTag = 0x2
-	TagOtherReason          serviceErrorTag = 0x3
+	TagExcOperationNotPossible exceptionServiceErrorTag = 1
+	TagExcServiceNotSupported  exceptionServiceErrorTag = 2
+	TagExcOtherReason          exceptionServiceErrorTag = 3
 )
 
 // Value will return primitive value of the target.
 // This is used for comparing with non custom typed object
-func (s serviceErrorTag) Value() uint8 {
+func (s exceptionServiceErrorTag) Value() uint8 {
 	return uint8(s)
 }
 
 type ExceptionResponse struct {
-	StateError   stateErrorTag
-	ServiceError serviceErrorTag
+	StateError   exceptionStateErrorTag
+	ServiceError exceptionServiceErrorTag
 }
 
-func CreateExceptionResponse(stateError stateErrorTag, serviceError serviceErrorTag) *ExceptionResponse {
+func CreateExceptionResponse(stateError exceptionStateErrorTag, serviceError exceptionServiceErrorTag) *ExceptionResponse {
 	return &ExceptionResponse{
 		StateError:   stateError,
 		ServiceError: serviceError,
@@ -66,8 +66,8 @@ func DecodeExceptionResponse(ori *[]byte) (out ExceptionResponse, err error) {
 		return
 	}
 
-	out.StateError = stateErrorTag(src[1])
-	out.ServiceError = serviceErrorTag(src[2])
+	out.StateError = exceptionStateErrorTag(src[1])
+	out.ServiceError = exceptionServiceErrorTag(src[2])
 	src = src[3:]
 
 	(*ori) = (*ori)[len((*ori))-len(src):]

@@ -6,7 +6,7 @@ import (
 )
 
 func TestNew_ExceptionResponse(t *testing.T) {
-	var a ExceptionResponse = *CreateExceptionResponse(TagServiceNotAllowed, TagServiceNotSupported)
+	var a ExceptionResponse = *CreateExceptionResponse(TagExcServiceNotAllowed, TagExcServiceNotSupported)
 	t1, e := a.Encode()
 	if e != nil {
 		t.Errorf("t1 Encode Failed. err: %v", e)
@@ -25,7 +25,7 @@ func TestDecode_ExceptionResponse(t *testing.T) {
 		t.Errorf("t1 failed on DecodeExceptionResponse. Err: %v", err)
 	}
 
-	var b ExceptionResponse = *CreateExceptionResponse(TagServiceUnknown, TagOtherReason)
+	var b ExceptionResponse = *CreateExceptionResponse(TagExcServiceUnknown, TagExcOtherReason)
 
 	if a.StateError != b.StateError {
 		t.Errorf("t1 err StateError. get: %v, should: %v", a.StateError, b.StateError)
