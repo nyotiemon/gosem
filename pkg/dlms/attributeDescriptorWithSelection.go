@@ -37,7 +37,7 @@ func (ad AttributeDescriptorWithSelection) Encode() (out []byte, err error) {
 			err = e
 			return
 		}
-		output = append(output, val[:]...)
+		output = append(output, val...)
 	}
 
 	out = output
@@ -45,7 +45,7 @@ func (ad AttributeDescriptorWithSelection) Encode() (out []byte, err error) {
 }
 
 func DecodeAttributeDescriptorWithSelection(ori *[]byte) (out AttributeDescriptorWithSelection, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if len(src) < 11 {
 		err = fmt.Errorf("byte slice length must be at least 11 bytes")
@@ -67,7 +67,7 @@ func DecodeAttributeDescriptorWithSelection(ori *[]byte) (out AttributeDescripto
 	src = src[2:]
 
 	if haveAccDesc == 0x0 {
-		var nilAccDesc *SelectiveAccessDescriptor = nil
+		var nilAccDesc *SelectiveAccessDescriptor
 		out.AccessDescriptor = nilAccDesc
 	} else {
 		accDesc, errAcc := DecodeSelectiveAccessDescriptor(&src)

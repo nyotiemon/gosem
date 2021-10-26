@@ -2,17 +2,17 @@ package dlms
 
 import (
 	"bytes"
-	"testing"
 	"gosem/pkg/axdr"
+	"testing"
 )
 
 func TestAccessResult(t *testing.T) {
 	t1 := TagAccSuccess
-	if "success" != t1.String() {
+	if t1.String() != "success" {
 		t.Errorf("t1 should return string with value 'success'")
 	}
 	t2 := TagAccObjectUnavailable
-	if "object-unavailable" != t2.String() {
+	if t2.String() != "object-unavailable" {
 		t.Errorf("t1 should return string with value 'success'")
 	}
 }
@@ -229,7 +229,7 @@ func TestActResponse(t *testing.T) {
 	}
 
 	// with nil GetDataResult
-	var nilRet *GetDataResult = nil
+	var nilRet *GetDataResult
 	var b ActResponse = *CreateActResponse(TagActReadWriteDenied, nilRet)
 	t2, e := b.Encode()
 	if e != nil {
@@ -319,7 +319,6 @@ func TestDecode_DataBlockG(t *testing.T) {
 	if eTag != nil {
 		t.Errorf("t2 Failed. Result should be TagAccSuccess (%v)", eTag)
 	}
-
 }
 
 func TestDecode_DataBlockSA(t *testing.T) {
@@ -339,7 +338,6 @@ func TestDecode_DataBlockSA(t *testing.T) {
 	if res != 0 {
 		t.Errorf("t1 Failed. Result is not correct (%v)", a.Raw)
 	}
-
 }
 
 func TestDecode_ActResponse(t *testing.T) {

@@ -2,9 +2,9 @@ package dlms
 
 import (
 	"bytes"
+	"gosem/pkg/axdr"
 	"reflect"
 	"testing"
-	"gosem/pkg/axdr"
 )
 
 func TestNew_ActionResponseNormal(t *testing.T) {
@@ -130,9 +130,9 @@ func TestDecode_ActionResponseWithPBlock(t *testing.T) {
 	if a.PBlock.BlockNumber != b.PBlock.BlockNumber {
 		t.Errorf("t1 Failed. PBlock.BlockNumber get: %v, should:%v", a.PBlock.BlockNumber, b.PBlock.BlockNumber)
 	}
-	res := bytes.Compare(a.PBlock.Raw, a.PBlock.Raw)
+	res := bytes.Compare(a.PBlock.Raw, b.PBlock.Raw)
 	if res != 0 {
-		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, a.PBlock.Raw)
+		t.Errorf("t1 Failed. PBlock.Raw get: %v, should:%v", a.PBlock.Raw, b.PBlock.Raw)
 	}
 
 	if len(src) > 0 {
@@ -205,7 +205,6 @@ func TestDecode_ActionResponseWithList(t *testing.T) {
 	if len(src) > 0 {
 		t.Errorf("t2 Failed. src should be empty. get: %v", src)
 	}
-
 }
 
 func TestDecode_ActionResponseNextPBlock(t *testing.T) {

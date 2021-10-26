@@ -6,7 +6,7 @@ import (
 )
 
 func TestAttributeDescriptorWithSelection(t *testing.T) {
-	var nilSAD *SelectiveAccessDescriptor = nil
+	var nilSAD *SelectiveAccessDescriptor
 	var a AttributeDescriptorWithSelection = *CreateAttributeDescriptorWithSelection(1, "1.0.0.3.0.255", 2, nilSAD)
 	t1, e := a.Encode()
 	if e != nil {

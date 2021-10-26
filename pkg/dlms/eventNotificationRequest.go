@@ -2,8 +2,8 @@ package dlms
 
 import (
 	"bytes"
-	"time"
 	"gosem/pkg/axdr"
+	"time"
 )
 
 type EventNotificationRequest struct {
@@ -57,7 +57,7 @@ func (ev EventNotificationRequest) Encode() (out []byte, err error) {
 }
 
 func DecodeEventNotificationRequest(ori *[]byte) (out EventNotificationRequest, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagEventNotificationRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagEventNotificationRequest))
@@ -68,7 +68,7 @@ func DecodeEventNotificationRequest(ori *[]byte) (out EventNotificationRequest, 
 	src = src[2:]
 
 	if haveTime == 0x0 {
-		var nilTime *time.Time = nil
+		var nilTime *time.Time
 		out.Time = nilTime
 	} else {
 		src = src[1:] // length of time

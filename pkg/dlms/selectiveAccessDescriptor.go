@@ -2,8 +2,8 @@ package dlms
 
 import (
 	"bytes"
-	"time"
 	"gosem/pkg/axdr"
+	"time"
 )
 
 type accesSelector uint8
@@ -72,7 +72,7 @@ func (s SelectiveAccessDescriptor) Encode() (out []byte, err error) {
 }
 
 func DecodeSelectiveAccessDescriptor(ori *[]byte) (out SelectiveAccessDescriptor, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] == AccessSelectorRange.Value() {
 		out.AccessSelector = AccessSelectorRange

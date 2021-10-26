@@ -31,7 +31,7 @@ func (ad AttributeDescriptor) Encode() (out []byte, err error) {
 }
 
 func DecodeAttributeDescriptor(ori *[]byte) (out AttributeDescriptor, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if len(src) < 9 {
 		err = fmt.Errorf("byte slice length must be at least 9 bytes")

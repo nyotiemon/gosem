@@ -6,7 +6,6 @@ import (
 )
 
 func TestDecode_cosem(t *testing.T) {
-
 	// ------------------  GetRequestNormal
 	srcGetRequestNormal := []byte{192, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
 	res, e := DecodeCosem(&srcGetRequestNormal)
@@ -291,6 +290,17 @@ func TestDecode_cosem(t *testing.T) {
 	_, assertTrue = res.(ActionResponseNextPBlock)
 	if !assertTrue {
 		t.Errorf("Decode supposed to return ActionResponseNextPBlock instead of %v", reflect.TypeOf(res).Name())
+	}
+
+	// ------------------  ExceptionResponse
+	srcExceptionResponse := []byte{216, 1, 2}
+	res, e = DecodeCosem(&srcExceptionResponse)
+	if e != nil {
+		t.Errorf("Decode for ExceptionResponse Failed. err:%v", e)
+	}
+	_, assertTrue = res.(ExceptionResponse)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ExceptionResponse instead of %v", reflect.TypeOf(res).Name())
 	}
 
 	// ------------------  Error test

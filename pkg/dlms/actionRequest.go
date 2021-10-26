@@ -41,7 +41,7 @@ func (gr *ActionRequest) New(tag actionRequestTag) (out CosemPDU, err error) {
 	case TagActionRequestWithPBlock:
 		out = &ActionRequestWithPBlock{}
 	default:
-		err = fmt.Errorf("tag not recognized!")
+		err = fmt.Errorf("tag not recognized")
 	}
 	return
 }
@@ -115,7 +115,7 @@ func (ar ActionRequestNormal) Encode() (out []byte, err error) {
 }
 
 func DecodeActionRequestNormal(ori *[]byte) (out ActionRequestNormal, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagActionRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
@@ -135,7 +135,7 @@ func DecodeActionRequestNormal(ori *[]byte) (out ActionRequestNormal, err error)
 	haveMethodParam := src[0]
 	src = src[1:]
 	if haveMethodParam == 0 {
-		var nilData *axdr.DlmsData = nil
+		var nilData *axdr.DlmsData
 		out.MethodParam = nilData
 	} else {
 		decoder := axdr.NewDataDecoder(&src)
@@ -177,7 +177,7 @@ func (ar ActionRequestNextPBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeActionRequestNextPBlock(ori *[]byte) (out ActionRequestNextPBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagActionRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
@@ -255,7 +255,7 @@ func (ar ActionRequestWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeActionRequestWithList(ori *[]byte) (out ActionRequestWithList, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagActionRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
@@ -332,7 +332,7 @@ func (ar ActionRequestWithFirstPBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeActionRequestWithFirstPBlock(ori *[]byte) (out ActionRequestWithFirstPBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagActionRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
@@ -401,7 +401,7 @@ func (ar ActionRequestWithListAndFirstPBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeActionRequestWithListAndFirstPBlock(ori *[]byte) (out ActionRequestWithListAndFirstPBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagActionRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagActionRequest))
@@ -460,7 +460,7 @@ func (ar ActionRequestWithPBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeActionRequestWithPBlock(ori *[]byte) (out ActionRequestWithPBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagActionRequest.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagActionRequest))

@@ -33,7 +33,7 @@ func CreateGetDataResult(value interface{}) *GetDataResult {
 
 func (dt GetDataResult) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
-	if dt.IsData == true {
+	if dt.IsData {
 		buf.WriteByte(0x1)
 		value := dt.Value.(axdr.DlmsData)
 		enc, e := value.Encode()
@@ -54,7 +54,7 @@ func (dt GetDataResult) Encode() (out []byte, err error) {
 
 func (dt GetDataResult) ValueAsData() (out axdr.DlmsData, err error) {
 	if !dt.IsData {
-		err = fmt.Errorf("value is DataAccessResult!")
+		err = fmt.Errorf("value is DataAccessResult")
 		return
 	}
 	out = dt.Value.(axdr.DlmsData)
@@ -64,7 +64,7 @@ func (dt GetDataResult) ValueAsData() (out axdr.DlmsData, err error) {
 
 func (dt GetDataResult) ValueAsAccess() (out AccessResultTag, err error) {
 	if dt.IsData {
-		err = fmt.Errorf("value is axdr.DlmsData!")
+		err = fmt.Errorf("value is axdr.DlmsData")
 		return
 	}
 	out = dt.Value.(AccessResultTag)
@@ -73,7 +73,7 @@ func (dt GetDataResult) ValueAsAccess() (out AccessResultTag, err error) {
 }
 
 func DecodeGetDataResult(ori *[]byte) (out GetDataResult, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] == 0x0 {
 		out.IsData = false
@@ -158,7 +158,7 @@ func (dt DataBlockG) Encode() (out []byte, err error) {
 	}
 	buf.Write(blk)
 
-	if dt.IsResult == true {
+	if dt.IsResult {
 		buf.WriteByte(0x1)
 		value := dt.Result.(AccessResultTag)
 		buf.WriteByte(byte(value))
@@ -176,7 +176,7 @@ func (dt DataBlockG) Encode() (out []byte, err error) {
 
 func (dt DataBlockG) ResultAsBytes() (out []byte, err error) {
 	if dt.IsResult {
-		err = fmt.Errorf("value is DataAccessResult!")
+		err = fmt.Errorf("value is DataAccessResult")
 	} else {
 		out = dt.Result.([]byte)
 	}
@@ -186,7 +186,7 @@ func (dt DataBlockG) ResultAsBytes() (out []byte, err error) {
 
 func (dt DataBlockG) ResultAsAccess() (out AccessResultTag, err error) {
 	if !dt.IsResult {
-		err = fmt.Errorf("value is byte slice!")
+		err = fmt.Errorf("value is byte slice")
 	} else {
 		out = dt.Result.(AccessResultTag)
 	}
@@ -195,7 +195,7 @@ func (dt DataBlockG) ResultAsAccess() (out AccessResultTag, err error) {
 }
 
 func DecodeDataBlockG(ori *[]byte) (out DataBlockG, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] == 0x0 {
 		out.LastBlock = false
@@ -276,7 +276,7 @@ func (dt DataBlockSA) Encode() (out []byte, err error) {
 }
 
 func DecodeDataBlockSA(ori *[]byte) (out DataBlockSA, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] == 0x0 {
 		out.LastBlock = false
@@ -303,7 +303,6 @@ type ActResponse struct {
 }
 
 func CreateActResponse(result ActionResultTag, returnParam *GetDataResult) *ActResponse {
-
 	return &ActResponse{Result: result, ReturnParam: returnParam}
 }
 
@@ -329,7 +328,7 @@ func (dt ActResponse) Encode() (out []byte, err error) {
 }
 
 func DecodeActResponse(ori *[]byte) (out ActResponse, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	out.Result, err = GetActionTag(src[0])
 	if err != nil {
@@ -340,7 +339,7 @@ func DecodeActResponse(ori *[]byte) (out ActResponse, err error) {
 	src = src[2:]
 
 	if haveReturnParam == 0x0 {
-		var gdrNil *GetDataResult = nil
+		var gdrNil *GetDataResult
 		out.ReturnParam = gdrNil
 	} else {
 		gdr, e := DecodeGetDataResult(&src)

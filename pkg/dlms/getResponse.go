@@ -31,7 +31,7 @@ func (gr *GetResponse) New(tag getResponseTag) (out CosemPDU, err error) {
 	case TagGetResponseWithList:
 		out = &GetResponseWithList{}
 	default:
-		err = fmt.Errorf("Tag not recognized!")
+		err = fmt.Errorf("tag not recognized")
 	}
 	return
 }
@@ -86,7 +86,7 @@ func (gr GetResponseNormal) Encode() (out []byte, err error) {
 }
 
 func DecodeGetResponseNormal(ori *[]byte) (out GetResponseNormal, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagGetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagGetResponse))
@@ -135,7 +135,7 @@ func (gr GetResponseWithDataBlock) Encode() (out []byte, err error) {
 }
 
 func DecodeGetResponseWithDataBlock(ori *[]byte) (out GetResponseWithDataBlock, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagGetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagGetResponse))
@@ -192,7 +192,7 @@ func (gr GetResponseWithList) Encode() (out []byte, err error) {
 }
 
 func DecodeGetResponseWithList(ori *[]byte) (out GetResponseWithList, err error) {
-	var src []byte = append((*ori)[:0:0], (*ori)...)
+	src := append([]byte(nil), (*ori)...)
 
 	if src[0] != TagGetResponse.Value() {
 		err = ErrWrongTag(0, src[0], byte(TagGetResponse))
