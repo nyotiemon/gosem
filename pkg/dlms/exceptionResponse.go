@@ -4,12 +4,39 @@ import (
 	"bytes"
 )
 
-type ExceptionResponse struct {
-	StateError   uint8
-	ServiceError uint8
+type exceptionStateErrorTag uint8
+
+const (
+	TagExcServiceNotAllowed exceptionStateErrorTag = 1
+	TagExcServiceUnknown    exceptionStateErrorTag = 2
+)
+
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s exceptionStateErrorTag) Value() uint8 {
+	return uint8(s)
 }
 
-func CreateExceptionResponse(stateError uint8, serviceError uint8) *ExceptionResponse {
+type exceptionServiceErrorTag uint8
+
+const (
+	TagExcOperationNotPossible exceptionServiceErrorTag = 1
+	TagExcServiceNotSupported  exceptionServiceErrorTag = 2
+	TagExcOtherReason          exceptionServiceErrorTag = 3
+)
+
+// Value will return primitive value of the target.
+// This is used for comparing with non custom typed object
+func (s exceptionServiceErrorTag) Value() uint8 {
+	return uint8(s)
+}
+
+type ExceptionResponse struct {
+	StateError   exceptionStateErrorTag
+	ServiceError exceptionServiceErrorTag
+}
+
+func CreateExceptionResponse(stateError exceptionStateErrorTag, serviceError exceptionServiceErrorTag) *ExceptionResponse {
 	return &ExceptionResponse{
 		StateError:   stateError,
 		ServiceError: serviceError,
@@ -18,9 +45,9 @@ func CreateExceptionResponse(stateError uint8, serviceError uint8) *ExceptionRes
 
 func (er ExceptionResponse) Encode() (out []byte, err error) {
 	var buf bytes.Buffer
-	buf.WriteByte(byte(TagExceptionResponse))
-	buf.WriteByte(byte(er.StateError))
-	buf.WriteByte(byte(er.ServiceError))
+	buf.WriteByte(TagExceptionResponse.Value())
+	buf.WriteByte(er.StateError.Value())
+	buf.WriteByte(er.ServiceError.Value())
 
 	out = buf.Bytes()
 	return
@@ -39,8 +66,8 @@ func DecodeExceptionResponse(ori *[]byte) (out ExceptionResponse, err error) {
 		return
 	}
 
-	out.StateError = src[1]
-	out.ServiceError = src[2]
+	out.StateError = exceptionStateErrorTag(src[1])
+	out.ServiceError = exceptionServiceErrorTag(src[2])
 	src = src[3:]
 
 	(*ori) = (*ori)[len((*ori))-len(src):]

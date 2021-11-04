@@ -6,13 +6,24 @@ import (
 )
 
 func TestDecode_cosem(t *testing.T) {
+	// ------------------  ConfirmedServiceError
+	srcConfirmedServiceError := []byte{14, 1, 6, 1}
+	res, e := DecodeCosem(&srcConfirmedServiceError)
+	if e != nil {
+		t.Errorf("Decode for ConfirmedServiceError Failed. err:%v", e)
+	}
+	_, assertTrue := res.(ConfirmedServiceError)
+	if !assertTrue {
+		t.Errorf("Decode supposed to return ConfirmedServiceError instead of %v", reflect.TypeOf(res).Name())
+	}
+
 	// ------------------  GetRequestNormal
 	srcGetRequestNormal := []byte{192, 1, 81, 0, 1, 1, 0, 0, 3, 0, 255, 2, 1, 2, 2, 4, 6, 0, 0, 0, 0, 6, 0, 0, 0, 5, 18, 0, 0, 18, 0, 0}
-	res, e := DecodeCosem(&srcGetRequestNormal)
+	res, e = DecodeCosem(&srcGetRequestNormal)
 	if e != nil {
 		t.Errorf("Decode for GetRequestNormal Failed. err:%v", e)
 	}
-	_, assertTrue := res.(GetRequestNormal)
+	_, assertTrue = res.(GetRequestNormal)
 	if !assertTrue {
 		t.Errorf("Decode supposed to return GetRequestNormal instead of %v", reflect.TypeOf(res).Name())
 	}

@@ -13,7 +13,7 @@ func TestAccessResult(t *testing.T) {
 	}
 	t2 := TagAccObjectUnavailable
 	if t2.String() != "object-unavailable" {
-		t.Errorf("t1 should return string with value 'success'")
+		t.Errorf("t1 should return string with value 'object-unavailable'")
 	}
 }
 

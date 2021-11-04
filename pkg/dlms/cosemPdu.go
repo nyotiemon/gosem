@@ -10,10 +10,11 @@ const (
 	TagReadRequest              cosemTag = 5
 	TagWriteRequest             cosemTag = 6
 	TagInitiateResponse         cosemTag = 8
-	TagReadResponse             cosemTag = 1
-	TagWriteResponse            cosemTag = 4
-	TagUnconfirmedWriteRequest  cosemTag = 2
-	TagInformationReportRequest cosemTag = 2
+	TagReadResponse             cosemTag = 12
+	TagWriteResponse            cosemTag = 13
+	TagConfirmedServiceError    cosemTag = 14
+	TagUnconfirmedWriteRequest  cosemTag = 22
+	TagInformationReportRequest cosemTag = 24
 	// --- APDUs used for data communication services
 	TagGetRequest               cosemTag = 192
 	TagSetRequest               cosemTag = 193
@@ -58,6 +59,7 @@ func (s cosemTag) Value() uint8 {
 func (s cosemTag) isExist(bt byte) bool {
 	switch bt {
 	case
+		TagConfirmedServiceError.Value(),
 		TagGetRequest.Value(),
 		TagSetRequest.Value(),
 		TagEventNotificationRequest.Value(),
@@ -90,6 +92,8 @@ func DecodeCosem(src *[]byte) (out CosemPDU, err error) {
 	}
 
 	switch (*src)[0] {
+	case TagConfirmedServiceError.Value():
+		out, err = DecodeConfirmedServiceError(src)
 	case TagGetRequest.Value():
 		var decoder GetRequest
 		out, err = decoder.Decode(src)
